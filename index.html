@@ -13,15 +13,21 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* 增加發光效果讓按鈕與重點更吸睛 */
         .glow-effect:hover {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+        }
+        /* 玻璃擬態 (Glassmorphism) 效果 */
+        .glass-panel {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 antialiased leading-relaxed">
+<body class="bg-gray-900 text-gray-100 antialiased leading-relaxed overflow-x-hidden">
 
-    <header class="fixed w-full bg-gray-900/95 backdrop-blur-md z-50 border-b border-gray-800 transition-all duration-300">
+    <header class="fixed w-full bg-gray-900/80 backdrop-blur-md z-50 border-b border-gray-800 transition-all duration-300">
         <div class="container mx-auto px-6 py-3 flex justify-between items-center">
             <a href="#hero" class="flex items-center gap-2 transform hover:scale-105 transition">
                 <img src="202604_AI學院growthx岳logo.png" alt="GrowthX 微企AI學院" class="h-10 md:h-12 object-contain">
@@ -35,75 +41,74 @@
                 <a href="#instructor" class="text-gray-300 hover:text-blue-400 transition">講師介紹</a>
             </nav>
             
-            <a href="#course" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-full hover:from-blue-500 hover:to-indigo-500 transition shadow-lg glow-effect hidden md:block">
+            <a href="#course" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-full hover:from-blue-500 hover:to-indigo-500 transition shadow-lg glow-effect hidden md:block">
                 馬上報名
             </a>
-            
-            <button class="md:hidden text-gray-300 hover:text-white focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
         </div>
     </header>
 
-    <section id="hero" class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex items-center justify-center text-center px-6 min-h-[90vh]">
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-15"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/60 via-gray-900/80 to-gray-900"></div>
+    <section id="hero" class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex items-center justify-center text-center px-6 min-h-[95vh] bg-[url('https://images.unsplash.com/photo-1620712948343-008423671cd2?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
         
-        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+        <div class="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/70 to-gray-900"></div>
+        
+        <div class="relative z-10 max-w-5xl mx-auto flex flex-col items-center">
+            <img src="202604_AI學院growthx岳logo.png" alt="GrowthX 微企AI學院" class="h-40 md:h-56 mx-auto mb-8 drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] animate-pulse">
             
-            <img src="202604_AI學院growthx岳logo.png" alt="GrowthX 微企AI學院" class="h-40 md:h-56 mx-auto mb-8 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] animate-pulse">
-            
-            <p class="text-blue-400 font-bold tracking-[0.2em] mb-4 text-sm md:text-base"> GrowthX 微企 AI 學院 </p>
-            <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-                <span class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 gradient-text">創業者的時間贖回計劃</span>
+            <p class="text-blue-400 font-bold tracking-[0.2em] mb-4 text-sm md:text-base drop-shadow-md">微企 AI 學院 - 創客永續賦能計畫</p>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight drop-shadow-lg">
+                <span class="bg-gradient-to-r from-blue-300 via-indigo-300 to-purple-400 gradient-text">創業者的時間贖回計劃</span>
             </h1>
-            <p class="text-lg md:text-2xl text-gray-300 mb-10 font-light max-w-2xl mx-auto leading-relaxed">
+            <p class="text-lg md:text-2xl text-gray-200 mb-12 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
                 能否讓生意多產倍增的同時，<br class="md:hidden">我們一樣生活有時間、生命有品質？
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-5 w-full sm:w-auto">
-                <a href="#course" class="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white text-lg font-bold rounded-full shadow-lg hover:bg-blue-500 transition glow-effect">探索 AI 實戰課程</a>
-                <a href="#pain-points" class="w-full sm:w-auto px-10 py-4 bg-gray-800 text-white text-lg font-bold rounded-full border border-gray-600 hover:bg-gray-700 transition">了解初衷</a>
+                <a href="#course" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-lg font-bold rounded-full shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)] transition transform hover:-translate-y-1">探索 AI 實戰課程</a>
+                <a href="#pain-points" class="w-full sm:w-auto px-10 py-4 glass-panel text-white text-lg font-bold rounded-full hover:bg-white/10 transition">了解初衷</a>
             </div>
         </div>
     </section>
 
-    <section id="pain-points" class="py-24 bg-gray-800 border-t border-gray-700">
-        <div class="container mx-auto px-6 max-w-5xl">
+    <section id="pain-points" class="py-24 relative bg-[url('https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed border-t border-gray-800">
+        
+        <div class="absolute inset-0 bg-gray-900/90"></div> <div class="container mx-auto px-6 max-w-6xl relative z-10">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">你是否陷入了「創業忙碌漩渦」？</h2>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">你是否陷入了「創業忙碌漩渦」？</h2>
                 <p class="text-gray-400 text-lg">這不只是我的體悟，也是身旁創業圈朋友的共同體感。</p>
             </div>
             
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6 text-gray-300 text-lg">
-                    <p>帶著夢想啟動創業，卻發現<strong class="text-white">不是只學技能還要會經營管理</strong>。服務客人、做產銷人發財、跑業務投廣告... 越來越忙碌，停下來公司可能會倒。</p>
-                    <p>有了人才要負擔薪水勞健保，請了人變多、空間要變大，成本越高卻沒有更輕鬆。最後老闆還是自己來，難複製人才和交辦任務，日復一日年復一年。</p>
-                    <blockquote class="border-l-4 border-blue-500 pl-6 py-2 my-6 italic text-gray-100 font-medium bg-gray-900/50 rounded-r-lg">
-                        「孩子大了，父母走了、伴侶老了；時間一去不復返。<br>老了思考：什麼才是最重要的？」
-                    </blockquote>
+                    <div class="glass-panel p-8 rounded-2xl">
+                        <p class="mb-4">帶著夢想啟動創業，卻發現<strong class="text-blue-300">不是只學技能還要會經營管理</strong>。服務客人、做產銷人發財、跑業務投廣告... 越來越忙碌，停下來公司可能會倒。</p>
+                        <p>有了人才要負擔薪水勞健保，請了人變多、空間要變大，成本越高卻沒有更輕鬆。最後老闆還是自己來，難複製人才和交辦任務，日復一日年復一年。</p>
+                        <blockquote class="border-l-4 border-blue-500 pl-6 py-4 mt-6 italic text-gray-100 font-medium bg-gray-800/50 rounded-r-lg">
+                            「孩子大了，父母走了、伴侶老了；時間一去不復返。<br>老了思考：什麼才是最重要的？」
+                        </blockquote>
+                    </div>
                 </div>
-                <div class="bg-gray-900 p-10 rounded-3xl border border-gray-700 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+                
+                <div class="glass-panel p-10 rounded-3xl shadow-2xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 border border-blue-500/20">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-blue-600/30 rounded-full mix-blend-screen filter blur-3xl"></div>
+                    <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple-600/30 rounded-full mix-blend-screen filter blur-3xl"></div>
                     
-                    <h3 class="text-2xl font-bold text-blue-400 mb-6 relative z-10 flex items-center gap-2">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path></svg>
+                    <h3 class="text-2xl font-bold text-blue-400 mb-6 relative z-10 flex items-center gap-3">
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
                         我們的理念初衷
                     </h3>
-                    <p class="mb-4 text-white font-medium relative z-10">聖經說：我來了，是要叫羊得生命，並且得的更豐盛！</p>
+                    <p class="mb-4 text-gray-200 font-medium relative z-10">聖經說：我來了，是要叫羊得生命，並且得的更豐盛！</p>
                     <p class="text-xl font-bold text-white mb-8 relative z-10">我感動：<span class="text-blue-400">AI 用了，可以叫人得時間，並且生命更和諧！</span></p>
-                    <ul class="space-y-5 relative z-10">
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1 text-xl">✔</span> 
-                            <div><strong class="text-white block">省下更多 $$</strong> <span class="text-sm text-gray-400">理財配置，固定開銷減壓</span></div>
+                    <ul class="space-y-6 relative z-10">
+                        <li class="flex items-start bg-gray-800/40 p-4 rounded-xl border border-gray-700/50">
+                            <span class="text-green-400 mr-4 mt-1 text-2xl">✔</span> 
+                            <div><strong class="text-white block text-lg">省下更多 $$</strong> <span class="text-sm text-gray-400">理財配置，固定開銷減壓</span></div>
                         </li>
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1 text-xl">✔</span> 
-                            <div><strong class="text-white block">釋放更多時間</strong> <span class="text-sm text-gray-400">思考戰略，做好決策與服務</span></div>
+                        <li class="flex items-start bg-gray-800/40 p-4 rounded-xl border border-gray-700/50">
+                            <span class="text-green-400 mr-4 mt-1 text-2xl">✔</span> 
+                            <div><strong class="text-white block text-lg">釋放更多時間</strong> <span class="text-sm text-gray-400">思考戰略，做好決策與服務</span></div>
                         </li>
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1 text-xl">✔</span> 
-                            <div><strong class="text-white block">生意自在運行</strong> <span class="text-sm text-gray-400">享受人生，掌權生命光陰</span></div>
+                        <li class="flex items-start bg-gray-800/40 p-4 rounded-xl border border-gray-700/50">
+                            <span class="text-green-400 mr-4 mt-1 text-2xl">✔</span> 
+                            <div><strong class="text-white block text-lg">生意自在運行</strong> <span class="text-sm text-gray-400">享受人生，掌權生命光陰</span></div>
                         </li>
                     </ul>
                 </div>
@@ -111,51 +116,49 @@
         </div>
     </section>
 
-    <section id="audience" class="py-24 bg-gray-900 border-b border-gray-800 relative">
+    <section id="audience" class="py-24 bg-gray-900 border-b border-gray-800">
         <div class="container mx-auto px-6 max-w-6xl text-center">
             <h2 class="text-3xl md:text-4xl font-bold mb-16 text-white">適合誰來參與這場時間贖回？</h2>
             
             <div class="grid md:grid-cols-3 gap-8 text-left">
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 hover:border-blue-500/50 transition-colors">
+                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 hover:-translate-y-2 transition-transform duration-300">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-blue-900 text-blue-400 p-2 rounded-lg">🎯</span> 目標微型創業家
+                        <span class="bg-blue-900/50 text-blue-400 p-2 rounded-lg">🎯</span> 目標微型創業家
                     </h3>
                     <ul class="space-y-4 text-gray-400 text-sm">
                         <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 創業 5 年以內，核心成員 10 人以下</li>
                         <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 的企業主、或核心高階幹部</li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 目前想要獨資不想要合夥或是天使投資</li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 不追求爆發成長，追求穩中求勝的增長</li>
-                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 企業最好「小而美」、美而精，不用很多人</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 想獨資，不想要合夥或是天使投資</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 追求穩中求勝，不追求爆發成長</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-2">•</span> 企業最好「小而美」，不用很多人</li>
                     </ul>
                 </div>
-                
-                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 hover:border-red-500/50 transition-colors">
+                <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 hover:-translate-y-2 transition-transform duration-300">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-red-900 text-red-400 p-2 rounded-lg">🚨</span> 生意現況痛點
+                        <span class="bg-red-900/50 text-red-400 p-2 rounded-lg">🚨</span> 生意現況痛點
                     </h3>
                     <ul class="space-y-4 text-gray-400 text-sm">
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 生意經營都是校長兼撞鐘的犧牲忙碌</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 生意業績上不去，想要突破營收天花板</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 每月資金有點小緊繃，成本降不下來</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 無法好好放個假，無法放假好好放鬆</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 一直遇到人員流動，很苦惱手邊任務下放</li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 校長兼撞鐘的犧牲忙碌</li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 業績上不去，想突破營收天花板</li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 每月資金緊繃，成本降不下來</li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 無法好好放個假，無法放鬆</li>
+                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 人員流動高，苦惱手邊任務下放</li>
                     </ul>
                 </div>
-                
-                <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-blue-500/30 relative overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                    <div class="absolute top-0 right-0 bg-blue-600 text-xs font-bold px-4 py-1.5 rounded-bl-xl text-white">無痛上手保證</div>
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-blue-500/30 relative overflow-hidden shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:-translate-y-2 transition-transform duration-300">
+                    <div class="absolute top-0 right-0 bg-blue-600 text-xs font-bold px-4 py-1.5 rounded-bl-xl text-white">無痛上手</div>
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-green-900 text-green-400 p-2 rounded-lg">💡</span> 本身技能要求
+                        <span class="bg-green-900/50 text-green-400 p-2 rounded-lg">💡</span> 本身技能要求
                     </h3>
                     <ul class="space-y-4 text-gray-200 font-medium">
-                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1 mr-3">✓</span> 零基式基礎：可以！</li>
-                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1 mr-3">✓</span> 零理工腦袋：可以！</li>
-                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1 mr-3">✓</span> 沒在用AI：可以！(會用LINE聊天就可以)</li>
+                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1.5 mr-3 text-xs">✔</span> 零基式基礎：可以！</li>
+                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1.5 mr-3 text-xs">✔</span> 零理工腦袋：可以！</li>
+                        <li class="flex items-center"><span class="bg-green-500/20 text-green-400 rounded-full p-1.5 mr-3 text-xs">✔</span> 沒在用AI：可以！(會LINE即可)</li>
                     </ul>
                     <div class="mt-6 pt-5 border-t border-gray-700">
                         <p class="text-red-400 text-sm leading-relaxed">
                             <strong class="block mb-1">※ 警告：很久沒用電腦很危險！</strong>
-                            最好趕快碰！因為 AI 未來是必備技能，自己會，才不會被廠商綁、因花費苦惱。
+                            AI 是必備技能，自己會才不被廠商綁架。
                         </p>
                     </div>
                 </div>
@@ -163,76 +166,69 @@
         </div>
     </section>
 
-    <section id="features" class="py-24 bg-gray-800">
-        <div class="container mx-auto px-6 max-w-6xl">
+    <section id="features" class="py-24 relative bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
+        
+        <div class="absolute inset-0 bg-gray-900/90 backdrop-blur-sm"></div>
+
+        <div class="container mx-auto px-6 max-w-6xl relative z-10">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">你將學到與獲得什麼？</h2>
-                <p class="text-2xl text-blue-400 font-black tracking-wide">一年多出 2 個月的時間！贏過 95% 的企業運營。</p>
+                <p class="text-2xl text-blue-400 font-black tracking-wide drop-shadow-md">一年多出 2 個月的時間！贏過 95% 的企業運營。</p>
             </div>
             
             <div class="grid md:grid-cols-3 gap-8 mb-20">
-                <div class="bg-gray-900 text-center p-8 rounded-2xl border border-gray-700 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-600 to-blue-900 text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-lg shadow-blue-900/50">1</div>
+                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors">
+                    <div class="w-16 h-16 mx-auto bg-blue-600/20 text-blue-400 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6 border border-blue-500/30">1</div>
                     <h4 class="text-xl font-bold text-white mb-3">學會 VibeCoding</h4>
                     <p class="text-gray-400">自己的系統自己做，不用寫複雜程式碼，一年為你省下 20 萬+ 的系統費。</p>
                 </div>
-                <div class="bg-gray-900 text-center p-8 rounded-2xl border border-gray-700 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-600 to-purple-900 text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-lg shadow-purple-900/50">2</div>
-                    <h4 class="text-xl font-bold text-white mb-3">學會 SOP 思考方式</h4>
-                    <p class="text-gray-400">分析工作節點，將大腦的知識庫具象化，具備標準化和自動化的強大能力。</p>
+                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors">
+                    <div class="w-16 h-16 mx-auto bg-purple-600/20 text-purple-400 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6 border border-purple-500/30">2</div>
+                    <h4 class="text-xl font-bold text-white mb-3">SOP 系統化思考</h4>
+                    <p class="text-gray-400">分析工作節點，將大腦知識庫具象化，具備標準化和自動化的強大能力。</p>
                 </div>
-                <div class="bg-gray-900 text-center p-8 rounded-2xl border border-gray-700 hover:-translate-y-2 transition-transform duration-300">
-                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-600 to-indigo-900 text-white rounded-2xl flex items-center justify-center text-3xl font-bold mb-6 shadow-lg shadow-indigo-900/50">3</div>
+                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors">
+                    <div class="w-16 h-16 mx-auto bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6 border border-indigo-500/30">3</div>
                     <h4 class="text-xl font-bold text-white mb-3">精準商業決策</h4>
-                    <p class="text-gray-400">學會數位紀錄營運軌跡，讓 AI 透過營運紀錄統整提案，有憑有據做優化決策。</p>
+                    <p class="text-gray-400">數位紀錄營運軌跡，讓 AI 透過紀錄統整提案，有憑有據做優化決策。</p>
                 </div>
             </div>
 
-            <div class="bg-gradient-to-b from-gray-900 to-black rounded-3xl p-8 md:p-14 text-center border border-gray-800 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-900/10 filter blur-[100px] rounded-full pointer-events-none"></div>
+            <div class="glass-panel rounded-3xl p-8 md:p-14 text-center border-t border-l border-white/20 shadow-2xl relative overflow-hidden">
+                <h3 class="text-3xl font-black text-white mb-4">4項思考 × 8大步驟 × 1套百元工具</h3>
+                <p class="text-2xl text-blue-300 font-bold mb-12 drop-shadow-md">= 打造你的 <span class="bg-blue-600 text-white px-4 py-1.5 rounded-lg shadow-lg">7 個 AI 分身</span></p>
                 
-                <h3 class="text-3xl font-black text-white mb-4 relative z-10">4項思考 × 8大步驟 × 1套百元工具</h3>
-                <p class="text-2xl text-blue-400 font-bold mb-10 relative z-10">= 打造你的 <span class="text-white bg-blue-600 px-3 py-1 rounded-lg">7 個 AI 分身</span></p>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
-                    <div class="bg-gray-800/80 backdrop-blur p-5 rounded-xl border border-gray-600 hover:border-blue-400 transition-colors group">
-                        <div class="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">📈</div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+                    <div class="bg-black/40 p-5 rounded-xl border border-gray-600 hover:border-blue-400 hover:bg-blue-900/20 transition-all group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">📈</div>
                         <div class="font-bold text-white mb-1">營銷流</div>
                         <div class="text-xs text-gray-400">自動分身</div>
                     </div>
-                    <div class="bg-gray-800/80 backdrop-blur p-5 rounded-xl border border-gray-600 hover:border-blue-400 transition-colors group">
-                        <div class="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">🤖</div>
+                    <div class="bg-black/40 p-5 rounded-xl border border-gray-600 hover:border-blue-400 hover:bg-blue-900/20 transition-all group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">🤖</div>
                         <div class="font-bold text-white mb-1">客服流</div>
                         <div class="text-xs text-gray-400">AI門神</div>
                     </div>
-                    <div class="bg-gray-800/80 backdrop-blur p-5 rounded-xl border border-gray-600 hover:border-blue-400 transition-colors group">
-                        <div class="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">🚀</div>
+                    <div class="bg-black/40 p-5 rounded-xl border border-gray-600 hover:border-blue-400 hover:bg-blue-900/20 transition-all group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">🚀</div>
                         <div class="font-bold text-white mb-1">專案流</div>
                         <div class="text-xs text-gray-400">自動領航</div>
                     </div>
-                    <div class="bg-gray-800/80 backdrop-blur p-5 rounded-xl border border-gray-600 hover:border-blue-400 transition-colors group">
-                        <div class="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">📊</div>
+                    <div class="bg-black/40 p-5 rounded-xl border border-gray-600 hover:border-blue-400 hover:bg-blue-900/20 transition-all group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">📊</div>
                         <div class="font-bold text-white mb-1">總管流</div>
                         <div class="text-xs text-gray-400">全城戰情室</div>
                     </div>
-                    <div class="bg-gray-800/80 backdrop-blur p-5 rounded-xl border border-gray-600 hover:border-blue-400 transition-colors group">
-                        <div class="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">👥</div>
+                    <div class="bg-black/40 p-5 rounded-xl border border-gray-600 hover:border-blue-400 hover:bg-blue-900/20 transition-all group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">👥</div>
                         <div class="font-bold text-white mb-1">人資流</div>
                         <div class="text-xs text-gray-400">工具矩陣</div>
                     </div>
-                    <div class="bg-blue-900/40 backdrop-blur p-5 rounded-xl border-2 border-blue-500 transform scale-105 shadow-[0_0_15px_rgba(59,130,246,0.4)] group">
-                        <div class="text-blue-300 text-2xl mb-2 group-hover:scale-110 transition-transform">💰</div>
+                    <div class="bg-blue-600/20 p-5 rounded-xl border border-blue-400 transform scale-105 shadow-[0_0_20px_rgba(59,130,246,0.3)] group">
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform drop-shadow-md">💰</div>
                         <div class="font-bold text-white mb-1">財會流</div>
                         <div class="text-xs text-blue-200">數位帳房</div>
                     </div>
-                </div>
-                
-                <div class="mt-12 inline-flex items-center gap-6 text-gray-300 font-medium bg-gray-900 px-8 py-3 rounded-full border border-gray-700 relative z-10">
-                    <span class="flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> 24小時晝夜運作</span>
-                    <span class="text-gray-600">|</span>
-                    <span>0 薪資</span>
-                    <span class="text-gray-600">|</span>
-                    <span>零成本高效助理</span>
                 </div>
             </div>
         </div>
@@ -244,34 +240,37 @@
                 
                 <div class="lg:w-1/2 space-y-8">
                     <div>
-                        <span class="inline-block px-4 py-1.5 bg-red-500/10 text-red-400 rounded-full text-sm font-bold border border-red-500/20 mb-4 uppercase tracking-widest">熱烈開課中</span>
-                        <h2 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">自動化 Q&A 客服系統課</h2>
-                        <p class="text-xl text-blue-400 font-bold">打造你的 24H Q&A 客服助理，徹底告別重複回答！</p>
+                        <span class="inline-block px-4 py-1.5 bg-red-500/20 text-red-400 rounded-full text-sm font-bold border border-red-500/30 mb-4 tracking-widest">熱烈開課中</span>
+                        <h2 class="text-4xl md:text-5xl font-black text-white leading-tight mb-4 drop-shadow-sm">自動化 Q&A 客服系統課</h2>
+                        <p class="text-xl text-blue-400 font-bold">打造 24H Q&A 客服助理，徹底告別重複回答！</p>
                     </div>
                     
                     <div class="space-y-4 text-gray-400 leading-relaxed text-lg">
-                        <p>你每天花很多時間在回答『一樣的問題』？是不是有時沒有及時回覆客戶就流失了？花費大量時間回答重複問題，客戶服務效率低，員工情緒很難控制。</p>
-                        <p class="text-white font-medium">一人創業最累的不是沒客人，而是校長兼撞鐘，雜事一大堆。</p>
+                        <p>每天花很多時間回答『一樣的問題』？是不是有時沒及時回覆客戶就流失了？花費大量時間回答重複問題，客服效率低，員工情緒難控制。</p>
+                        <p class="text-white font-medium bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">一人創業最累的不是沒客人，而是校長兼撞鐘，雜事一大堆。</p>
                     </div>
                     
-                    <div class="bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-lg">
-                        <h3 class="font-bold text-white mb-4 flex items-center gap-2 border-b border-gray-700 pb-3 text-lg">
-                            <span class="text-blue-500">📚</span> 手把手實戰課程大綱：
-                        </h3>
-                        <ul class="space-y-3 text-gray-300">
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 陪伴彙整常見問題與回答內容</li>
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 建構 Google 試算表紀錄每次 QA</li>
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 運用 Gemini 研商優化 QA 內容</li>
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 設計 24H 自動化 QA 助理前端頁面</li>
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 申請與串接 Gemini API</li>
-                            <li class="flex items-center gap-3"><div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div> 測試與反覆 Debug 優化</li>
-                        </ul>
+                    <div class="relative rounded-2xl overflow-hidden border border-gray-700 shadow-xl">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center opacity-30"></div>
+                        <div class="absolute inset-0 bg-gray-900/80"></div>
+                        
+                        <div class="relative z-10 p-8">
+                            <h3 class="font-bold text-white mb-5 flex items-center gap-2 text-xl">
+                                <span class="text-blue-500">⚙️</span> 手把手實戰課程大綱：
+                            </h3>
+                            <ul class="space-y-3 text-gray-200">
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]"></div> 陪伴彙整常見問題與回答內容</li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]"></div> 建構 Google 試算表紀錄每次 QA</li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]"></div> 運用 Gemini 研商優化 QA 內容</li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]"></div> 設計 24H 自動化 QA 助理前端頁面</li>
+                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-blue-400 rounded-full shadow-[0_0_8px_#60a5fa]"></div> 申請與串接 Gemini API，反覆 Debug</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="lg:w-1/2 w-full">
-                    <div class="bg-gradient-to-br from-gray-800 to-gray-900 p-8 md:p-10 rounded-3xl border border-gray-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
-                        
+                    <div class="bg-gray-800 p-8 md:p-10 rounded-3xl border border-gray-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
                         <div class="absolute -top-5 -right-5 bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-black px-6 py-2 rounded-xl transform rotate-3 shadow-xl border-2 border-yellow-300">
                             限量早鳥優惠
                         </div>
@@ -283,49 +282,36 @@
                         
                         <div class="flex justify-center items-end gap-3 mb-10 pb-10 border-b border-gray-700">
                             <span class="text-gray-400 mb-2 font-medium">NT$</span>
-                            <span class="text-6xl font-black text-white leading-none">3,000</span>
+                            <span class="text-6xl font-black text-white leading-none drop-shadow-md">3,000</span>
                             <div class="flex flex-col text-left ml-2">
                                 <span class="text-sm text-gray-500 line-through">原價 $6,000</span>
-                                <span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-bold">名額僅 20 位</span>
+                                <span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-bold border border-red-500/30">名額僅 20 位</span>
                             </div>
                         </div>
 
-                        <div class="space-y-4 mb-10 text-gray-300 font-medium">
-                            <div class="flex justify-between items-center bg-gray-900/50 p-3 rounded-lg">
+                        <div class="space-y-4 mb-10 text-gray-300 font-medium text-sm">
+                            <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-700/50">
                                 <span class="text-gray-400">⏰ 上課時間</span> 
-                                <span class="text-white">09:00 - 16:00</span>
+                                <span class="text-white text-lg">09:00 - 16:00</span>
                             </div>
-                            <div class="bg-gray-900/50 p-4 rounded-lg">
-                                <span class="block text-gray-400 mb-2 text-sm">🗓️ 近期開課梯次 (請於報名頁面選擇)：</span>
-                                <span class="text-white text-sm leading-relaxed">5/5~5/16、6/9、6/27、7/14、7/25、8/1</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-blue-900/20 p-5 rounded-xl border border-blue-500/30 mb-8">
-                            <div class="flex items-start gap-3">
-                                <div class="text-2xl">🛡️</div>
-                                <div>
-                                    <strong class="text-blue-400 block mb-1">零風險承諾保證</strong>
-                                    <p class="text-sm text-gray-300">提供「30天內，若你的系統沒有幫你省下 10 小時工作時間，全額退費」的保證。</p>
-                                </div>
+                            <div class="bg-gray-900 p-4 rounded-xl border border-gray-700/50">
+                                <span class="block text-gray-400 mb-2">🗓️ 近期開課梯次：</span>
+                                <span class="text-white leading-relaxed">5/5~5/16、6/9、6/27、7/14、7/25、8/1</span>
                             </div>
                         </div>
 
-                        <button class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black rounded-xl transition-all text-xl shadow-lg glow-effect transform hover:-translate-y-1">
+                        <div class="bg-blue-900/30 p-5 rounded-xl border border-blue-500/50 mb-8 flex items-start gap-3">
+                            <div class="text-2xl drop-shadow-md">🛡️</div>
+                            <div>
+                                <strong class="text-blue-300 block mb-1">零風險承諾保證</strong>
+                                <p class="text-xs text-gray-300">提供「30天內，若系統沒幫你省下 10 小時工作時間，全額退費」保證。</p>
+                            </div>
+                        </div>
+
+                        <button class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black rounded-xl transition-all text-xl shadow-[0_0_20px_rgba(59,130,246,0.5)] transform hover:-translate-y-1">
                             立即預約報名
                         </button>
                     </div>
-                </div>
-            </div>
-            
-            <div class="mt-20 max-w-4xl mx-auto bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-                <div>
-                    <span class="inline-block px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-bold mb-3 tracking-wider">COMING SOON</span>
-                    <h4 class="text-xl font-bold text-white mb-2">進階班：自動化報價系統 & 電子郵件通知系統</h4>
-                    <p class="text-gray-400 text-sm">有效縮短 80% 時間！具行銷邏輯的前台設計、即時報價、金流串接與成交信件自動化。</p>
-                </div>
-                <div class="shrink-0">
-                    <span class="px-6 py-2 border-2 border-gray-600 text-gray-400 font-bold rounded-lg cursor-not-allowed">敬請期待</span>
                 </div>
             </div>
         </div>
@@ -335,51 +321,49 @@
         <div class="container mx-auto px-6 max-w-5xl">
             <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-white">首席 AI 賦能師</h2>
             
-            <div class="flex flex-col md:flex-row gap-12 items-center bg-gray-900 p-8 md:p-14 rounded-3xl border border-gray-700 shadow-2xl relative">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-900/20 rounded-full filter blur-[80px] pointer-events-none"></div>
+            <div class="flex flex-col md:flex-row gap-12 items-center bg-gray-900 p-8 md:p-14 rounded-3xl border border-gray-700 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full filter blur-[100px] pointer-events-none"></div>
 
                 <div class="md:w-1/3 flex flex-col items-center text-center relative z-10">
-                    <div class="w-48 h-48 bg-gray-800 rounded-full border-4 border-blue-500 mb-6 overflow-hidden flex items-center justify-center text-gray-500 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                        <div class="text-center p-4">
-                            <span class="block text-2xl mb-1">👨‍💼</span>
-                            <span class="text-sm">請置換為<br>Troy 照片</span>
+                    <div class="w-48 h-48 bg-gray-800 rounded-full border-4 border-blue-500 mb-6 overflow-hidden shadow-[0_0_30px_rgba(59,130,246,0.3)] relative">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 bg-gray-800">
+                            <span class="text-3xl mb-2">👨‍💼</span>
+                            <span class="text-sm font-medium">Troy 照片區</span>
                         </div>
                     </div>
-                    <h3 class="text-3xl font-black text-white tracking-wide">林東岳 <span class="text-xl text-gray-400 font-medium">Troy Lin</span></h3>
-                    <div class="mt-3 bg-blue-900/50 border border-blue-500/50 text-blue-300 text-sm px-4 py-1.5 rounded-full font-bold">
+                    <h3 class="text-3xl font-black text-white tracking-wide">林東岳 <span class="text-xl text-gray-400 font-medium">Troy</span></h3>
+                    <div class="mt-3 bg-blue-900/60 border border-blue-500/50 text-blue-200 text-sm px-5 py-1.5 rounded-full font-bold shadow-lg">
                         用 AI 實踐時間釋放的無本創業家
                     </div>
                 </div>
                 
                 <div class="md:w-2/3 space-y-8 text-gray-300 relative z-10">
-                    <p class="text-lg leading-relaxed border-l-4 border-blue-500 pl-4">
+                    <p class="text-lg leading-relaxed border-l-4 border-blue-500 pl-5">
                         擁有 <strong class="text-white">4 次微型創業</strong>、<strong class="text-white">6 次跨界轉型</strong>經驗，累積超過 500+ 場商務演講主持。<br>
-                        專精於交大電機邏輯腦、AI 自動化實戰與 SOP 系統建構。成功用 AI 解放時間的實戰高手。
+                        專精於交大電機邏輯腦、AI 自動化實戰與 SOP 系統建構。
                     </p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
-                        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700">
-                            <h4 class="text-white font-bold mb-3 flex items-center gap-2">
-                                <span class="text-blue-400">🎓</span> 學歷與專業身分
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                        <div class="glass-panel p-5 rounded-xl">
+                            <h4 class="text-white font-bold mb-3 flex items-center gap-2 border-b border-gray-600 pb-2">
+                                <span class="text-blue-400">🎓</span> 專業身分
                             </h4>
-                            <ul class="space-y-2">
+                            <ul class="space-y-2 text-gray-300">
                                 <li>• 國立交通大學 電機工程系</li>
-                                <li>• 國立交通大學 創新創業學程</li>
                                 <li>• 賦活再續股份有限公司 負責人</li>
                                 <li>• 台中永吉搬家 二代</li>
                                 <li>• BNI 商會成員</li>
                             </ul>
                         </div>
-                        
-                        <div class="bg-gray-800/50 p-5 rounded-xl border border-gray-700">
-                            <h4 class="text-white font-bold mb-3 flex items-center gap-2">
-                                <span class="text-blue-400">⚡</span> AI 賦能實戰事蹟
+                        <div class="glass-panel p-5 rounded-xl">
+                            <h4 class="text-white font-bold mb-3 flex items-center gap-2 border-b border-gray-600 pb-2">
+                                <span class="text-yellow-400">⚡</span> AI 實戰成果
                             </h4>
-                            <ul class="space-y-2">
-                                <li><strong class="text-white">年省300萬：</strong> 7天為搬家公司建置系統，年省 800 小時</li>
-                                <li><strong class="text-white">6小時上線：</strong> AI 客服零程式碼開發完成</li>
-                                <li><strong class="text-white">爭取百萬：</strong> AI 協助計畫書撰寫獲補助</li>
-                                <li><strong class="text-white">時間贖回：</strong> 打造數位分身，年省 1200 小時工作時間</li>
+                            <ul class="space-y-2 text-gray-300">
+                                <li><strong class="text-white">年省300萬：</strong> 搬家系統建置</li>
+                                <li><strong class="text-white">6小時上線：</strong> AI 客服開發</li>
+                                <li><strong class="text-white">爭取百萬：</strong> AI 協助獲補助</li>
+                                <li><strong class="text-white">時間贖回：</strong> 年省 1200 小時</li>
                             </ul>
                         </div>
                     </div>
@@ -388,32 +372,31 @@
         </div>
     </section>
 
-    <footer id="cta" class="bg-black py-20 text-center border-t border-gray-800 relative overflow-hidden">
-        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-            <img src="202604_AI學院growthx岳logo.png" alt="" class="w-[800px] blur-sm grayscale">
+    <footer id="cta" class="py-24 text-center border-t border-gray-800 relative bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
+        
+        <div class="absolute inset-0 bg-gray-900/85 backdrop-blur-sm"></div>
+        
+        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none mix-blend-screen">
+            <img src="202604_AI學院growthx岳logo.png" alt="" class="w-[800px] blur-[2px]">
         </div>
         
         <div class="container mx-auto px-6 max-w-4xl relative z-10">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">創業，不該是一場犧牲光陰的忙碌悲劇</h2>
-            <p class="text-2xl md:text-3xl text-blue-400 font-bold mb-10 tracking-widest">該是一場掌權時間、得勝有餘的連續劇！</p>
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight drop-shadow-lg">創業，不該是一場犧牲光陰的忙碌悲劇</h2>
+            <p class="text-2xl md:text-3xl text-blue-400 font-bold mb-10 tracking-widest drop-shadow-md">該是一場掌權時間、得勝有餘的連續劇！</p>
             
-            <p class="text-gray-400 mb-12 text-lg max-w-2xl mx-auto">
+            <p class="text-gray-300 mb-12 text-lg max-w-2xl mx-auto font-light">
                 從「埋頭苦幹的人力密集型企業」，升級成為「由 AI 驅動、高效運轉的智能密集型企業」。讓我們一起實現低成本、高產值的爆炸性成長。
             </p>
             
-            <a href="#course" class="inline-block px-12 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xl font-black rounded-full shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition transform hover:-translate-y-1 glow-effect">
+            <a href="#course" class="inline-block px-12 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xl font-black rounded-full shadow-[0_0_30px_rgba(59,130,246,0.6)] hover:shadow-[0_0_50px_rgba(59,130,246,0.8)] transition transform hover:-translate-y-1">
                 馬上預約報名 / 啟動 AI 賦能
             </a>
             
-            <div class="mt-20 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 font-medium">
+            <div class="mt-24 pt-8 border-t border-gray-700/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400 font-medium">
                 <div class="flex items-center gap-2">
-                    <img src="202604_AI學院growthx岳logo.png" alt="GrowthX" class="h-6 grayscale opacity-50">
+                    <img src="202604_AI學院growthx岳logo.png" alt="GrowthX" class="h-8 opacity-70 hover:opacity-100 transition">
                 </div>
                 <p>&copy; 2026 GrowthX 微企 AI 學院. All rights reserved.</p>
-                <div class="space-x-4">
-                    <a href="#" class="hover:text-gray-300">隱私權政策</a>
-                    <a href="#" class="hover:text-gray-300">服務條款</a>
-                </div>
             </div>
         </div>
     </footer>
