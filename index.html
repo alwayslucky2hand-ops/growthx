@@ -123,6 +123,18 @@
       .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s ease; }
       .mobile-overlay.open { opacity: 1; pointer-events: auto; }
     }
+
+    /* 🔥 新增：優化閱讀體驗與分頁專屬樣式 */
+    .copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+    .copy-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
+    .transcript-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14.5px; line-height: 1.5; color: var(--text-main); max-height: 400px; overflow-y: auto; }
+    .summary-box { font-size: 14.5px; line-height: 1.5; color: var(--text-muted); }
+    .pagination-container { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 24px; padding-bottom: 24px; }
+    .page-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+    .page-btn:hover:not(:disabled) { background: var(--bg); color: var(--primary); border-color: var(--primary); }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .iframe-video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; margin-top: 12px; background: #000; }
+    .iframe-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
   </style>
 </head>
 <body>
@@ -181,16 +193,13 @@
 </div>
 
 <div id="view-main" class="app-layout" style="display:none;">
-  <!-- 手機版專屬頂部導覽列 -->
   <div class="mobile-header">
     <button class="menu-toggle-btn" onclick="toggleMobileMenu()">
       <i data-lucide="menu"></i>
     </button>
     <div class="brand-logo-mobile">GROWTHX</div>
-    <div style="width: 24px;"></div> <!-- 佔位符保持 Logo 置中 -->
-  </div>
+    <div style="width: 24px;"></div> </div>
   
-  <!-- 手機版側邊欄遮罩 -->
   <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
   <aside class="sidebar">
@@ -326,6 +335,11 @@
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
 
+  // 🔥 陪跑日誌分頁狀態
+  let currentFeedPage = 1;
+  const feedPerPage = 10;
+  let globalFeedData = [];
+
   // --- 💡 渲染解耦：獨立繪製靜態 GEM 助教選單 ---
   function renderGemMatrix() {
     const gems = [
@@ -400,6 +414,18 @@
     lucide.createIcons();
   }
   renderGemMatrix();
+
+  // 🔥 複製文字的專屬功能
+  function copyContent(elementId, btn) {
+    const el = document.getElementById(elementId);
+    let text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="check" style="width:14px;"></i> 已複製';
+      lucide.createIcons();
+      setTimeout(() => { btn.innerHTML = originalHtml; lucide.createIcons(); }, 2000);
+    });
+  }
 
   function showToast(message, type = 'error') {
     const container = document.getElementById('toast-container');
@@ -531,7 +557,9 @@
       const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
       document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
       
-      renderFeed(data.posts || []); 
+      // 更新全域變數並繪製第一頁
+      globalFeedData = data.posts || [];
+      renderFeed(globalFeedData, 1); 
       renderSchoolFeed(data.schoolFeed || []); 
       lucide.createIcons();
     } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
@@ -652,7 +680,12 @@
     if(audioContext) audioContext.close();
 
     log("整合背景任務，執行魔術師大腦封裝...");
+    // 🔥 強制等待所有前端任務上傳與辨識完成
     while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
+    
+    // 🔥 安全緩衝機制：讓 Google Apps Script 確實同步寫入試算表，避免抓到舊資料
+    log("等待雲端試算表安全同步...");
+    await new Promise(r => setTimeout(r, 2000));
     
     try {
       if (currentRecordContext === 'school') {
@@ -678,18 +711,39 @@
     if (wasRecording && !isPaused) startChunkRecording();
   }
   function toggleVideo() { isVideoEnabled = !isVideoEnabled; if(currentStream) currentStream.getVideoTracks()[0].enabled = isVideoEnabled; }
-  function pauseMeeting() { if (mediaRecorder && mediaRecorder.state === "recording") { isPaused = true; mediaRecorder.stop(); clearTimeout(chunkInterval); log("日誌錄製已暫停"); } }
+  
+  // 🔥 點擊暫停時，只停止該區塊並標記為暫停，前端不再呼叫 startChunkRecording
+  function pauseMeeting() { 
+    isPaused = true; 
+    if (mediaRecorder && mediaRecorder.state === "recording") { 
+      mediaRecorder.stop(); 
+      clearTimeout(chunkInterval); 
+      log("日誌錄製已暫停。正在處理已錄製區段..."); 
+    } 
+  }
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
   // ==========================================
-  // 📜 歷史與互動機制 (強制防呆)
+  // 📜 歷史與互動機制 (強制防呆與優化分頁)
   // ==========================================
-  function renderFeed(posts) {
+  function renderFeed(posts, page = 1) {
+    globalFeedData = posts || [];
+    currentFeedPage = page;
     const container = document.getElementById('feedContainer');
-    if (!posts || posts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; return; }
     
-    container.innerHTML = posts.map(post => {
+    if (globalFeedData.length === 0) { 
+      container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; 
+      return; 
+    }
+    
+    // 計算分頁參數
+    const startIndex = (currentFeedPage - 1) * feedPerPage;
+    const endIndex = startIndex + feedPerPage;
+    const pagePosts = globalFeedData.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(globalFeedData.length / feedPerPage);
+
+    container.innerHTML = pagePosts.map(post => {
       let actionBtns = '';
       if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
         actionBtns = `
@@ -704,6 +758,12 @@
         videoUrlsHtml = `<div class="form-group-stack mt-2">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
       }
 
+      // 🔥 美化逐字稿顯示，移除亂碼並加入 Badge
+      let prettyTranscript = (post.Transcript || '無紀錄')
+        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '<h6 class="fw-bold mt-3 mb-2" style="color:var(--accent);">第 $1 分鐘紀錄</h6>')
+        .replace(/\[畫面描述\]/g, '<span class="badge bg-primary me-2">畫面描述</span>')
+        .replace(/\[語音逐字稿\]/g, '<br><span class="badge bg-success me-2 mt-2">語音逐字稿</span>');
+
       return `
       <div class="post-card">
         <div class="post-header">
@@ -711,17 +771,46 @@
           <span class="small text-muted">${post.Timestamp || ''}</span>
         </div>
         <div>
-          <h6 class="fw-bold mb-2"><i data-lucide="file-text" style="width:16px;"></i> 核心問題總結</h6>
-          <div class="small text-muted">${marked.parse(post.AI_Summary || '')}</div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold m-0"><i data-lucide="file-text" style="width:16px;"></i> 核心問題總結</h6>
+            <button class="copy-btn" onclick="copyContent('summary_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製摘要</button>
+          </div>
+          <div id="summary_${post.PostID}" class="summary-box mb-3">${marked.parse(post.AI_Summary || '')}</div>
         </div>
-        ${post.AI_Reply ? `<div class="ai-reply-box"><h6 class="fw-bold mb-2"><i data-lucide="cpu" style="width:16px;"></i> AI 總監指導視角</h6><div class="small">${marked.parse(post.AI_Reply)}</div></div>` : ''}
+        ${post.AI_Reply ? `<div class="ai-reply-box"><h6 class="fw-bold mb-2"><i data-lucide="cpu" style="width:16px;"></i> AI 總監指導視角</h6><div class="small" style="line-height:1.5;">${marked.parse(post.AI_Reply)}</div></div>` : ''}
+        
         <details>
           <summary><i data-lucide="chevron-down" style="width:14px;"></i> 查看逐字稿與原檔連結</summary>
-          <div class="details-content mt-2"><div class="mb-3">${post.Transcript || ''}</div>${videoUrlsHtml}</div>
+          <div class="details-content mt-2">
+            <div class="d-flex justify-content-end mb-2">
+              <button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button>
+            </div>
+            <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
+            ${videoUrlsHtml}
+          </div>
         </details>
         ${actionBtns}
       </div>`;
     }).join('');
+
+    // 🔥 繪製分頁控制列
+    if (totalPages > 1) {
+      container.innerHTML += `
+        <div class="pagination-container">
+          <button class="page-btn" ${currentFeedPage === 1 ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage - 1})"><i data-lucide="chevron-left" style="width:16px;"></i></button>
+          <span class="fw-bold text-muted mx-2" style="font-size:14px;">第 ${currentFeedPage} / ${totalPages} 頁</span>
+          <button class="page-btn" ${currentFeedPage === totalPages ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage + 1})"><i data-lucide="chevron-right" style="width:16px;"></i></button>
+        </div>
+      `;
+    }
+
+    lucide.createIcons();
+  }
+
+  // 分頁切換功能
+  function changeFeedPage(newPage) {
+    renderFeed(globalFeedData, newPage);
+    document.getElementById('tab-coach').scrollIntoView({ behavior: 'smooth' });
   }
 
   // ==========================================
@@ -743,6 +832,17 @@
         </div>
       `).join('');
 
+      // 🔥 自動解析 Drive 網址轉換為前端 Iframe 播放區塊
+      let videoHtml = '';
+      if (post.VideoURL) {
+        const fileIdMatch = post.VideoURL.match(/[-\w]{25,}/);
+        if (fileIdMatch) {
+          videoHtml = `<div class="iframe-video-container"><iframe src="https://drive.google.com/file/d/${fileIdMatch[0]}/preview" allow="autoplay; fullscreen"></iframe></div>`;
+        } else {
+          videoHtml = `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音</a>`;
+        }
+      }
+
       return `
       <div class="post-card">
         <div class="post-header">
@@ -752,9 +852,10 @@
         <div class="fw-medium text-main mb-2">${post.Content || ''}</div>
         <div class="p-3 rounded bg-light" style="font-size:13.5px; border-left:3px solid var(--accent);">
           <h6 class="fw-bold mb-2"><i data-lucide="file-text" style="width:14px;"></i> 教材觀念重點摘要</h6>
-          <div>${marked.parse(post.Summary || '無內容')}</div>
+          <div style="line-height:1.5;">${marked.parse(post.Summary || '無內容')}</div>
         </div>
-        ${post.VideoURL ? `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音</a>` : ''}
+        
+        ${videoHtml}
         
         <div class="mt-3">
           <h6 class="fw-bold mb-2 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 全體互動學員留言區 (${myComments.length})</h6>
