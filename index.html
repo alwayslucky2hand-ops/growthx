@@ -21,12 +21,14 @@
     html, body { max-width: 100vw; overflow-x: hidden; position: relative; }
     body { background-color: var(--bg); font-family: var(--font-family); margin: 0; padding: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
+    /* 懸浮 Toast 通知 */
     .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; width: 90%; max-width: 400px; align-items: center; }
     .custom-toast { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--text-main); padding: 14px 24px; border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-20px) scale(0.95); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; }
     .custom-toast.show { opacity: 1; transform: translateY(0) scale(1); }
     .toast-error { background: rgba(255, 59, 48, 0.9); color: white; border: none; }
     .toast-success { background: rgba(52, 199, 89, 0.95); color: white; border: none; }
 
+    /* 佈局架構 */
     .app-layout { display: flex; height: 100vh; overflow: hidden; }
     .sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 32px 20px; z-index: 100; }
     .main-content { flex: 1; overflow-y: auto; padding: 40px; position: relative; scroll-behavior: smooth; }
@@ -48,9 +50,9 @@
     .form-control { border-radius: 12px; border: 1px solid var(--border); padding: 16px; background: var(--bg); font-size: 15px; width: 100%; }
     .form-control:focus { background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); outline: none; }
     
-    .btn-brand { background-color: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; padding: 16px; width: 100%; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-    .btn-brand:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
-    .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; padding: 14px; width: 100%; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .btn-brand { background-color: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; padding: 16px; width: 100%; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
+    .btn-brand:hover { background-color: var(--primary-hover); transform: translateY(-1px); color: white; }
+    .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; padding: 14px; width: 100%; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
 
     .profile-stack { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
     .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; }
@@ -95,8 +97,6 @@
 
     .step-section { display: none; animation: fadeIn 0.4s ease; }
     .step-section.active { display: block; }
-    
-    #mockAlert { background: #fef08a; color: #854d0e; text-align: center; padding: 10px; font-size: 13px; font-weight: 500; display: none; }
 
     @media (max-width: 768px) {
       .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: auto; flex-direction: row; padding: 12px 20px; border-right: none; border-top: 1px solid var(--border); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
@@ -112,7 +112,6 @@
 <body>
 
 <div id="toast-container" class="toast-container"></div>
-<div id="mockAlert">系統提示：目前運行於外部部署環境，已啟動跨網域通訊協定。</div>
 
 <div id="view-login" style="max-width: 400px; margin: 8vh auto; padding: 0 24px;">
   <div class="card-panel border-0 text-center">
@@ -187,7 +186,7 @@
       <div class="card-panel">
         <div class="profile-stack">
           <div class="avatar-circle" id="userInitial">U</div>
-          <h3 class="fw-bold m-0" id="profileNameDisplay" style="letter-spacing: -0.5px;">載入中</h3>
+          <h3 class="fw-bold m-0" id="profileNameDisplay" style="letter-spacing: -0.5px;">載入中...</h3>
           <p class="text-muted m-0" id="profileEmailDisplay">email@domain.com</p>
           <div class="member-code-box" onclick="copyCode()" title="點擊複製"><i data-lucide="copy" style="width:14px;"></i> <span id="memberCodeTxt">CODE</span></div>
           
@@ -278,7 +277,7 @@
 
     <div id="tab-gem" class="panel-view">
       <div class="mb-5 text-center text-md-start">
-        <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">特洛伊 GROWTHX 數位轉型</h2>
+        <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
         <h5 class="text-muted fw-normal mb-4">四神組合拳落地指南</h5>
       </div>
       <div id="gemContainer" class="form-group-stack"></div>
@@ -290,14 +289,34 @@
 <script>
   lucide.createIcons();
   
-  // 💡 【GitHub 雙棲部署】：請填入您 GAS 部署的網址
+  // 💡 【GitHub 雙棲部署】：如果您將檔案放在 Github Pages，請將下方網址換成您 GAS 部署的 Web App URL
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwsUOjvkHIbKnR98-0AnYNhIbrz6xAp6parL7WgKCy4oU4P9uvNjZxxfOsesUZvDV_E/exec"; 
   const isGAS = typeof google !== 'undefined' && google.script;
-  if (!isGAS) document.getElementById('mockAlert').style.display = 'block';
 
   let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
+
+  // --- 💡 渲染解耦：獨立繪製靜態 GEM 助教選單 ---
+  function renderGemMatrix() {
+    const gems = [
+      { name: "GEM 1：系統許願機", desc: "老闆思維：鎖定利潤與願景", url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" },
+      { name: "GEM 2：工作流拆解器", desc: "營運專家：獵殺隱形吸血鬼", url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" },
+      { name: "GEM 3：數位工廠設計師", desc: "藍圖總監：產品系統架構 PM", url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" },
+      { name: "GEM 4：全端系統編碼師", desc: "開發特助：無限疊加生成引擎", url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" }
+    ];
+    document.getElementById('gemContainer').innerHTML = gems.map(g => `
+      <div class="gem-pro-card">
+        <div class="gem-icon-box"><i data-lucide="cpu" style="width:20px;"></i></div>
+        <h4 class="fw-bold m-0">${g.name}</h4>
+        <p class="text-muted small m-0">${g.desc}</p>
+        <a href="${g.url}" target="_blank" class="btn-outline mt-2">進入大腦通道 <i data-lucide="arrow-right" style="width:14px; margin-left:4px;"></i></a>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  }
+  // 啟動時立刻渲染 GEM 選單，不受資料庫影響
+  renderGemMatrix();
 
   function showToast(message, type = 'error') {
     const container = document.getElementById('toast-container');
@@ -328,7 +347,7 @@
         const res = await response.json();
         if(res.status === 'success') return res.data;
         else throw new Error(res.message);
-      } catch (err) { throw new Error("伺服器無法存取，請檢查網路。"); }
+      } catch (err) { throw new Error("伺服器無法存取，請檢查網路狀態。"); }
     }
   }
 
@@ -380,29 +399,32 @@
   function switchLoginStep(stepId) { document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active')); document.getElementById(stepId).classList.add('active'); }
   function switchTab(tabId) { document.querySelectorAll('.panel-view').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.getElementById('nav-' + tabId).classList.add('active'); }
 
+  // --- 💡 極限防呆渲染資料 ---
   async function loadDashboard() {
     try {
       const data = await api({ action: "getDashboardData", email: currentUser.email, role: currentUser.role });
-      const p = data.profile;
-      document.getElementById('profileEmailDisplay').innerText = p.email;
+      
+      const p = data.profile || {};
+      document.getElementById('profileEmailDisplay').innerText = p.email || currentUser.email;
       document.getElementById('profileNameDisplay').innerText = p.name || '未填寫姓名';
       document.getElementById('userInitial').innerText = (p.name ? p.name.charAt(0) : 'U').toUpperCase();
-      document.getElementById('memberCodeTxt').innerText = p.email.split('@')[0];
+      document.getElementById('memberCodeTxt').innerText = (p.email || currentUser.email).split('@')[0];
       document.getElementById('regDateTxt').innerText = p.regDate || '-';
       document.getElementById('expiryDateTxt').innerText = p.expiryDate || '-';
       document.getElementById('inputName').value = p.name || '';
       document.getElementById('inputApiKey').value = p.apiKey || '';
       
-      document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
+      if (p.paymentUrl) {
+        document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
+      }
 
       const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
       document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
       
       renderFeed(data.posts || []); 
       renderSchoolFeed(data.schoolFeed || []); 
-      renderGemMatrix();
       lucide.createIcons();
-    } catch(e) { showToast("載入資料異常", "error"); }
+    } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
   }
 
   // ==========================================
@@ -455,7 +477,6 @@
     document.getElementById('triggerRecordBox').style.display = 'none';
     if(document.getElementById('triggerSchoolRecordBox')) document.getElementById('triggerSchoolRecordBox').style.display = 'none';
     
-    // 如果是從學堂觸發的，把 recordUI 搬到學堂區塊內
     const ui = document.getElementById('recordUI');
     ui.style.display = 'block'; 
     if(context === 'school') {
@@ -552,7 +573,7 @@
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
   // ==========================================
-  // 📜 歷史與互動機制 (強制日期字串輸出，防呆 NaN)
+  // 📜 歷史與互動機制 (強制防呆)
   // ==========================================
   function renderFeed(posts) {
     const container = document.getElementById('feedContainer');
@@ -572,11 +593,10 @@
         videoUrlsHtml = `<div class="form-group-stack mt-2">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
       }
 
-      // 💡 防呆過濾：直接印出後端傳來的時間字串，絕不使用 new Date() 重算
       return `
       <div class="post-card">
         <div class="post-header">
-          <div class="d-flex justify-content-between"><strong>${post.Role}</strong><span class="badge bg-dark">${post.Status}</span></div>
+          <div class="d-flex justify-content-between"><strong>${post.Role || '系統'}</strong><span class="badge bg-dark">${post.Status || '完成'}</span></div>
           <span class="small text-muted">${post.Timestamp || ''}</span>
         </div>
         <div>
@@ -594,7 +614,7 @@
   }
 
   // ==========================================
-  // 🏫 FFS 學堂社群牆渲染 (防呆 NaN)
+  // 🏫 FFS 學堂社群牆渲染
   // ==========================================
   function renderSchoolFeed(items) {
     const container = document.getElementById('schoolFeedContainer');
@@ -607,7 +627,7 @@
       const myComments = comments.filter(c => c.ParentID === post.RowID);
       const commentsHtml = myComments.map(c => `
         <div class="comment-box">
-          <div class="d-flex justify-content-between small fw-bold"><span>用戶代碼：${c.AuthorCode}</span><span class="text-muted font-monospace">${c.Timestamp || ''}</span></div>
+          <div class="d-flex justify-content-between small fw-bold"><span>代碼：${c.AuthorCode}</span><span class="text-muted font-monospace">${c.Timestamp || ''}</span></div>
           <div class="small mt-1 text-secondary">${c.Content || ''}</div>
         </div>
       `).join('');
@@ -621,15 +641,15 @@
         <div class="fw-medium text-main mb-2">${post.Content || ''}</div>
         <div class="p-3 rounded bg-light" style="font-size:13.5px; border-left:3px solid var(--accent);">
           <h6 class="fw-bold mb-2"><i data-lucide="file-text" style="width:14px;"></i> 教材觀念重點摘要</h6>
-          <div>${marked.parse(post.Summary || '分析運算中...')}</div>
+          <div>${marked.parse(post.Summary || '無內容')}</div>
         </div>
-        ${post.VideoURL ? `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音檔案</a>` : ''}
+        ${post.VideoURL ? `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音</a>` : ''}
         
         <div class="mt-3">
           <h6 class="fw-bold mb-2 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 全體互動學員留言區 (${myComments.length})</h6>
           ${commentsHtml}
           <div class="form-group-stack mt-3">
-            <input type="text" id="comment_input_${post.RowID}" class="form-control" style="padding:10px;" placeholder="使用會員代碼 ${currentUser.email.split('@')[0]} 接續互動留言...">
+            <input type="text" id="comment_input_${post.RowID}" class="form-control" style="padding:10px;" placeholder="使用會員代碼接續留言...">
             <button class="btn-brand" style="padding:10px; font-size:13px;" onclick="submitComment('${post.RowID}')">送出互動留言</button>
           </div>
         </div>
@@ -653,23 +673,6 @@
     if(!text) return showToast("請先輸入影音教材解說內文", "warning");
     showToast("影音與內文總帳同步封裝中...", "success");
     await stopMeeting();
-  }
-
-  function renderGemMatrix() {
-    const gems = [
-      { name: "GEM 1：系統許願機", desc: "老闆思維：鎖定利潤與願景", url: GEM1_DRIVE_ID },
-      { name: "GEM 2：工作流拆解器", desc: "營運專家：獵殺隱形吸血鬼", url: GEM2_DRIVE_ID },
-      { name: "GEM 3：數位工廠設計師", desc: "藍圖總監：產品系統架構 PM", url: GEM3_DRIVE_ID },
-      { name: "GEM 4：全端系統編碼師", desc: "開發特助：無限疊加生成引擎", url: GEM4_DRIVE_ID }
-    ];
-    document.getElementById('gemContainer').innerHTML = gems.map(g => `
-      <div class="gem-pro-card">
-        <div class="gem-icon-box"><i data-lucide="cpu" style="width:20px;"></i></div>
-        <h4 class="fw-bold m-0">${g.name}</h4>
-        <p class="text-muted small m-0">${g.desc}</p>
-        <a href="${g.url}" target="_blank" class="btn-outline mt-2">進入大腦通道 <i data-lucide="arrow-right" style="width:14px; margin-left:4px;"></i></a>
-      </div>
-    `).join('');
   }
 
   async function updateStatus(postId, status) {
