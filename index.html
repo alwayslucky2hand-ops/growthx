@@ -29,7 +29,7 @@
     .toast-success { background: rgba(52, 199, 89, 0.95); color: white; border: none; }
 
     /* 佈局架構 */
-    .app-layout { display: flex; height: 100vh; overflow: hidden; }
+    .app-layout { display: flex; height: 100vh; overflow: hidden; flex-direction: row; }
     .sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 32px 20px; z-index: 100; }
     .main-content { flex: 1; overflow-y: auto; padding: 40px; position: relative; scroll-behavior: smooth; }
     
@@ -78,6 +78,8 @@
     
     @media (min-width: 769px) or (orientation: landscape) {
       .controls-overlay { bottom: 24px; left: 50%; transform: translateX(-50%); flex-direction: row; }
+      .mobile-header { display: none; }
+      .mobile-overlay { display: none; }
     }
     @media (max-width: 768px) and (orientation: portrait) {
       .controls-overlay { right: 16px; top: 50%; transform: translateY(-50%); flex-direction: column; border-radius: 30px; padding: 24px 12px; }
@@ -98,14 +100,28 @@
     .step-section { display: none; animation: fadeIn 0.4s ease; }
     .step-section.active { display: block; }
 
+    /* 📱 手機版漢堡選單與側滑樣式 */
     @media (max-width: 768px) {
-      .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: auto; flex-direction: row; padding: 12px 20px; border-right: none; border-top: 1px solid var(--border); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-      .brand-logo, .nav-footer { display: none; }
-      .nav-menu { display: flex; width: 100%; justify-content: space-between; align-items: center; }
-      .nav-item { margin: 0; }
-      .nav-link { flex-direction: column; gap: 4px; padding: 8px 12px; font-size: 11px; background: transparent; }
-      .nav-link.active { background: transparent; color: var(--primary); }
-      .main-content { padding: 20px; padding-bottom: 120px; }
+      .app-layout { flex-direction: column; }
+      
+      .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 900; }
+      .menu-toggle-btn { background: none; border: none; color: var(--primary); padding: 0; display: flex; align-items: center; cursor: pointer; }
+      .brand-logo-mobile { font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; margin: 0; }
+      
+      .sidebar { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; flex-direction: column; padding: 32px 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 4px 0 24px rgba(0,0,0,0.1); border-right: none; z-index: 1001; justify-content: flex-start; }
+      .sidebar.open { left: 0; }
+      
+      .brand-logo { display: flex; margin-bottom: 32px; }
+      .nav-menu { display: block; width: 100%; }
+      .nav-item { margin-bottom: 8px; }
+      .nav-link { flex-direction: row; gap: 14px; padding: 12px 16px; font-size: 15px; background: transparent; }
+      .nav-link.active { background: var(--primary); color: white; }
+      .nav-footer { display: block; margin-top: auto; }
+      
+      .main-content { padding: 20px; flex: 1; overflow-y: auto; }
+      
+      .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s ease; }
+      .mobile-overlay.open { opacity: 1; pointer-events: auto; }
     }
   </style>
 </head>
@@ -165,6 +181,18 @@
 </div>
 
 <div id="view-main" class="app-layout" style="display:none;">
+  <!-- 手機版專屬頂部導覽列 -->
+  <div class="mobile-header">
+    <button class="menu-toggle-btn" onclick="toggleMobileMenu()">
+      <i data-lucide="menu"></i>
+    </button>
+    <div class="brand-logo-mobile">GROWTHX</div>
+    <div style="width: 24px;"></div> <!-- 佔位符保持 Logo 置中 -->
+  </div>
+  
+  <!-- 手機版側邊欄遮罩 -->
+  <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
   <aside class="sidebar">
     <div class="brand-logo">
       <i data-lucide="layout-dashboard"></i> GROWTHX
@@ -455,7 +483,30 @@
 
   function logout() { localStorage.removeItem('gx_saas_user'); location.reload(); }
   function switchLoginStep(stepId) { document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active')); document.getElementById(stepId).classList.add('active'); }
-  function switchTab(tabId) { document.querySelectorAll('.panel-view').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.getElementById('nav-' + tabId).classList.add('active'); }
+  
+  // 💡 開關手機版側滑選單
+  function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    if(sidebar) sidebar.classList.toggle('open');
+    if(overlay) overlay.classList.toggle('open');
+  }
+
+  // 💡 切換分頁並在手機版自動收起選單
+  function switchTab(tabId) { 
+    document.querySelectorAll('.panel-view').forEach(el => el.classList.remove('active')); 
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); 
+    document.getElementById(tabId).classList.add('active'); 
+    document.getElementById('nav-' + tabId).classList.add('active'); 
+    
+    // 手機版點擊選單後自動收起
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    if (sidebar && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+  }
 
   // --- 💡 極限防呆渲染資料 ---
   async function loadDashboard() {
