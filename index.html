@@ -279,7 +279,7 @@
     <div id="tab-gem" class="panel-view">
       <div class="mb-5 text-center text-md-start">
         <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
-        <h5 class="text-muted fw-normal mb-4">四神組合拳落地指南</h5>
+        <h5 class="text-muted fw-normal mb-4">四神組合拳大眾落地指南</h5>
       </div>
       <div id="gemContainer" class="form-group-stack"></div>
     </div>
@@ -301,17 +301,72 @@
   // --- 💡 渲染解耦：獨立繪製靜態 GEM 助教選單 ---
   function renderGemMatrix() {
     const gems = [
-      { name: "GEM 1：系統許願機", desc: "老闆思維：鎖定利潤與願景", url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" },
-      { name: "GEM 2：工作流拆解器", desc: "營運專家：獵殺隱形吸血鬼", url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" },
-      { name: "GEM 3：數位工廠設計師", desc: "藍圖總監：產品系統架構 PM", url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" },
-      { name: "GEM 4：全端系統編碼師", desc: "開發特助：無限疊加生成引擎", url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" }
+      { 
+        name: "GEM 1：系統許願機", 
+        subtitle: "抓漏老闆大腦的戰略軍師",
+        intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。告別不切實際的空話，第一步就鎖定利潤！", 
+        output: "【矩陣一：老闆需求總帳】",
+        value: "幫你省下好幾萬跟科技公司「講聽不懂的火星文」的來回溝通成本。清楚定錨出這個系統是「做給誰用」、「什麼時候會自動上工」，以及這台數位機器每個月到底能幫你的團隊省下多少手工時間、降低多少出錯損失（投資報酬率）。",
+        journey: "<strong>1. 大膽許願：</strong>學員用最白話的商業語言告訴軍師。<br><strong>2. 點餐答題：</strong>軍師會貼心地把 24 題生硬的系統分析題目，變成「一題一個生活譬喻、主動送上 A/B/C 選項」的點餐是非題。學員像點菜一樣輕鬆勾選，完全不燒腦。<br><strong>3. 定錨解鎖：</strong>螢幕上方會顯示破關進度條。答完 24 題後，學員輸入「統整」，核心戰略總帳便完美誕生！",
+        url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" 
+      },
+      { 
+        name: "GEM 2：工作流水線拆解器", 
+        subtitle: "抓出隱形吸血鬼的營運專家",
+        intro: "把你和員工每天重複到手酸、心煩、容易漏單的「手眼動作與肌肉記憶」，像工廠傳送帶一樣切碎檢查，找出天天在偷吸公司時間與金錢的「隱形吸血鬼路段」。", 
+        output: "【矩陣二：現況流程與應變地圖】",
+        value: "把員工平日的抱怨、主管天天在糾錯的痛點，全部變成系統升級的免費養分。最重要的是，它會幫你把「如果遇到奧客棄單、資料缺漏等突發狀況」的應變劇本與防呆邏輯全部寫清楚，確保未來的系統絕不漏單。",
+        journey: "<strong>1. 輸入總帳：</strong>學員複製 GEM 1 的成果貼給專家。<br><strong>2. 畫出傳送帶：</strong>專家引導學員定錨這項工作的「起點（原料進廠）」與「終點（成品出貨）」，主動提議 3~5 個水平大階段。<br><strong>3. 獵殺吸血鬼：</strong>專家逐一拆解垂直小步驟，拋出三大暗黑痛點場景。學員只要指著選項大喊對，專家就會自動記錄，並在打出「統整」時生成無懈可擊的應變地圖。",
+        url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" 
+      },
+      { 
+        name: "GEM 3：數位新工廠設計師", 
+        subtitle: "蓋房子不踩坑的施工藍圖總監",
+        intro: "把前兩步的「想法與工作流程」，正式變成一張蓋房子用的「實體施工圖紙」。決定你的數位系統有幾個畫面、按鈕點下去要去翻哪本帳本（Google Sheets）、檔案要收進哪個實體櫃子（Google Drive）。", 
+        output: "【矩陣三：終極施工產品規格書】",
+        value: "這是一張「工程師與 AI 工具看一眼就會驚呼太專業、能直接開工的圖紙」。它把生硬的程式權限與資料庫，翻譯成日常的「鑰匙權限」與「實體建檔總帳」，幫你省下未來開發時 90% 以上因為「做出來跟想的不一樣」而砍掉重練的冤枉錢！",
+        journey: "<strong>1. 輸入藍圖：</strong>學員把 GEM 1 與 GEM 2 的兩個矩陣同時貼給總監。<br><strong>2. 實體工廠巡禮：</strong>總監會像帶你參觀實體工廠一樣，引導你確認系統的[分頁 $\\rightarrow$ 頁籤 $\\rightarrow$ 區塊]。<br><strong>3. 鎖定 16 大參數：</strong>總監用白話引導你勾選：「這區誰有鑰匙可以改？」、「算完的數字寫進哪本新帳本？」。當 16 個大門全部上鎖，學員輸入「統整」，專業度爆表的終極規格書就此完工！",
+        url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" 
+      },
+      { 
+        name: "GEM 4：全能 AI 開發特助", 
+        subtitle: "邊體驗邊生出系統的終極魔術師",
+        intro: "真正幫你「把系統當場生出來、並陪你無限升級」的黑科技隨身助教！你不用懂任何一行程式碼，只要像個挑剔的體驗官一樣去用用看、挑毛病，它就會一字不漏地把完整的系統網頁與後端大腦寫好雙手奉上。", 
+        output: "【100% 完整雙棲前端網頁原始碼 ＋ 後端生態系串接控制器 ＋ 試算表欄位表】",
+        value: "讓一個文科生、或完全不會寫程式的微創老闆，當場擁有一個活生生、能動、能自動寫入 Sheets、讀取 Drive 資料夾、串接官方 LINE 帳號或 FB/IG 的跨平台企業級系統！",
+        journey: "<strong>1. 圖紙合體：</strong>學員把前三階段的轉型成果貼給魔術師。<br><strong>2. 代碼第一次爆發：</strong>魔術師針對功能美學等進行確認。學員一說「OK」，魔術師就會毫無保留地噴出 100% 完整的全套程式碼！<br><strong>3. 一鍵強制解鎖權限：</strong>教導學員手動點擊執行，一鍵打通 Google 諸神生態系，消滅所有權限鬼故事。<br><strong>4. 四維除錯與增量升級：</strong>學員發現跑版或想新增功能，直接把截圖和代碼丟回給魔術師。魔術師會自動歸類問題，在舊代碼基礎上直接「增量升級」，直到系統完美落地！",
+        url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" 
+      }
     ];
+
     document.getElementById('gemContainer').innerHTML = gems.map(g => `
       <div class="gem-pro-card">
-        <div class="gem-icon-box"><i data-lucide="cpu" style="width:20px;"></i></div>
-        <h4 class="fw-bold m-0">${g.name}</h4>
-        <p class="text-muted small m-0">${g.desc}</p>
-        <a href="${g.url}" target="_blank" class="btn-outline mt-2">進入大腦通道 <i data-lucide="arrow-right" style="width:14px; margin-left:4px;"></i></a>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="gem-icon-box" style="flex-shrink:0;"><i data-lucide="cpu" style="width:24px;"></i></div>
+          <div>
+            <h4 class="fw-bold m-0" style="color: var(--primary); letter-spacing:-0.5px;">${g.name}</h4>
+            <p class="text-muted m-0 small fw-medium mt-1">${g.subtitle}</p>
+          </div>
+        </div>
+        
+        <p class="fw-bold text-primary mb-2" style="font-size:14px;"><i data-lucide="lightbulb" style="width:16px; margin-right:4px;"></i>一句話白話介紹</p>
+        <p class="small text-muted mb-4" style="line-height:1.6;">${g.intro}</p>
+        
+        <div class="p-3 bg-light rounded mb-4" style="border-left: 3px solid var(--accent);">
+          <p class="fw-bold mb-2" style="font-size: 13.5px;"><i data-lucide="target" style="width:14px; margin-right:4px;"></i>階段成果：${g.output}</p>
+          <p class="small text-muted m-0" style="line-height:1.6;"><strong>落地價值：</strong>${g.value}</p>
+        </div>
+
+        <details>
+          <summary class="small fw-bold"><i data-lucide="map" style="width:14px; margin-right:4px;"></i>查看學員互動旅程</summary>
+          <div class="details-content mt-2 small text-muted" style="line-height:1.7;">
+            ${g.journey}
+          </div>
+        </details>
+
+        <a href="${g.url}" target="_blank" class="btn-brand mt-4">
+          進入大腦通道 <i data-lucide="arrow-right" style="width:16px;"></i>
+        </a>
       </div>
     `).join('');
     lucide.createIcons();
