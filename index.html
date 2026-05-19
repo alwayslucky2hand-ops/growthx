@@ -1,436 +1,659 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="scroll-smooth">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GrowthX｜微企AI實戰學院 - 時間贖回計劃</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GROWTHX 特洛伊賦能陪跑系統</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* 🍏 Apple-inspired 視覺美學變數 */
+    :root { 
+      --primary: #1d1d1f; --primary-hover: #434344;
+      --accent: #0066cc; --accent-hover: #0077ed;
+      --surface: #ffffff; --bg: #f5f5f7; --border: #d2d2d7;
+      --text-main: #1d1d1f; --text-muted: #86868b;
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      --sidebar-width: 260px;
+    }
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'gx-yellow': '#E8D938',
-                        'gx-green': '#A1C436',
-                        'gx-blue': '#3B7DA1',
-                        'gx-purple': '#4D3678',
-                        'gx-dark': '#0b111a',
-                    }
-                }
-            }
-        }
-    </script>
+    * { box-sizing: border-box; }
+    html, body { max-width: 100vw; overflow-x: hidden; position: relative; }
+    body { background-color: var(--bg); font-family: var(--font-family); margin: 0; padding: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+    
+    /* 🌟 動態通知系統 (Toast) */
+    .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; width: 90%; max-width: 400px; align-items: center; }
+    .custom-toast { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--text-main); padding: 14px 24px; border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-20px) scale(0.95); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; word-break: break-word; }
+    .custom-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    .toast-error { background: rgba(255, 59, 48, 0.9); border-color: rgba(255,59,48,0.3); color: white; }
+    .toast-success { background: rgba(52, 199, 89, 0.95); border-color: rgba(52,199,89,0.3); color: white; }
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; }
-        
-        .gradient-text-brand {
-            background: linear-gradient(to right, #E8D938, #A1C436);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .gradient-bg-brand {
-            background: linear-gradient(135deg, #3B7DA1 0%, #4D3678 100%);
-        }
+    /* 頁面佈局 */
+    .app-layout { display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 32px 20px; transition: transform 0.3s ease; z-index: 100; }
+    .main-content { flex: 1; overflow-y: auto; padding: 40px; position: relative; scroll-behavior: smooth; }
+    
+    .brand-logo { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; margin-bottom: 48px; padding-left: 12px; letter-spacing: -0.5px; color: var(--primary); }
+    .nav-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+    .nav-item { margin-bottom: 8px; }
+    .nav-link { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 15px; transition: all 0.2s ease; cursor: pointer; }
+    .nav-link:hover { background: rgba(0,0,0,0.04); color: var(--primary); }
+    .nav-link.active { background: var(--primary); color: white; }
+    
+    .panel-view { display: none; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+    .panel-view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .card-panel { background: var(--surface); border-radius: 24px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); margin-bottom: 24px; border: 1px solid rgba(0,0,0,0.02); }
+    
+    /* 表單與按鈕 (強制 100% 寬度垂直佈局) */
+    .form-group-stack { display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px; }
+    .form-label { font-weight: 600; color: var(--primary); font-size: 14px; margin-bottom: 8px; letter-spacing: 0.3px; }
+    .form-control { border-radius: 12px; border: 1px solid var(--border); padding: 16px; background: var(--bg); transition: 0.2s; font-size: 15px; width: 100%; }
+    .form-control:focus { background: var(--surface); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); outline: none; }
+    
+    .btn-brand { background-color: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; padding: 16px; width: 100%; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .btn-brand:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-1px); }
+    .btn-brand:disabled { background-color: var(--border); cursor: not-allowed; }
+    .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; padding: 14px; width: 100%; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .btn-outline:hover:not(:disabled) { background-color: var(--bg); border-color: var(--primary); }
 
-        .glow-effect:hover {
-            box-shadow: 0 0 25px rgba(232, 217, 56, 0.4);
-        }
-        
-        .glass-panel {
-            background: rgba(11, 17, 26, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(59, 125, 161, 0.2);
-        }
-    </style>
+    /* 會員中心垂直佈局 */
+    .profile-stack { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; }
+    .member-code-box { background: var(--bg); padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; cursor: pointer; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); }
+    .status-stack { width: 100%; background: var(--bg); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; }
+
+    .app-card { background: var(--bg); border-radius: 16px; padding: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .gem-pro-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .gem-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--primary); align-self: flex-start; }
+    
+    /* 錄影控制 (混音雙軌引擎) */
+    .video-container { position: relative; width: 100%; max-height: 480px; background: #000; border-radius: 20px; margin-bottom: 24px; overflow: hidden; display: none; }
+    video { width: 100%; height: 100%; object-fit: cover; }
+    .status-badge { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: none; align-items: center; gap: 8px; }
+    .pulse-dot { width: 6px; height: 6px; background-color: #ff3b30; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
+    .controls-overlay { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 100px; display: flex; gap: 24px; align-items: center; z-index: 20; }
+    .control-btn { background: none; border: none; color: white; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; outline: none; }
+    .control-btn:hover { background: rgba(255,255,255,0.2); }
+    
+    .log-box { height: 120px; overflow-y: auto; background: var(--primary); color: #4ade80; padding: 16px; border-radius: 16px; font-family: monospace; font-size: 13px; margin-bottom: 24px; width: 100%; }
+    
+    /* 陪跑日誌垂直排版 */
+    .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 24px; }
+    .post-header { display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    .details-content { padding: 16px; background: var(--bg); border-radius: 12px; font-size: 14px; line-height: 1.6; color: var(--text-muted); word-wrap: break-word; }
+    details summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px; color: var(--primary); outline: none; }
+    details summary::-webkit-details-marker { display: none; }
+    
+    /* 行動裝置適配 */
+    .step-section { display: none; animation: fadeIn 0.4s ease; }
+    .step-section.active { display: block; }
+    
+    @media (max-width: 768px) {
+      .app-layout { flex-direction: column; }
+      .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: auto; flex-direction: row; padding: 12px 20px; z-index: 100; border-right: none; border-top: 1px solid var(--border); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+      .brand-logo, .nav-footer { display: none; }
+      .nav-menu { display: flex; width: 100%; justify-content: space-between; align-items: center; }
+      .nav-item { margin: 0; }
+      .nav-link { flex-direction: column; gap: 4px; padding: 8px 12px; font-size: 11px; background: transparent; }
+      .nav-link.active { background: transparent; color: var(--primary); }
+      .main-content { padding: 20px; padding-bottom: 120px; }
+      .card-panel { padding: 24px; }
+    }
+  </style>
 </head>
-<body class="bg-gx-dark text-gray-100 antialiased leading-relaxed overflow-x-hidden">
+<body>
 
-    <header class="fixed w-full bg-gx-dark/95 backdrop-blur-md z-50 border-b border-gx-blue/20 transition-all duration-300">
-        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
-            
-            <a href="#hero" class="flex items-center transform hover:scale-105 transition bg-white/5 px-4 py-1.5 rounded-lg border border-white/10">
-                <img src="202604_AI學院growthx岳logo.png" alt="GrowthX 微企AI實戰學院" class="h-9 md:h-11 object-contain drop-shadow-md">
+<div id="toast-container" class="toast-container"></div>
+<div id="mockAlert">系統提示：目前運行於外部部署環境，已啟動跨網域通訊協定。</div>
+
+<div id="view-login" style="max-width: 400px; margin: 8vh auto; padding: 0 24px;">
+  <div class="card-panel border-0 text-center">
+    <div class="d-inline-flex justify-content-center align-items-center mb-4" style="background: var(--primary); color: white; padding: 16px; border-radius: 20px;">
+      <i data-lucide="layers" style="width: 32px; height: 32px;"></i>
+    </div>
+    <h3 class="fw-bold mb-1" style="letter-spacing: -0.5px;">GROWTHX</h3>
+    <p class="text-muted small fw-medium mb-4">特洛伊賦能陪跑系統</p>
+
+    <div id="step-email" class="step-section active text-start">
+      <div class="form-group-stack">
+        <div>
+          <label class="form-label">工作信箱</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com">
+        </div>
+        <button class="btn-brand" onclick="checkEmail()" id="btnCheckEmail">下一步</button>
+      </div>
+    </div>
+
+    <div id="step-register" class="step-section text-start">
+      <div class="form-group-stack">
+        <div>
+          <label class="form-label">真實姓名</label>
+          <input type="text" id="regName" class="form-control" placeholder="請輸入姓名">
+        </div>
+        <div>
+          <label class="form-label text-danger">專屬 API KEY (必填)</label>
+          <input type="password" id="regApiKey" class="form-control" placeholder="sk-xxxxxxxxxxxxxxxx">
+          <div class="mt-2 text-end">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size: 12px; color: var(--accent); font-weight: 500; text-decoration: none;">
+              前往申請 Google AI Studio 金鑰 <i data-lucide="external-link" style="width:12px; margin-left: 2px;"></i>
             </a>
-            
-            <nav class="hidden md:flex space-x-8 font-medium text-sm">
-                <a href="#pain-points" class="text-gray-300 hover:text-gx-yellow transition">理念初衷</a>
-                <a href="#audience" class="text-gray-300 hover:text-gx-yellow transition">適合對象</a>
-                <a href="#features" class="text-gray-300 hover:text-gx-yellow transition">AI 分身系統</a>
-                <a href="#course" class="text-gray-300 hover:text-gx-yellow transition">實戰課程</a>
-                <a href="#instructor" class="text-gray-300 hover:text-gx-yellow transition">講師介紹</a>
-            </nav>
-            
-            <a href="#course" class="px-6 py-2 gradient-bg-brand text-white font-bold rounded-full hover:opacity-90 transition shadow-lg glow-effect hidden md:block">
-                馬上報名
-            </a>
+          </div>
         </div>
-    </header>
+        <button class="btn-brand" onclick="registerAccount()" id="btnRegister">註冊並發送驗證碼</button>
+        <button class="btn-outline" onclick="switchLoginStep('step-email')">返回上一頁</button>
+      </div>
+    </div>
 
-    <section id="hero" class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex items-center justify-center text-center px-6 min-h-[95vh] bg-[url('https://images.unsplash.com/photo-1620712948343-008423671cd2?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
-        
-        <div class="absolute inset-0 bg-gradient-to-b from-gx-dark/90 via-gx-dark/80 to-gx-dark"></div>
-        
-        <div class="relative z-10 max-w-5xl mx-auto flex flex-col items-center">
-            <div class="bg-white/5 p-8 rounded-3xl backdrop-blur-md border border-white/10 mb-8 shadow-[0_0_50px_rgba(59,125,161,0.25)] hover:scale-105 transition duration-500">
-                <img src="202604_AI學院growthx岳logo.png" alt="GrowthX 微企AI實戰學院" class="h-32 md:h-48 mx-auto object-contain">
-            </div>
-            
-            <p class="text-gx-green font-bold tracking-[0.2em] mb-4 text-sm md:text-base drop-shadow-md">微企 AI 學院 - 創客永續賦能計畫</p>
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight drop-shadow-lg">
-                <span class="gradient-text-brand">贖回創業者的寶貴光陰</span>
-            </h1>
-            <p class="text-lg md:text-2xl text-gray-200 mb-12 font-light max-w-3xl mx-auto leading-relaxed drop-shadow-md">
-                能否讓生意多產倍增的同時，<br class="md:hidden">我們一樣生活有時間、生命有品質？
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-5 w-full sm:w-auto">
-                <a href="#course" class="w-full sm:w-auto px-10 py-4 gradient-bg-brand text-white text-lg font-bold rounded-full shadow-[0_0_20px_rgba(59,125,161,0.4)] hover:shadow-[0_0_30px_rgba(232,217,56,0.4)] transition transform hover:-translate-y-1">探索 AI 實戰課程</a>
-                <a href="#pain-points" class="w-full sm:w-auto px-10 py-4 glass-panel text-white text-lg font-bold rounded-full hover:bg-white/10 border-gx-blue/40 transition">了解初衷</a>
-            </div>
-        </div>
-    </section>
+    <div id="step-code" class="step-section">
+      <div class="text-center mb-4 text-muted" style="font-size:14px;">
+        驗證碼已發送至 <br><strong id="displayTargetEmail" style="color: var(--primary);"></strong>
+      </div>
+      <div class="form-group-stack">
+        <input type="text" id="loginCode" class="form-control text-center fw-bold" placeholder="輸入 6 位數字" style="letter-spacing: 8px; font-size: 24px;">
+        <button class="btn-brand" onclick="verifyCode()" id="btnVerify">驗證登入</button>
+        <button class="btn-outline" onclick="switchLoginStep('step-email')">重新填寫信箱</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <section id="pain-points" class="py-24 relative bg-[url('https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed border-t border-gx-blue/20">
-        <div class="absolute inset-0 bg-gx-dark/95"></div>
-        <div class="container mx-auto px-6 max-w-6xl relative z-10">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">你是否陷入了「創業忙碌漩渦」？</h2>
-                <p class="text-gray-400 text-lg">這不只是我的體悟，也是身旁創業圈朋友的共同體感。</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="space-y-6 text-gray-300 text-lg">
-                    <div class="glass-panel p-8 rounded-2xl border-l-4 border-gx-yellow">
-                        <p class="mb-4">帶著夢想啟動創業，卻發現<strong class="text-gx-yellow">不是只學技能還要會經營管理</strong>.服務客人、做產銷人發財、跑業務投廣告... 越來越忙碌，停下來公司可能會倒。</p>
-                        <p>有了人才要負擔薪水勞健保，請了人變多、空間要變大，成本越高卻沒有更輕鬆。最後老闆還是自己來，難複製人才和交辦任務，日復一日年復一年。</p>
-                        <blockquote class="border-l-4 border-gx-blue pl-6 py-4 mt-6 italic text-gray-100 font-medium bg-black/30 rounded-r-lg">
-                            「孩子大了，父母走了、伴侶老了；時間一去不復返。<br>老了思考：什麼才是最重要的？」
-                        </blockquote>
-                    </div>
-                </div>
-                
-                <div class="glass-panel p-10 rounded-3xl shadow-2xl relative overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 border-2 border-gx-blue/30">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-gx-blue/30 rounded-full mix-blend-screen filter blur-3xl"></div>
-                    <div class="absolute bottom-0 left-0 w-40 h-40 bg-gx-purple/30 rounded-full mix-blend-screen filter blur-3xl"></div>
-                    
-                    <h3 class="text-2xl font-bold text-gx-yellow mb-6 relative z-10 flex items-center gap-3">
-                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
-                        我們的理念初衷
-                    </h3>
-                    <p class="mb-4 text-gray-200 font-medium relative z-10">聖經說：我來了，是要叫羊得生命，並且得的更豐盛！</p>
-                    <p class="text-xl font-bold text-white mb-8 relative z-10">我感動：<span class="text-gx-green">AI 用了，可以叫人得時間，並且生命更和諧！</span></p>
-                    <ul class="space-y-6 relative z-10">
-                        <li class="flex items-start bg-black/40 p-4 rounded-xl border border-white/5 hover:border-gx-green/50 transition">
-                            <span class="text-gx-green mr-4 mt-1 text-2xl">✔</span> 
-                            <div><strong class="text-white block text-lg">省下更多 $$</strong> <span class="text-sm text-gray-400">理財配置，固定開銷減壓</span></div>
-                        </li>
-                        <li class="flex items-start bg-black/40 p-4 rounded-xl border border-white/5 hover:border-gx-green/50 transition">
-                            <span class="text-gx-green mr-4 mt-1 text-2xl">✔</span> 
-                            <div><strong class="text-white block text-lg">釋放更多時間</strong> <span class="text-sm text-gray-400">思考戰略，做好決策與服務</span></div>
-                        </li>
-                        <li class="flex items-start bg-black/40 p-4 rounded-xl border border-white/5 hover:border-gx-green/50 transition">
-                            <span class="text-gx-green mr-4 mt-1 text-2xl">✔</span> 
-                            <div><strong class="text-white block text-lg">生意自在運行</strong> <span class="text-sm text-gray-400">享受人生，掌權生命光陰</span></div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
+<div id="view-main" class="app-layout" style="display:none;">
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <i data-lucide="layout-dashboard"></i> GROWTHX
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item"><a class="nav-link active" onclick="switchTab('tab-member')" id="nav-tab-member"><i data-lucide="user"></i> <span>會員中心</span></a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-coach')" id="nav-tab-coach"><i data-lucide="video"></i> <span>陪跑日誌</span></a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-gem')" id="nav-tab-gem"><i data-lucide="cpu"></i> <span>AI 助教矩陣</span></a></li>
+    </ul>
+    <div class="nav-footer mt-auto">
+      <button class="btn-outline w-100" style="border:none; background:var(--bg);" onclick="logout()"><i data-lucide="log-out" style="width:16px;"></i> 登出系統</button>
+    </div>
+  </aside>
 
-    <section id="audience" class="py-24 bg-gx-dark border-b border-gx-blue/20">
-        <div class="container mx-auto px-6 max-w-6xl text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-16 text-white">適合誰來參與這場時間贖回？</h2>
-            
-            <div class="grid md:grid-cols-3 gap-8 text-left">
-                <div class="bg-black/50 p-8 rounded-2xl border border-gx-blue/20 hover:border-gx-blue transition-colors duration-300">
-                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-gx-blue/20 text-gx-blue p-2 rounded-lg">🎯</span> 目標微型創業家
-                    </h3>
-                    <ul class="space-y-4 text-gray-400 text-sm">
-                        <li class="flex items-start"><span class="text-gx-blue mr-2">•</span> 創業 5 年以內，核心成員 10 人以下</li>
-                        <li class="flex items-start"><span class="text-gx-blue mr-2">•</span> 企業主、或核心高階幹部</li>
-                        <li class="flex items-start"><span class="text-gx-blue mr-2">•</span> 想獨資，不想合夥或是天使投資</li>
-                        <li class="flex items-start"><span class="text-gx-blue mr-2">•</span> 追求穩中求勝，不追求爆發成長</li>
-                        <li class="flex items-start"><span class="text-gx-blue mr-2">•</span> 企業最好「小而美」，不用很多人</li>
-                    </ul>
-                </div>
-                
-                <div class="bg-black/50 p-8 rounded-2xl border border-gx-blue/20 hover:border-red-500/50 transition-colors duration-300">
-                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-red-900/30 text-red-400 p-2 rounded-lg">🚨</span> 生意現況痛點
-                    </h3>
-                    <ul class="space-y-4 text-gray-400 text-sm">
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 校長兼撞鐘的犧牲忙碌</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 業績上不去，想突破營收天花板</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 每月資金緊繃，成本降不下來</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 無法好好放個假，無法放鬆</li>
-                        <li class="flex items-start"><span class="text-red-500 mr-2">•</span> 人員流動高，苦惱手邊任務下放</li>
-                    </ul>
-                </div>
-                
-                <div class="gradient-bg-brand p-8 rounded-2xl border border-gx-yellow/50 relative overflow-hidden shadow-[0_0_20px_rgba(232,217,56,0.15)] hover:-translate-y-2 transition-transform duration-300">
-                    <div class="absolute top-0 right-0 bg-gx-yellow text-gx-dark font-black px-4 py-1.5 rounded-bl-xl">無痛上手</div>
-                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="bg-white/20 text-white p-2 rounded-lg">💡</span> 本身技能要求
-                    </h3>
-                    <ul class="space-y-4 text-gray-100 font-medium">
-                        <li class="flex items-center"><span class="bg-gx-yellow text-gx-dark rounded-full p-1 mr-3 text-xs font-bold">V</span> 零『程式』基礎：可以！</li>
-                        <li class="flex items-center"><span class="bg-gx-yellow text-gx-dark rounded-full p-1 mr-3 text-xs font-bold">V</span> 零理工腦袋：可以！</li>
-                        <li class="flex items-center"><span class="bg-gx-yellow text-gx-dark rounded-full p-1 mr-3 text-xs font-bold">V</span> 沒在用AI：可以！(會LINE即可)</li>
-                    </ul>
-                    <div class="mt-6 pt-5 border-t border-white/20">
-                        <p class="text-gx-yellow text-sm leading-relaxed font-bold">
-                            <strong class="block mb-1">※ 警告：很久沒用電腦很危險！</strong>
-                            AI 是必備技能，自己會才不被廠商綁架。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="py-24 relative bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
-        <div class="absolute inset-0 bg-gx-dark/90 backdrop-blur-sm"></div>
-
-        <div class="container mx-auto px-6 max-w-6xl relative z-10">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">你將學到與獲得什麼？</h2>
-                <p class="text-2xl text-gx-yellow font-black tracking-wide drop-shadow-md">一年多出 2 個月的時間！贏過 95% 的企業運營。</p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8 mb-20">
-                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors border-t-4 border-t-gx-yellow">
-                    <div class="w-16 h-16 mx-auto bg-gx-yellow/10 text-gx-yellow rounded-full flex items-center justify-center text-2xl font-bold mb-6 border border-gx-yellow/30">1</div>
-                    <h4 class="text-xl font-bold text-white mb-3">學會 VibeCoding</h4>
-                    <p class="text-gray-400">自己的系統自己做，不用寫複雜程式碼，一年為你省下 20 萬+ 的系統費。</p>
-                </div>
-                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors border-t-4 border-t-gx-green">
-                    <div class="w-16 h-16 mx-auto bg-gx-green/10 text-gx-green rounded-full flex items-center justify-center text-2xl font-bold mb-6 border border-gx-green/30">2</div>
-                    <h4 class="text-xl font-bold text-white mb-3">SOP 系統化思考</h4>
-                    <p class="text-gray-400">分析工作節點，將大腦知識庫具象化，具備標準化和自動化的強大能力。</p>
-                </div>
-                <div class="glass-panel text-center p-8 rounded-2xl hover:bg-white/5 transition-colors border-t-4 border-t-gx-blue">
-                    <div class="w-16 h-16 mx-auto bg-gx-blue/10 text-gx-blue rounded-full flex items-center justify-center text-2xl font-bold mb-6 border border-gx-blue/30">3</div>
-                    <h4 class="text-xl font-bold text-white mb-3">精準商業決策</h4>
-                    <p class="text-gray-400">數位紀錄營運軌跡，讓 AI 透過紀錄統整提案，有憑有據做優化決策。</p>
-                </div>
-            </div>
-
-            <div class="glass-panel rounded-3xl p-8 md:p-14 text-center border-t border-l border-white/10 shadow-2xl relative overflow-hidden">
-                <h3 class="text-3xl font-black text-white mb-4">4項思考 × 8大步驟 × 1套百元工具</h3>
-                <p class="text-2xl text-gx-green font-bold mb-12 drop-shadow-md">= 打造你的 <span class="bg-gx-blue text-white px-4 py-1.5 rounded-lg shadow-lg">7 個 AI 分身</span></p>
-                
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-5">
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">📈</div>
-                        <div class="font-bold text-white mb-1">營銷流</div>
-                        <div class="text-xs text-gray-400">自動分身</div>
-                    </div>
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">🤖</div>
-                        <div class="font-bold text-white mb-1">客服流</div>
-                        <div class="text-xs text-gray-400">AI門神</div>
-                    </div>
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">🚀</div>
-                        <div class="font-bold text-white mb-1">專案流</div>
-                        <div class="text-xs text-gray-400">自動領航</div>
-                    </div>
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">📊</div>
-                        <div class="font-bold text-white mb-1">總管流</div>
-                        <div class="text-xs text-gray-400">全城戰情室</div>
-                    </div>
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">👥</div>
-                        <div class="font-bold text-white mb-1">人資流</div>
-                        <div class="text-xs text-gray-400">工具矩陣</div>
-                    </div>
-                    
-                    <div class="bg-black/50 p-5 rounded-xl border border-gx-purple/50 hover:border-gx-yellow hover:bg-gx-purple/20 transition-all group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">📦</div>
-                        <div class="font-bold text-white mb-1">採購流</div>
-                        <div class="text-xs text-gray-400">智慧物流</div>
-                    </div>
-
-                    <div class="bg-gx-blue/20 p-5 rounded-xl border-2 border-gx-yellow transform scale-105 shadow-[0_0_20px_rgba(232,217,56,0.3)] group">
-                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform drop-shadow-md">💰</div>
-                        <div class="font-bold text-gx-yellow mb-1">財會流</div>
-                        <div class="text-xs text-white">數位帳房</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="course" class="py-24 bg-gx-dark relative">
-        <div class="container mx-auto px-6 max-w-6xl">
-            <div class="flex flex-col lg:flex-row gap-16 items-center">
-                
-                <div class="lg:w-1/2 space-y-8">
-                    <div>
-                        <span class="inline-block px-4 py-1.5 bg-red-500/20 text-red-400 rounded-full text-sm font-bold border border-red-500/30 mb-4 tracking-widest">熱烈開課中</span>
-                        <h2 class="text-4xl md:text-5xl font-black text-white leading-tight mb-4 drop-shadow-sm">自動化 Q&A 客服系統課</h2>
-                        <p class="text-xl text-gx-green font-bold">打造 24H Q&A 客服助理，徹底告別重複回答！</p>
-                    </div>
-                    
-                    <div class="space-y-4 text-gray-400 leading-relaxed text-lg">
-                        <p>每天花很多時間回答『一樣的問題』？是不是有時沒及時回覆客戶就流失了？花費大量時間回答重複問題，客服效率低，員工情緒難控制。</p>
-                        <p class="text-white font-medium bg-black/50 p-4 rounded-lg border-l-4 border-gx-yellow">一人創業最累的不是沒客人，而是校長兼撞鐘，雜事一大堆。</p>
-                    </div>
-                    
-                    <div class="relative rounded-2xl overflow-hidden border border-gx-blue/30 shadow-[0_0_20px_rgba(59,125,161,0.2)]">
-                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
-                        <div class="absolute inset-0 bg-gx-dark/80"></div>
-                        
-                        <div class="relative z-10 p-8">
-                            <h3 class="font-bold text-gx-yellow mb-5 flex items-center gap-2 text-xl">
-                                <span class="text-white">⚙️</span> 手把手實戰課程大綱：
-                            </h3>
-                            <ul class="space-y-3 text-gray-200">
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gx-green rounded-full"></div> 陪伴彙整常見問題與回答內容</li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gx-green rounded-full"></div> 建構 Google 試算表紀錄每次 QA</li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gx-green rounded-full"></div> 運用 Gemini 研商優化 QA 內容</li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gx-green rounded-full"></div> 設計 24H 自動化 QA 助理前端頁面</li>
-                                <li class="flex items-center gap-3"><div class="w-2 h-2 bg-gx-green rounded-full"></div> 申請與串接 Gemini API，反覆 Debug</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="lg:w-1/2 w-full">
-                    <div class="glass-panel p-8 md:p-10 rounded-3xl border border-gx-blue/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative hover:border-gx-yellow/50 transition duration-500">
-                        <div class="absolute -top-5 -right-5 bg-gx-yellow text-gx-dark font-black px-6 py-2 rounded-xl transform rotate-3 shadow-xl border-2 border-white">
-                            限量早鳥優惠
-                        </div>
-                        
-                        <div class="text-center mb-8">
-                            <h3 class="text-2xl font-bold text-white mb-2">一日實戰班 (6H)</h3>
-                            <p class="text-gray-400 text-sm">不藏私帶你落地執行，直接帶走可用的 AI 系統</p>
-                        </div>
-                        
-                        <div class="flex justify-center items-end gap-3 mb-10 pb-10 border-b border-white/10">
-                            <span class="text-gray-400 mb-2 font-medium">NT$</span>
-                            <span class="text-6xl font-black text-white leading-none drop-shadow-md">3,000</span>
-                            <div class="flex flex-col text-left ml-2">
-                                <span class="text-sm text-gray-500 line-through">原價 $6,000</span>
-                                <span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-bold border border-red-500/30">名額僅 20 位</span>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4 mb-10 text-gray-300 font-medium text-sm">
-                            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl border border-white/5">
-                                <span class="text-gray-400">⏰ 上課時間</span> 
-                                <span class="text-white text-lg">09:00 - 16:00</span>
-                            </div>
-                            <div class="bg-black/50 p-4 rounded-xl border border-white/5">
-                                <span class="block text-gray-400 mb-2">🗓️ 近期開課梯次：</span>
-                                <span class="text-gx-yellow leading-relaxed tracking-wide">5/5~5/16、6/9、6/27、7/14、7/25、8/1</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-gx-blue/20 p-5 rounded-xl border border-gx-blue/50 mb-8 flex items-start gap-3">
-                            <div class="text-2xl drop-shadow-md">🛡️</div>
-                            <div>
-                                <strong class="text-gx-yellow block mb-1">零風險承諾保證</strong>
-                                <p class="text-xs text-gray-300">提供「30天內，若系統沒幫你省下 10 小時工作時間，全額退費」保證。</p>
-                            </div>
-                        </div>
-
-                        <button class="w-full py-4 gradient-bg-brand text-white font-black rounded-xl transition-all text-xl shadow-[0_0_20px_rgba(59,125,161,0.6)] transform hover:-translate-y-1 hover:brightness-110">
-                            立即預約報名
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="instructor" class="py-24 bg-gx-dark border-t border-gx-blue/20">
-        <div class="container mx-auto px-6 max-w-5xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-white">首席 AI 賦能師</h2>
-            
-            <div class="flex flex-col md:flex-row gap-12 items-center glass-panel p-8 md:p-14 rounded-3xl border border-gx-purple/40 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-80 h-80 bg-gx-purple/20 rounded-full filter blur-[100px] pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-80 h-80 bg-gx-blue/20 rounded-full filter blur-[100px] pointer-events-none"></div>
-
-                <div class="md:w-1/3 flex flex-col items-center text-center relative z-10">
-                    <div class="w-48 h-48 bg-black rounded-full border-4 border-gx-yellow mb-6 overflow-hidden shadow-[0_0_30px_rgba(232,217,56,0.3)] relative p-1.5">
-                        <img src="troy%20photo.png" alt="講師 Troy" class="w-full h-full object-cover rounded-full">
-                    </div>
-                    <h3 class="text-3xl font-black text-white tracking-wide">林東岳 <span class="text-xl text-gx-blue font-bold">Troy</span></h3>
-                    <div class="mt-3 bg-gx-blue/20 border border-gx-blue/50 text-white text-sm px-5 py-1.5 rounded-full font-bold shadow-lg">
-                        用 AI 實踐時間釋放的無本創業家
-                    </div>
-                </div>
-                
-                <div class="md:w-2/3 space-y-8 text-gray-300 relative z-10">
-                    <p class="text-lg leading-relaxed border-l-4 border-gx-yellow pl-5 bg-white/5 p-4 rounded-r-lg">
-                        擁有 <strong class="text-gx-yellow">4 次微型創業</strong>、<strong class="text-gx-yellow">6 次跨界轉型</strong>經驗，累積超過 500+ 場商務演講主持。<br>
-                        專精於交大電機邏輯腦、AI 自動化實戰與 SOP 系統建構。
-                    </p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                        <div class="bg-black/40 p-5 rounded-xl border border-white/5 hover:border-gx-blue transition-colors">
-                            <h4 class="text-white font-bold mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
-                                <span class="text-gx-blue">🎓</span> 專業身分
-                            </h4>
-                            <ul class="space-y-2 text-gray-300">
-                                <li>• 國立交通大學 電機工程系</li>
-                                <li>• 賦活再續股份有限公司 負責人</li>
-                                <li>• 台中永吉搬家 二代</li>
-                                <li>• BNI國際商務引薦平台 - 金質獎章 </li>
-                            </ul>
-                        </div>
-                        <div class="bg-black/40 p-5 rounded-xl border border-white/5 hover:border-gx-yellow transition-colors">
-                            <h4 class="text-white font-bold mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
-                                <span class="text-gx-yellow">⚡</span> AI 實戰成果
-                            </h4>
-                            <ul class="space-y-2 text-gray-300">
-                                <li><strong class="text-gx-yellow">年省300萬：</strong> 搬家系統建置</li>
-                                <li><strong class="text-gx-yellow">6小時上線：</strong> AI 客服開發</li>
-                                <li><strong class="text-gx-yellow">爭取百萬：</strong> AI 協助獲補助</li>
-                                <li><strong class="text-gx-yellow">時間贖回：</strong> 年省 1200 小時</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer id="cta" class="py-24 text-center border-t border-gx-blue/30 relative bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
-        
-        <div class="absolute inset-0 bg-gx-dark/90 backdrop-blur-sm"></div>
-        
-        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none mix-blend-screen">
-            <img src="202604_AI學院growthx岳logo.png" alt="" class="w-[800px] blur-[1px]">
+  <main class="main-content">
+    
+    <div id="tab-member" class="panel-view active">
+      <div class="card-panel">
+        <div class="profile-stack">
+          <div class="avatar-circle" id="userInitial">U</div>
+          <h3 class="fw-bold m-0" id="profileNameDisplay" style="letter-spacing: -0.5px;">載入中</h3>
+          <p class="text-muted m-0" id="profileEmailDisplay">email@domain.com</p>
+          <div class="member-code-box" onclick="copyCode()" title="點擊複製"><i data-lucide="copy" style="width:14px;"></i> <span id="memberCodeTxt">CODE</span></div>
+          
+          <div class="status-stack mt-2">
+            <div style="font-size:13px; color:var(--text-muted);">註冊日：<span id="regDateTxt"></span></div>
+            <div class="fw-bold" style="font-size: 15px;">到期日：<span id="expiryDateTxt"></span></div>
+            <a href="https://your-payment-link.com" target="_blank" class="btn-brand mt-2" style="padding: 12px;"><i data-lucide="credit-card" style="width:16px;"></i> 續約繳費</a>
+          </div>
         </div>
         
-        <div class="container mx-auto px-6 max-w-4xl relative z-10">
-            <h2 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight drop-shadow-lg">創業，不該是一場犧牲光陰的忙碌悲劇</h2>
-            <p class="text-2xl md:text-3xl text-gx-yellow font-bold mb-10 tracking-widest drop-shadow-md">該是一場掌權時間、得勝有餘的連續劇！</p>
-            
-            <p class="text-gray-300 mb-12 text-lg max-w-2xl mx-auto font-light">
-                從「埋頭苦幹的人力密集型企業」，升級成為「由 AI 驅動、高效運轉的智能密集型企業」。讓我們一起實現低成本、高產值的爆炸性成長。
-            </p>
-            
-            <a href="#course" class="inline-block px-12 py-5 gradient-bg-brand text-white text-xl font-black rounded-full shadow-[0_0_30px_rgba(59,125,161,0.6)] hover:shadow-[0_0_50px_rgba(232,217,56,0.6)] transition transform hover:-translate-y-1">
-                馬上預約報名 / 啟動 AI 賦能
-            </a>
-            
-            <div class="mt-24 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 font-medium">
-                <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg border border-white/5">
-                    <img src="202604_AI學院growthx岳logo.png" alt="GrowthX" class="h-6 opacity-90 hover:opacity-100 transition">
-                </div>
-                <p>&copy; 2026 GrowthX 微企 AI 實戰學院. All rights reserved.</p>
-            </div>
+        <h5 class="fw-bold mb-4" style="letter-spacing: -0.5px;">系統與金鑰設定</h5>
+        <div class="form-group-stack">
+          <div><label class="form-label">真實姓名</label><input type="text" id="inputName" class="form-control"></div>
+          <div><label class="form-label text-danger">專屬 API_KEY (必填)</label><input type="password" id="inputApiKey" class="form-control"></div>
+          <button class="btn-brand" onclick="saveProfile()" id="btnSaveProfile">儲存設定</button>
         </div>
-    </footer>
+      </div>
 
+      <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+        <h4 class="fw-bold m-0" style="letter-spacing: -0.5px;">數位資產清單</h4>
+        <button class="btn-outline w-auto px-4" onclick="document.getElementById('addAppForm').style.display='block'">新增</button>
+      </div>
+      
+      <div id="addAppForm" class="card-panel" style="display:none;">
+        <h6 class="fw-bold mb-4">登錄新系統</h6>
+        <div class="form-group-stack">
+          <input type="text" id="appName" class="form-control" placeholder="系統名稱 (例：冷氣預約系統)">
+          <input type="text" id="appDesc" class="form-control" placeholder="用途簡述 (例：協助客服自動接單)">
+          <input type="url" id="appUrl" class="form-control" placeholder="https://script.google.com/.../exec">
+          <button class="btn-brand" onclick="submitWebApp()">確認登錄</button>
+          <button class="btn-outline" onclick="document.getElementById('addAppForm').style.display='none'">取消</button>
+        </div>
+      </div>
+      
+      <div id="webAppsContainer" class="form-group-stack"></div>
+    </div>
+
+    <div id="tab-coach" class="panel-view">
+      
+      <div id="recordUI" class="card-panel mb-5">
+        <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">發起全端除錯與錄影</h4>
+        
+        <div class="video-container" id="videoContainer">
+          <div id="recBadge" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
+          <video id="mediaPlayer" autoplay muted playsinline></video>
+          <div class="controls-overlay" id="playerControls">
+             <button class="control-btn" onclick="switchSourceAction()"><i data-lucide="switch-camera" id="icon-source"></i></button>
+             <button class="control-btn" onclick="toggleVideo()"><i data-lucide="video-off" id="icon-video"></i></button>
+             <button class="control-btn pause-btn" id="btnPause" onclick="pauseMeeting()" style="display:none;"><i data-lucide="pause"></i></button>
+             <button class="control-btn play-btn" id="btnResume" onclick="resumeMeeting()" style="display:none;"><i data-lucide="play"></i></button>
+             <button class="control-btn stop-btn" id="btnStop" onclick="stopMeeting()" style="display:none; color: #ff3b30;"><i data-lucide="square"></i></button>
+          </div>
+        </div>
+        
+        <div class="form-group-stack">
+          <button class="btn-brand" id="btnStartPost" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製</button>
+          <div id="systemLog" class="log-box" style="display:none;"></div>
+        </div>
+      </div>
+      
+      <div class="mb-4"><h4 class="fw-bold m-0" style="letter-spacing: -0.5px;">歷史日誌總帳</h4></div>
+      <div id="feedContainer"></div>
+    </div>
+
+    <div id="tab-gem" class="panel-view">
+      <div class="mb-5 text-center text-md-start">
+        <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">特洛伊 GrowthX 數位轉型</h2>
+        <h5 class="text-muted fw-normal mb-4">四神組合拳落地指南</h5>
+      </div>
+      
+      <div class="form-group-stack">
+        <div class="gem-pro-card">
+          <div class="gem-icon-box"><i data-lucide="target" style="width:24px;"></i></div>
+          <h4 class="fw-bold m-0">GEM 1：系統許願機</h4>
+          <p class="text-muted fw-medium m-0">老闆思維：鎖定利潤與願景</p>
+          <p class="text-muted small m-0">專門將模糊的自動化願景，轉換為能省下時間與提升利潤的具體計畫。</p>
+          <a href="https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" target="_blank" class="btn-outline mt-2">啟動大腦 <i data-lucide="arrow-right" style="width:14px;"></i></a>
+        </div>
+
+        <div class="gem-pro-card">
+          <div class="gem-icon-box"><i data-lucide="map" style="width:24px;"></i></div>
+          <h4 class="fw-bold m-0">GEM 2：工作流拆解器</h4>
+          <p class="text-muted fw-medium m-0">營運專家：獵殺隱形吸血鬼</p>
+          <p class="text-muted small m-0">將團隊日常重複勞動如工廠傳送帶般切碎檢查，找出消耗時間與金錢的營運瓶頸。</p>
+          <a href="https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" target="_blank" class="btn-outline mt-2">啟動大腦 <i data-lucide="arrow-right" style="width:14px;"></i></a>
+        </div>
+
+        <div class="gem-pro-card">
+          <div class="gem-icon-box"><i data-lucide="layers" style="width:24px;"></i></div>
+          <h4 class="fw-bold m-0">GEM 3：數位工廠設計師</h4>
+          <p class="text-muted fw-medium m-0">藍圖總監：產品系統架構 PM</p>
+          <p class="text-muted small m-0">將需求與流程轉化為開發實體藍圖，界定 UI 介面、資料庫對接與雲端路徑的完整規格。</p>
+          <a href="https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" target="_blank" class="btn-outline mt-2">啟動大腦 <i data-lucide="arrow-right" style="width:14px;"></i></a>
+        </div>
+
+        <div class="gem-pro-card">
+          <div class="gem-icon-box"><i data-lucide="code-2" style="width:24px;"></i></div>
+          <h4 class="fw-bold m-0">GEM 4：全端系統編碼師</h4>
+          <p class="text-muted fw-medium m-0">開發特助：無限疊加生成引擎</p>
+          <p class="text-muted small m-0">專屬隨身助教。無需程式背景，只要指出需求，即可一鍵產出完整前後端代碼。</p>
+          <a href="https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" target="_blank" class="btn-outline mt-2">啟動大腦 <i data-lucide="arrow-right" style="width:14px;"></i></a>
+        </div>
+      </div>
+    </div>
+    
+  </main>
+</div>
+
+<script>
+  lucide.createIcons();
+  
+  // 💡 【GitHub 雙棲部署】：請填入您 GAS 部署的網址
+  const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwsUOjvkHIbKnR98-0AnYNhIbrz6xAp6parL7WgKCy4oU4P9uvNjZxxfOsesUZvDV_E/exec"; 
+  const isGAS = typeof google !== 'undefined' && google.script;
+  if (!isGAS) document.getElementById('mockAlert').style.display = 'block';
+
+  let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
+  
+  // --- The Magic Toast ---
+  function showToast(message, type = 'error') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `custom-toast toast-${type}`;
+    const icon = type === 'success' ? 'check-circle' : (type === 'warning' ? 'alert-triangle' : 'alert-circle');
+    toast.innerHTML = `<i data-lucide="${icon}" style="width:18px; flex-shrink:0;"></i><span>${message}</span>`;
+    container.appendChild(toast);
+    lucide.createIcons();
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 4000);
+  }
+
+  // --- API Engine ---
+  async function api(payload) {
+    if (isGAS) {
+      return new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resStr => {
+          try {
+            const res = JSON.parse(resStr);
+            if(res.status === 'success') resolve(res.data);
+            else reject(new Error(res.message));
+          } catch(e) { reject(new Error("系統資料格式異常。")); }
+        }).withFailureHandler(err => reject(err)).processFrontendApi(JSON.stringify(payload));
+      });
+    } else {
+      if (!GAS_WEBAPP_URL || !GAS_WEBAPP_URL.startsWith('http')) {
+         showToast("外部環境需設定有效之 GAS_WEBAPP_URL 進行連線。", "error");
+         throw new Error("Missing URL");
+      }
+      try {
+        const response = await fetch(GAS_WEBAPP_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const res = await response.json();
+        if(res.status === 'success') return res.data;
+        else throw new Error(res.message || "連線發生錯誤。");
+      } catch (err) { throw new Error("伺服器無法存取，請檢查網路連線。"); }
+    }
+  }
+
+  // --- Init ---
+  if (currentUser && currentUser.email) {
+    document.getElementById('view-login').style.display = 'none';
+    document.getElementById('view-main').style.display = 'flex';
+    loadDashboard();
+  } else { localStorage.removeItem('gx_saas_user'); }
+
+  function switchLoginStep(stepId) {
+    document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+    document.getElementById(stepId).classList.add('active');
+  }
+
+  async function checkEmail() {
+    const email = document.getElementById('loginEmail').value;
+    if(!email) return showToast("請輸入工作信箱", "warning");
+    const btn = document.getElementById('btnCheckEmail'); btn.innerText = '連線確認中...'; btn.disabled = true;
+    try {
+      const res = await api({ action: "checkEmail", email });
+      if (res.isRegistered) {
+        await api({ action: "sendCode", email });
+        document.getElementById('displayTargetEmail').innerText = email;
+        switchLoginStep('step-code');
+      } else { switchLoginStep('step-register'); }
+    } catch(e) { showToast(e.message, "error"); }
+    btn.innerText = '下一步'; btn.disabled = false;
+  }
+
+  async function registerAccount() {
+    const email = document.getElementById('loginEmail').value;
+    const name = document.getElementById('regName').value;
+    const apiKey = document.getElementById('regApiKey').value;
+    if (!name) return showToast("請輸入真實姓名", "warning");
+    if (!apiKey) return showToast("請申請並填寫專屬 API KEY 以完成註冊", "warning");
+    
+    const btn = document.getElementById('btnRegister'); btn.innerText = '系統註冊中...'; btn.disabled = true;
+    try {
+      await api({ action: "registerAndSendCode", email, name, apiKey });
+      document.getElementById('displayTargetEmail').innerText = email;
+      switchLoginStep('step-code');
+    } catch(e) { showToast(e.message, "error"); }
+    btn.innerText = '註冊並發送驗證碼'; btn.disabled = false;
+  }
+  
+  async function verifyCode() {
+    const email = document.getElementById('loginEmail').value;
+    const code = document.getElementById('loginCode').value;
+    if(!code) return showToast("請輸入驗證碼", "warning");
+    
+    const btn = document.getElementById('btnVerify'); btn.innerText = '驗證中...'; btn.disabled = true;
+    try {
+      const data = await api({ action: "verifyCode", email, code });
+      localStorage.setItem('gx_saas_user', JSON.stringify(data)); 
+      location.reload();
+    } catch(e) { showToast(e.message, "error"); btn.innerText = '驗證登入'; btn.disabled = false; }
+  }
+
+  function logout() { localStorage.removeItem('gx_saas_user'); location.reload(); }
+  function switchTab(tabId) { 
+    document.querySelectorAll('.panel-view').forEach(el => el.classList.remove('active')); 
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); 
+    document.getElementById(tabId).classList.add('active'); 
+    document.getElementById('nav-' + tabId).classList.add('active'); 
+  }
+
+  // --- Dashboard Data ---
+  async function loadDashboard() {
+    try {
+      const data = await api({ action: "getDashboardData", email: currentUser.email, role: currentUser.role });
+      if (!data || !data.profile) throw new Error("讀取資料失敗");
+
+      const p = data.profile;
+      document.getElementById('profileEmailDisplay').innerText = p.email || currentUser.email;
+      document.getElementById('profileNameDisplay').innerText = p.name || '尚未設定姓名';
+      document.getElementById('userInitial').innerText = (p.name ? p.name.charAt(0) : (p.email || 'U').charAt(0)).toUpperCase();
+      document.getElementById('memberCodeTxt').innerText = (p.email || '').split('@')[0];
+      document.getElementById('regDateTxt').innerText = p.regDate || '-';
+      document.getElementById('expiryDateTxt').innerText = p.expiryDate || '-';
+      document.getElementById('inputName').value = p.name || '';
+      document.getElementById('inputApiKey').value = p.apiKey || '';
+      
+      const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
+      document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
+      
+      renderFeed(data.posts || []); 
+      lucide.createIcons();
+    } catch(e) { showToast("載入資料時發生異常", "error"); }
+  }
+
+  async function saveProfile() {
+    const name = document.getElementById('inputName').value;
+    const apiKey = document.getElementById('inputApiKey').value;
+    if (!apiKey) return showToast("API KEY 為必填項目", "warning");
+
+    const btn = document.getElementById('btnSaveProfile'); btn.innerText = "儲存中..."; btn.disabled = true;
+    try {
+      const msg = await api({ action: "updateProfile", email: currentUser.email, profileData: {name, apiKey} });
+      showToast(msg, "success");
+    } catch(err) { showToast(err.message, "error"); }
+    btn.innerText = "儲存設定"; btn.disabled = false;
+    loadDashboard();
+  }
+
+  async function submitWebApp() {
+    const name = document.getElementById('appName').value; const desc = document.getElementById('appDesc').value; const url = document.getElementById('appUrl').value;
+    if(!name || !url) return showToast("名稱與網址為必填欄位", "warning");
+    
+    const btn = document.querySelector('#addAppForm .btn-brand'); btn.innerText = "登錄中..."; btn.disabled = true;
+    try {
+      await api({ action: "addWebApp", email: currentUser.email, appData: {name, desc, url} });
+      document.getElementById('addAppForm').style.display = 'none'; 
+      document.getElementById('appName').value = ''; document.getElementById('appDesc').value = ''; document.getElementById('appUrl').value = '';
+      showToast("資產登錄成功", "success");
+      loadDashboard();
+    } catch(err) { showToast(err.message, "error"); }
+    btn.innerText = "確認登錄"; btn.disabled = false;
+  }
+  function copyCode() { navigator.clipboard.writeText(document.getElementById('memberCodeTxt').innerText); showToast("已複製代碼", "success"); }
+
+  // --- 🎥 錄影與混音引擎復刻 ---
+  const logBox = document.getElementById('systemLog');
+  function log(msg) { const time = new Date().toLocaleTimeString('zh-TW', { hour12: false }); logBox.innerHTML += `[${time}] ${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
+
+  let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
+  let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
+  let activeProcessingTasks = new Set();
+  
+  async function acquireStream() {
+    if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+    const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
+    try {
+      if (isMobile) {
+        currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mobileFacingMode, width: { ideal: 426 }, height: { ideal: 240 } }, audio: audioConstraints });
+      } else {
+        if (desktopSource === "camera") {
+          currentStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 426 }, height: { ideal: 240 } }, audio: audioConstraints });
+        } else {
+          const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } } });
+          let micStream = null;
+          try { micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); } catch(e) { log("麥克風存取失敗"); }
+          if (micStream && micStream.getAudioTracks().length > 0) {
+            currentStream = new MediaStream([ screenStream.getVideoTracks()[0], micStream.getAudioTracks()[0] ]);
+          } else { currentStream = screenStream; }
+          currentStream.getVideoTracks()[0].onended = () => {
+            if (isRecording) { desktopSource = "camera"; document.getElementById('icon-source').setAttribute('data-lucide', 'monitor'); lucide.createIcons(); acquireStream().then(() => { if (!isPaused) startChunkRecording(); }); }
+          };
+        }
+      }
+      document.getElementById('mediaPlayer').srcObject = currentStream;
+      const videoTrack = currentStream.getVideoTracks()[0];
+      if (videoTrack) videoTrack.enabled = isVideoEnabled;
+    } catch(err) { showToast("無法取得相機或麥克風權限", "error"); }
+  }
+
+  async function switchSourceAction() {
+    const wasRecording = isRecording;
+    if (wasRecording && mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); clearTimeout(chunkInterval); }
+    if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
+    else desktopSource = (desktopSource === "camera") ? "screen" : "camera";
+    try { await acquireStream(); if (wasRecording && !isPaused) startChunkRecording(); } catch(e) {}
+  }
+
+  function toggleVideo() {
+    if (currentStream) {
+      const videoTrack = currentStream.getVideoTracks()[0];
+      if (videoTrack) {
+        isVideoEnabled = !isVideoEnabled; videoTrack.enabled = isVideoEnabled;
+        document.getElementById('icon-video').setAttribute('data-lucide', isVideoEnabled ? 'video' : 'video-off'); lucide.createIcons();
+      }
+    }
+  }
+
+  async function toggleRecordUI() {
+    document.getElementById('recordUI').style.display = 'block'; document.getElementById('videoContainer').style.display = 'block'; document.getElementById('triggerRecordBox').style.display = 'none';
+    await acquireStream();
+  }
+  
+  async function startPost() {
+    const btn = document.getElementById('btnStartPost'); btn.innerText = "系統連線中..."; btn.disabled = true;
+    logBox.style.display = 'block'; logBox.innerHTML = ''; log("啟動引擎，連線資料庫...");
+    try {
+      postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
+      isRecording = true; chunkIndex = 1;
+      document.getElementById('recBadge').style.display = 'flex'; document.getElementById('btnStop').style.display = 'flex'; document.getElementById('btnPause').style.display = 'flex';
+      btn.style.display = 'none';
+      log("雙軌同步寫入準備就緒，開始錄製。");
+      startChunkRecording();
+    } catch(e) { showToast("啟動失敗", "error"); btn.innerText = "開始錄製"; btn.disabled = false; }
+  }
+
+  function pauseMeeting() {
+    if (mediaRecorder && mediaRecorder.state === "recording") { isPaused = true; mediaRecorder.stop(); clearTimeout(chunkInterval); document.getElementById('btnPause').style.display = 'none'; document.getElementById('btnResume').style.display = 'flex'; log("錄製暫停"); }
+  }
+  function resumeMeeting() {
+    if (currentStream) { isPaused = false; startChunkRecording(); document.getElementById('btnResume').style.display = 'none'; document.getElementById('btnPause').style.display = 'flex'; log("錄製恢復"); }
+  }
+
+  function startChunkRecording() {
+    if (!isRecording || !currentStream || isPaused) return;
+    let chunks = []; const mime = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : 'video/mp4';
+    mediaRecorder = new MediaRecorder(currentStream, {mimeType: mime});
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = () => { if (chunks.length > 0) processChunk(new Blob(chunks, {type: mime}), mime, chunkIndex++); if (isRecording && !isPaused) startChunkRecording(); };
+    try { mediaRecorder.start(); chunkInterval = setTimeout(() => { if (mediaRecorder.state === "recording") mediaRecorder.stop(); }, 60000); } catch(e){}
+  }
+
+  function processChunk(blob, mime, cIndex) {
+    log(`區段 ${cIndex} 背景處理中...`);
+    const task = new Promise(resolve => {
+      const reader = new FileReader(); reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const b64 = reader.result.split(',')[1];
+        try {
+          const p1 = api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex });
+          const p2 = api({ action: "recognizeAI", base64Data: b64, mimeType: mime, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email });
+          await Promise.all([p1, p2]);
+          log(`區段 ${cIndex} 雲端歸檔完成。`);
+        } catch(e) { log(`區段 ${cIndex} 處理失敗`); }
+        resolve();
+      };
+    });
+    activeProcessingTasks.add(task); task.then(() => activeProcessingTasks.delete(task));
+  }
+
+  async function stopMeeting() {
+    isRecording = false; isPaused = false; clearTimeout(chunkInterval);
+    if(mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+    document.getElementById('recBadge').style.display = 'none'; document.getElementById('playerControls').style.display = 'none';
+    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+    
+    log("正在安全封裝檔案並產出智能分析...");
+    while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
+    
+    try {
+      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
+      showToast("日誌封裝完畢！", "success");
+      document.getElementById('recordUI').style.display = 'none'; document.getElementById('triggerRecordBox').style.display = 'block'; document.getElementById('btnStartPost').style.display = 'block'; 
+      const btn = document.getElementById('btnStartPost'); btn.innerText = "啟動系統錄製"; btn.disabled = false;
+      document.getElementById('playerControls').style.display = 'flex'; logBox.style.display = 'none';
+      loadDashboard();
+    } catch(e) { showToast("分析封裝異常", "error"); }
+  }
+
+  // --- 歷史紀錄渲染 (全垂直排列) ---
+  function renderFeed(posts) {
+    const container = document.getElementById('feedContainer');
+    if (!posts || posts.length === 0) {
+      container.innerHTML = '<div class="text-muted text-center mt-5"><i data-lucide="inbox" style="width:40px; height:40px; opacity:0.3; margin-bottom:16px;"></i><br>目前尚無紀錄。</div>';
+      return;
+    }
+    
+    let html = '';
+    posts.forEach(post => {
+      let actionBtns = '';
+      if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
+        actionBtns = `
+          <div class="form-group-stack mt-4 pt-4" style="border-top: 1px solid var(--border);">
+            <button class="btn-brand" style="background: var(--apple-black);" onclick="updateStatus('${post.PostID}', '已解決')"><i data-lucide="check-circle" style="width:16px;"></i> 標記為已解決</button>
+            <button class="btn-outline" style="color: #d70015; border-color: #d70015;" onclick="updateStatus('${post.PostID}', '呼叫教練')"><i data-lucide="bell-ring" style="width:16px;"></i> 呼叫教練協助</button>
+          </div>
+        `;
+      }
+
+      let videoUrlsHtml = '';
+      if (post.VideoURLs) {
+        const urlList = post.VideoURLs.split(',').map(u => u.trim()).filter(u => u.length > 0);
+        videoUrlsHtml = `<div class="form-group-stack mt-3">` + urlList.map((url, i) => `<a href="${url}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片 ${i+1}</a>`).join('') + `</div>`;
+      }
+
+      html += `
+      <div class="post-card">
+        <div class="post-header">
+          <div class="d-flex justify-content-between">
+            <span class="fw-bold d-flex align-items-center gap-2"><i data-lucide="${post.Role === '教練' ? 'shield-check' : 'user'}" style="width:16px;"></i> ${post.Role}</span>
+            <span style="font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border);">${post.Status}</span>
+          </div>
+          <span style="font-size: 12px; color: var(--text-muted);">${new Date(post.Timestamp).toLocaleString()}</span>
+        </div>
+        
+        <div>
+          <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color: var(--primary);"><i data-lucide="file-text" style="width:18px;"></i> 重點摘要</h6>
+          <div style="font-size:14px; color:var(--text-muted); line-height: 1.6;">${marked.parse(post.AI_Summary || '系統處理中...').replace(/###/g, '')}</div>
+        </div>
+
+        ${post.AI_Reply ? `
+        <div class="ai-reply-box">
+          <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color: var(--primary);"><i data-lucide="cpu" style="width:18px;"></i> AI 智能預解</h6>
+          <div style="font-size:14px; color:var(--text-main); line-height: 1.6;">${marked.parse(post.AI_Reply)}</div>
+        </div>` : ''}
+
+        <details>
+          <summary><i data-lucide="chevron-down" style="width:16px;"></i> 檢視原始語音與切片檔案</summary>
+          <div class="details-content mt-3">
+            <div style="white-space: pre-wrap; margin-bottom: 24px;">${post.Transcript}</div>
+            ${videoUrlsHtml}
+          </div>
+        </details>
+        
+        ${actionBtns}
+      </div>`;
+    });
+    
+    container.innerHTML = html;
+  }
+
+  async function updateStatus(postId, status) {
+    if(confirm(`確定將此對話標記為「${status}」嗎？`)) {
+      try {
+        await api({ action: "updateStatus", postId: postId, status: status });
+        showToast("狀態已更新", "success");
+        loadDashboard();
+      } catch(e) { showToast(e.message, "error"); }
+    }
+  }
+</script>
 </body>
 </html>
