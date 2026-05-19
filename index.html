@@ -125,16 +125,74 @@
     }
 
     /* 🔥 新增：優化閱讀體驗與分頁專屬樣式 */
-    .copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 12px; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+    .copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
     .copy-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
-    .transcript-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14.5px; line-height: 1.5; color: var(--text-main); max-height: 400px; overflow-y: auto; }
-    .summary-box { font-size: 14.5px; line-height: 1.5; color: var(--text-muted); }
+    
     .pagination-container { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 24px; padding-bottom: 24px; }
     .page-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
     .page-btn:hover:not(:disabled) { background: var(--bg); color: var(--primary); border-color: var(--primary); }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .iframe-video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; margin-top: 12px; background: #000; }
     .iframe-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    /* 🔥 日誌收合外觀控制 */
+    .post-toggle-details { width: 100%; }
+    .post-header-summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; list-style: none; outline: none; user-select: none; transition: background 0.2s; border-radius: 12px; }
+    .post-header-summary::-webkit-details-marker { display: none; }
+    .post-toggle-details[open] .expand-icon { transform: rotate(180deg); }
+    .expand-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* 🔥 逐字稿內部收合控制 */
+    .transcript-details { margin-top: 16px; }
+    .transcript-summary { display: flex; align-items: center; cursor: pointer; list-style: none; outline: none; padding: 14px 16px; background: rgba(0, 102, 204, 0.04); border-radius: 12px; transition: 0.2s; color: var(--accent); font-size: 15px; font-weight: 600; }
+    .transcript-summary:hover { background: rgba(0, 102, 204, 0.08); }
+    .transcript-summary::-webkit-details-marker { display: none; }
+    
+    /* 🔥 逐字稿自動排版防擠壓 (極致排版核心) */
+    .transcript-box { 
+      background: var(--bg); 
+      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      padding: 24px; 
+      font-size: 15px; 
+      line-height: 1.8; 
+      color: #333; 
+      max-height: 500px; 
+      overflow-y: auto; 
+      white-space: pre-wrap; /* 完美保留試算表真實換行 */
+      word-break: break-word; 
+      font-family: var(--font-family);
+    }
+
+    /* 🔥 Vocus (方格子) 極致閱讀體驗樣式 */
+    .vocus-style {
+      font-family: "Noto Sans TC", "SF Pro Display", "SF Pro Text", sans-serif;
+      font-size: 16px;
+      line-height: 1.9;
+      color: #2c2c2c;
+      letter-spacing: 0.5px;
+    }
+    .vocus-style h1, .vocus-style h2, .vocus-style h3, .vocus-style h4, .vocus-style h5, .vocus-style h6 {
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: 1.6em;
+      margin-bottom: 0.6em;
+      line-height: 1.4;
+    }
+    .vocus-style strong {
+      color: #111;
+      background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); /* 螢光筆漸層效果 */
+    }
+    .vocus-style p {
+      margin-bottom: 1.4em;
+    }
+    .vocus-style ul, .vocus-style ol {
+      margin-bottom: 1.4em;
+      padding-left: 1.5em;
+    }
+    .vocus-style li {
+      margin-bottom: 0.6em;
+    }
   </style>
 </head>
 <body>
@@ -725,7 +783,7 @@
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
   // ==========================================
-  // 📜 歷史與互動機制 (強制防呆與優化分頁)
+  // 📜 歷史與互動機制 (完全收合與優化分頁)
   // ==========================================
   function renderFeed(posts, page = 1) {
     globalFeedData = posts || [];
@@ -747,7 +805,7 @@
       let actionBtns = '';
       if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
         actionBtns = `
-          <div class="form-group-stack mt-3 pt-3" style="border-top: 1px solid var(--border);">
+          <div class="form-group-stack mt-4 pt-4" style="border-top: 1px solid var(--border);">
             <button class="btn-brand" onclick="updateStatus('${post.PostID}', '已解決')"><i data-lucide="check-circle" style="width:16px;"></i> 標記為已解決</button>
             <button class="btn-outline" style="color:#ff9500; border-color:#ff9500;" onclick="updateStatus('${post.PostID}', '尚未解決')"><i data-lucide="x-circle" style="width:16px;"></i> 尚未解決</button>
             <button class="btn-outline" style="color:#ff3b30; border-color:#ff3b30;" onclick="updateStatus('${post.PostID}', '呼叫教練')"><i data-lucide="bell-ring" style="width:16px;"></i> 呼叫真人教練協助</button>
@@ -755,41 +813,57 @@
       }
       let videoUrlsHtml = '';
       if (post.VideoURLs) {
-        videoUrlsHtml = `<div class="form-group-stack mt-2">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
+        videoUrlsHtml = `<div class="form-group-stack mt-4">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
       }
 
-      // 🔥 美化逐字稿顯示，移除亂碼並加入 Badge
+      // 🔥 改良版逐字稿防擠壓排版 (支援跨行與醒目標籤)
       let prettyTranscript = (post.Transcript || '無紀錄')
-        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '<h6 class="fw-bold mt-3 mb-2" style="color:var(--accent);">第 $1 分鐘紀錄</h6>')
-        .replace(/\[畫面描述\]/g, '<span class="badge bg-primary me-2">畫面描述</span>')
-        .replace(/\[語音逐字稿\]/g, '<br><span class="badge bg-success me-2 mt-2">語音逐字稿</span>');
+        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; display: inline-block;">第 $1 分鐘紀錄</h5>\n')
+        .replace(/\[畫面描述\]/g, '\n<span class="badge bg-primary me-2 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">畫面描述</span>\n')
+        .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>'); // 針對試算表 **00:00 - 00:05** 時間標籤加粗醒目顯示
 
+      // 🔥 外層加入 details 做為第一層折疊
       return `
       <div class="post-card">
-        <div class="post-header">
-          <div class="d-flex justify-content-between"><strong>${post.Role || '系統'}</strong><span class="badge bg-dark">${post.Status || '完成'}</span></div>
-          <span class="small text-muted">${post.Timestamp || ''}</span>
-        </div>
-        <div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="fw-bold m-0"><i data-lucide="file-text" style="width:16px;"></i> 核心問題總結</h6>
-            <button class="copy-btn" onclick="copyContent('summary_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製摘要</button>
-          </div>
-          <div id="summary_${post.PostID}" class="summary-box mb-3">${marked.parse(post.AI_Summary || '')}</div>
-        </div>
-        ${post.AI_Reply ? `<div class="ai-reply-box"><h6 class="fw-bold mb-2"><i data-lucide="cpu" style="width:16px;"></i> AI 總監指導視角</h6><div class="small" style="line-height:1.5;">${marked.parse(post.AI_Reply)}</div></div>` : ''}
-        
-        <details>
-          <summary><i data-lucide="chevron-down" style="width:14px;"></i> 查看逐字稿與原檔連結</summary>
-          <div class="details-content mt-2">
-            <div class="d-flex justify-content-end mb-2">
-              <button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button>
+        <details class="post-toggle-details">
+          <summary class="post-header-summary">
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <strong style="font-size: 16px; color: var(--primary);">${post.Role || '系統'}</strong>
+                  <span class="badge bg-dark">${post.Status || '完成'}</span>
+                </div>
+                <span class="small text-muted font-monospace">${post.Timestamp || ''}</span>
+              </div>
+              <i data-lucide="chevron-down" class="expand-icon" style="width:24px; color:var(--text-muted);"></i>
             </div>
-            <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
-            ${videoUrlsHtml}
+          </summary>
+          
+          <div class="post-body-content mt-4 pt-4" style="border-top: 1px solid var(--border);">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0" style="color: var(--primary);"><i data-lucide="file-text" style="width:20px; margin-right:4px;"></i> 核心問題總結</h5>
+                <button class="copy-btn" onclick="copyContent('summary_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製摘要</button>
+              </div>
+              <div id="summary_${post.PostID}" class="summary-box vocus-style mb-4">${marked.parse(post.AI_Summary || '')}</div>
+            </div>
+            
+            ${post.AI_Reply ? `<div class="ai-reply-box mb-4"><h5 class="fw-bold mb-3" style="color: var(--primary);"><i data-lucide="cpu" style="width:20px; margin-right:4px;"></i> AI 總監指導視角</h5><div class="vocus-style p-4 rounded" style="background: var(--bg); border-left: 4px solid var(--primary);">${marked.parse(post.AI_Reply)}</div></div>` : ''}
+            
+            <details class="transcript-details">
+              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看畫面描述與語音逐字稿原檔</summary>
+              <div class="details-content mt-3 p-0" style="background: transparent;">
+                <div class="d-flex justify-content-end mb-2">
+                  <button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button>
+                </div>
+                <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
+                ${videoUrlsHtml}
+              </div>
+            </details>
+            ${actionBtns}
           </div>
         </details>
-        ${actionBtns}
       </div>`;
     }).join('');
 
