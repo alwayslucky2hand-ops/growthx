@@ -266,9 +266,9 @@
     </div>
     <ul class="nav-menu">
       <li class="nav-item"><a class="nav-link active" onclick="switchTab('tab-member')" id="nav-tab-member"><i data-lucide="user"></i> <span>會員中心</span></a></li>
+      <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-gem')" id="nav-tab-gem"><i data-lucide="cpu"></i> <span>AI 助教</span></a></li>
       <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-coach')" id="nav-tab-coach"><i data-lucide="video"></i> <span>陪跑日誌</span></a></li>
       <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-school')" id="nav-tab-school"><i data-lucide="graduation-cap"></i> <span>FFS 學堂</span></a></li>
-      <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-gem')" id="nav-tab-gem"><i data-lucide="cpu"></i> <span>AI 助教</span></a></li>
       <li class="nav-item"><a class="nav-link" onclick="switchTab('tab-blog')" id="nav-tab-blog"><i data-lucide="book-open"></i> <span>實戰部落格</span></a></li>
     </ul>
     <div class="nav-footer mt-auto">
@@ -321,6 +321,14 @@
       <div id="webAppsContainer" class="form-group-stack"></div>
     </div>
 
+    <div id="tab-gem" class="panel-view">
+      <div class="mb-5 text-center text-md-start">
+        <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
+        <h5 class="text-muted fw-normal mb-4">四神組合拳大眾落地指南</h5>
+      </div>
+      <div id="gemContainer" class="form-group-stack"></div>
+    </div>
+
     <div id="tab-coach" class="panel-view">
       <div id="triggerRecordBox" class="trigger-card" onclick="toggleRecordUI('posts')">
         <div class="trigger-icon-wrapper"><i data-lucide="video" style="width: 32px; height: 32px; color: white;"></i></div>
@@ -370,14 +378,6 @@
       </div>
 
       <div id="schoolFeedContainer" class="form-group-stack"></div>
-    </div>
-
-    <div id="tab-gem" class="panel-view">
-      <div class="mb-5 text-center text-md-start">
-        <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
-        <h5 class="text-muted fw-normal mb-4">四神組合拳大眾落地指南</h5>
-      </div>
-      <div id="gemContainer" class="form-group-stack"></div>
     </div>
     
     <div id="tab-blog" class="panel-view" style="max-width: 100%;">
