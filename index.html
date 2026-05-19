@@ -381,15 +381,16 @@
     </div>
     
     <div id="tab-blog" class="panel-view" style="max-width: 100%;">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 class="fw-bold mb-1">實戰部落格</h2>
           <p class="text-muted small">GROWTHX 方格子專欄與實戰紀錄</p>
         </div>
-        <button class="btn-outline w-auto px-4" onclick="document.getElementById('blogIframe').src = document.getElementById('blogIframe').src"><i data-lucide="refresh-cw" style="width:16px;"></i> 重新整理</button>
+        <button class="btn-outline w-auto px-3 py-2" onclick="document.getElementById('blogIframe').src = document.getElementById('blogIframe').src"><i data-lucide="refresh-cw" style="width:16px;"></i> 重新整理</button>
       </div>
-      <div class="card-panel p-0" style="height: calc(100vh - 220px); overflow: hidden; border-radius: 24px;">
-        <iframe id="blogIframe" src="https://vocus.cc/salon/bizgrowthxai" style="width: 100%; height: 100%; border: none;"></iframe>
+      
+      <div class="card-panel p-0" style="height: calc(100vh - 180px); min-height: 800px; overflow: hidden; border-radius: 24px; position: relative;">
+        <iframe id="blogIframe" src="https://vocus.cc/salon/bizgrowthxai" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
       </div>
     </div>
 
