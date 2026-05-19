@@ -125,7 +125,7 @@
       <div class="form-group-stack">
         <div>
           <label class="form-label">工作信箱</label>
-          <input type="email" id="loginEmail" class="form-control" placeholder="name@company.com">
+          <input type="email" id="loginEmail" class="form-control" placeholder="name@gmail.com">
         </div>
         <button class="btn-brand" onclick="checkEmail()" id="btnCheckEmail">下一步</button>
       </div>
@@ -191,6 +191,7 @@
           <div class="member-code-box" onclick="copyCode()" title="點擊複製"><i data-lucide="copy" style="width:14px;"></i> <span id="memberCodeTxt">CODE</span></div>
           
           <div class="status-stack mt-2">
+            <div style="font-size:13px; color:var(--text-muted);">身份：<span id="roleTxt" class="fw-bold text-primary"></span></div>
             <div style="font-size:13px; color:var(--text-muted);">註冊日：<span id="regDateTxt"></span></div>
             <div class="fw-bold" style="font-size: 15px;">到期日：<span id="expiryDateTxt"></span></div>
             <a href="#" id="dynamicPaymentBtn" target="_blank" class="btn-brand mt-2" style="padding: 12px;"><i data-lucide="credit-card" style="width:16px;"></i> 我要續約</a>
@@ -315,7 +316,6 @@
     `).join('');
     lucide.createIcons();
   }
-  // 啟動時立刻渲染 GEM 選單，不受資料庫影響
   renderGemMatrix();
 
   function showToast(message, type = 'error') {
@@ -363,6 +363,8 @@
   async function checkEmail() {
     const email = document.getElementById('loginEmail').value;
     if(!email) return showToast("請輸入工作信箱", "warning");
+    if(!email.toLowerCase().endsWith('@gmail.com')) return showToast("請使用 Google (Gmail) 帳號註冊與登入", "warning");
+    
     try {
       const res = await api({ action: "checkEmail", email });
       if (res.isRegistered) {
@@ -377,6 +379,7 @@
     const email = document.getElementById('loginEmail').value;
     const name = document.getElementById('regName').value;
     const apiKey = document.getElementById('regApiKey').value;
+    if (!email.toLowerCase().endsWith('@gmail.com')) return showToast("請使用 Google (Gmail) 帳號註冊", "warning");
     if (!name || !apiKey) return showToast("欄位皆為必填", "warning");
     try {
       await api({ action: "registerAndSendCode", email, name, apiKey });
@@ -409,6 +412,7 @@
       document.getElementById('profileNameDisplay').innerText = p.name || '未填寫姓名';
       document.getElementById('userInitial').innerText = (p.name ? p.name.charAt(0) : 'U').toUpperCase();
       document.getElementById('memberCodeTxt').innerText = (p.email || currentUser.email).split('@')[0];
+      document.getElementById('roleTxt').innerText = p.role || '學員';
       document.getElementById('regDateTxt').innerText = p.regDate || '-';
       document.getElementById('expiryDateTxt').innerText = p.expiryDate || '-';
       document.getElementById('inputName').value = p.name || '';
@@ -585,6 +589,7 @@
         actionBtns = `
           <div class="form-group-stack mt-3 pt-3" style="border-top: 1px solid var(--border);">
             <button class="btn-brand" onclick="updateStatus('${post.PostID}', '已解決')"><i data-lucide="check-circle" style="width:16px;"></i> 標記為已解決</button>
+            <button class="btn-outline" style="color:#ff9500; border-color:#ff9500;" onclick="updateStatus('${post.PostID}', '尚未解決')"><i data-lucide="x-circle" style="width:16px;"></i> 尚未解決</button>
             <button class="btn-outline" style="color:#ff3b30; border-color:#ff3b30;" onclick="updateStatus('${post.PostID}', '呼叫教練')"><i data-lucide="bell-ring" style="width:16px;"></i> 呼叫真人教練協助</button>
           </div>`;
       }
@@ -679,7 +684,10 @@
     if(confirm(`確定標記為「${status}」嗎？`)) {
       await api({ action: "updateStatus", postId: postId, status: status });
       showToast("狀態已更新", "success");
-      location.reload();
+      if (status === '呼叫教練') {
+        showToast("已同步發送信件通知教練！", "success");
+      }
+      setTimeout(() => location.reload(), 1500);
     }
   }
   function saveProfile() { api({ action: "updateProfile", email: currentUser.email, profileData: {name: document.getElementById('inputName').value, apiKey: document.getElementById('inputApiKey').value} }).then(msg => { showToast(msg, "success"); location.reload(); }); }
