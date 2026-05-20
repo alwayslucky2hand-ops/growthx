@@ -124,7 +124,6 @@
       .mobile-overlay.open { opacity: 1; pointer-events: auto; }
     }
 
-    /* 🔥 新增：優化閱讀體驗與分頁專屬樣式 */
     .copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
     .copy-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
     
@@ -135,20 +134,17 @@
     .iframe-video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; margin-top: 12px; background: #000; }
     .iframe-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-    /* 🔥 日誌收合外觀控制 */
     .post-toggle-details { width: 100%; }
     .post-header-summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; list-style: none; outline: none; user-select: none; transition: background 0.2s; border-radius: 12px; }
     .post-header-summary::-webkit-details-marker { display: none; }
     .post-toggle-details[open] .expand-icon { transform: rotate(180deg); }
     .expand-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    /* 🔥 逐字稿內部收合控制 */
     .transcript-details { margin-top: 16px; }
     .transcript-summary { display: flex; align-items: center; cursor: pointer; list-style: none; outline: none; padding: 14px 16px; background: rgba(0, 102, 204, 0.04); border-radius: 12px; transition: 0.2s; color: var(--accent); font-size: 15px; font-weight: 600; }
     .transcript-summary:hover { background: rgba(0, 102, 204, 0.08); }
     .transcript-summary::-webkit-details-marker { display: none; }
     
-    /* 🔥 逐字稿自動排版防擠壓 (極致排版核心) */
     .transcript-box { 
       background: var(--bg); 
       border: 1px solid var(--border); 
@@ -159,12 +155,11 @@
       color: #333; 
       max-height: 500px; 
       overflow-y: auto; 
-      white-space: pre-wrap; /* 完美保留試算表真實換行 */
+      white-space: pre-wrap;
       word-break: break-word; 
       font-family: var(--font-family);
     }
 
-    /* 🔥 Vocus (方格子) 極致閱讀體驗樣式 */
     .vocus-style {
       font-family: "Noto Sans TC", "SF Pro Display", "SF Pro Text", sans-serif;
       font-size: 16px;
@@ -181,18 +176,11 @@
     }
     .vocus-style strong {
       color: #111;
-      background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); /* 螢光筆漸層效果 */
+      background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%);
     }
-    .vocus-style p {
-      margin-bottom: 1.4em;
-    }
-    .vocus-style ul, .vocus-style ol {
-      margin-bottom: 1.4em;
-      padding-left: 1.5em;
-    }
-    .vocus-style li {
-      margin-bottom: 0.6em;
-    }
+    .vocus-style p { margin-bottom: 1.4em; }
+    .vocus-style ul, .vocus-style ol { margin-bottom: 1.4em; padding-left: 1.5em; }
+    .vocus-style li { margin-bottom: 0.6em; }
   </style>
 </head>
 <body>
@@ -256,7 +244,8 @@
       <i data-lucide="menu"></i>
     </button>
     <div class="brand-logo-mobile">GROWTHX</div>
-    <div style="width: 24px;"></div> </div>
+    <div style="width: 24px;"></div> 
+  </div>
   
   <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
@@ -400,7 +389,6 @@
 <script>
   lucide.createIcons();
   
-  // 💡 【GitHub 雙棲部署】：如果您將檔案放在 Github Pages，請將下方網址換成您 GAS 部署的 Web App URL
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwsUOjvkHIbKnR98-0AnYNhIbrz6xAp6parL7WgKCy4oU4P9uvNjZxxfOsesUZvDV_E/exec"; 
   const isGAS = typeof google !== 'undefined' && google.script;
 
@@ -408,12 +396,11 @@
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
 
-  // 🔥 陪跑日誌分頁狀態
   let currentFeedPage = 1;
   const feedPerPage = 10;
   let globalFeedData = [];
 
-  // --- 💡 渲染解耦：獨立繪製靜態 GEM 助教選單 ---
+  // 👑 [本次重點升級：掛載 GEM 5 卡片與內容]
   function renderGemMatrix() {
     const gems = [
       { 
@@ -451,6 +438,15 @@
         value: "讓一個文科生、或完全不會寫程式的微創老闆，當場擁有一個活生生、能動、能自動寫入 Sheets、讀取 Drive 資料夾、串接官方 LINE 帳號或 FB/IG 的跨平台企業級系統！",
         journey: "<strong>1. 圖紙合體：</strong>學員把前三階段的轉型成果貼給魔術師。<br><strong>2. 代碼第一次爆發：</strong>魔術師針對功能美學等進行確認。學員一說「OK」，魔術師就會毫無保留地噴出 100% 完整的全套程式碼！<br><strong>3. 一鍵強制解鎖權限：</strong>教導學員手動點擊執行，一鍵打通 Google 諸神生態系，消滅所有權限鬼故事。<br><strong>4. 四維除錯與增量升級：</strong>學員發現跑版或想新增功能，直接把截圖和代碼丟回給魔術師。魔術師會自動歸類問題，在舊代碼基礎上直接「增量升級」，直到系統完美落地！",
         url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" 
+      },
+      { 
+        name: "GEM 5：AI 程式需求收斂師 (Spec Builder)", 
+        subtitle: "專為 Vibe Coding 設計的 AI 產品經理",
+        intro: "負責將學員天馬行空、模糊的想法或講不清楚的 Bug，收斂成精確的結構化開發指令，讓程式 AI 能夠 100% 精確地迭代優化程式碼。", 
+        output: "【終極指令輸出格式範本】(AI Code Iteration Prompt)",
+        value: "梳理乾淨天馬行空的想法，一鍵生成包含現況、UX、業務邏輯、資料流與串接邏輯的精準規格書，讓寫程式的 AI (如 Gemini 或 Cursor) 完美幫你修改代碼，杜絕越改越錯的鬼故事！",
+        journey: "<strong>1. 同理與現況釐清：</strong>溫和肯定學員想法，釐清現有程式碼與預期落差。<br><strong>2. 核心邏輯與資料流：</strong>鎖定資料流的起點、終點與 Gemini 觸發時機。<br><strong>3. 畫面與意象反覆確認：</strong>重塑白話運作情境，取得學員「對！這就是我要的」確認。<br><strong>4. 生成精確開發指令：</strong>產出一鍵複製的標準化 Prompt，完美銜接 AI 寫碼環節。",
+        url: "https://gemini.google.com/gem/19JlFWAlNouNnPnIaozcho8mZSKmm57Mp?usp=sharing" 
       }
     ];
 
@@ -488,7 +484,6 @@
   }
   renderGemMatrix();
 
-  // 🔥 複製文字的專屬功能
   function copyContent(elementId, btn) {
     const el = document.getElementById(elementId);
     let text = el.innerText;
@@ -583,7 +578,6 @@
   function logout() { localStorage.removeItem('gx_saas_user'); location.reload(); }
   function switchLoginStep(stepId) { document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active')); document.getElementById(stepId).classList.add('active'); }
   
-  // 💡 開關手機版側滑選單
   function toggleMobileMenu() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('mobileOverlay');
@@ -591,14 +585,12 @@
     if(overlay) overlay.classList.toggle('open');
   }
 
-  // 💡 切換分頁並在手機版自動收起選單
   function switchTab(tabId) { 
     document.querySelectorAll('.panel-view').forEach(el => el.classList.remove('active')); 
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active')); 
     document.getElementById(tabId).classList.add('active'); 
     document.getElementById('nav-' + tabId).classList.add('active'); 
     
-    // 🔥 新增：動態延遲載入 (Lazy Load) 實戰部落格 Iframe，消滅初始 Console 報錯
     if (tabId === 'tab-blog') {
       const iframe = document.getElementById('blogIframe');
       if (!iframe.getAttribute('src')) {
@@ -606,7 +598,6 @@
       }
     }
 
-    // 手機版點擊選單後自動收起
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('mobileOverlay');
     if (sidebar && sidebar.classList.contains('open')) {
@@ -615,7 +606,6 @@
     }
   }
 
-  // --- 💡 極限防呆渲染資料 ---
   async function loadDashboard() {
     try {
       const data = await api({ action: "getDashboardData", email: currentUser.email, role: currentUser.role });
@@ -638,7 +628,6 @@
       const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
       document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
       
-      // 更新全域變數並繪製第一頁
       globalFeedData = data.posts || [];
       renderFeed(globalFeedData, 1); 
       renderSchoolFeed(data.schoolFeed || []); 
@@ -646,9 +635,6 @@
     } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
   }
 
-  // ==========================================
-  // 🎥 多軌音訊混合錄製引擎
-  // ==========================================
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -761,10 +747,8 @@
     if(audioContext) audioContext.close();
 
     log("整合背景任務，執行魔術師大腦封裝...");
-    // 🔥 強制等待所有前端任務上傳與辨識完成
     while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
     
-    // 🔥 安全緩衝機制：讓 Google Apps Script 確實同步寫入試算表，避免抓到舊資料
     log("等待雲端試算表安全同步...");
     await new Promise(r => setTimeout(r, 2000));
     
@@ -793,7 +777,6 @@
   }
   function toggleVideo() { isVideoEnabled = !isVideoEnabled; if(currentStream) currentStream.getVideoTracks()[0].enabled = isVideoEnabled; }
   
-  // 🔥 點擊暫停時，只停止該區塊並標記為暫停，前端不再呼叫 startChunkRecording
   function pauseMeeting() { 
     isPaused = true; 
     if (mediaRecorder && mediaRecorder.state === "recording") { 
@@ -805,9 +788,6 @@
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
-  // ==========================================
-  // 📜 歷史與互動機制 (完全收合與優化分頁)
-  // ==========================================
   function renderFeed(posts, page = 1) {
     globalFeedData = posts || [];
     currentFeedPage = page;
@@ -818,7 +798,6 @@
       return; 
     }
     
-    // 計算分頁參數
     const startIndex = (currentFeedPage - 1) * feedPerPage;
     const endIndex = startIndex + feedPerPage;
     const pagePosts = globalFeedData.slice(startIndex, endIndex);
@@ -839,14 +818,12 @@
         videoUrlsHtml = `<div class="form-group-stack mt-4">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
       }
 
-      // 🔥 改良版逐字稿防擠壓排版 (支援跨行與醒目標籤)
       let prettyTranscript = (post.Transcript || '無紀錄')
         .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; display: inline-block;">第 $1 分鐘紀錄</h5>\n')
         .replace(/\[畫面描述\]/g, '\n<span class="badge bg-primary me-2 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">畫面描述</span>\n')
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
-        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>'); // 針對試算表 **00:00 - 00:05** 時間標籤加粗醒目顯示
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
 
-      // 🔥 外層加入 details 做為第一層折疊
       return `
       <div class="post-card">
         <details class="post-toggle-details">
@@ -890,7 +867,6 @@
       </div>`;
     }).join('');
 
-    // 🔥 繪製分頁控制列
     if (totalPages > 1) {
       container.innerHTML += `
         <div class="pagination-container">
@@ -904,15 +880,11 @@
     lucide.createIcons();
   }
 
-  // 分頁切換功能
   function changeFeedPage(newPage) {
     renderFeed(globalFeedData, newPage);
     document.getElementById('tab-coach').scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ==========================================
-  // 🏫 FFS 學堂社群牆渲染
-  // ==========================================
   function renderSchoolFeed(items) {
     const container = document.getElementById('schoolFeedContainer');
     const posts = items.filter(i => i.Type === "POST");
@@ -929,7 +901,6 @@
         </div>
       `).join('');
 
-      // 🔥 自動解析 Drive 網址轉換為前端 Iframe 播放區塊
       let videoHtml = '';
       if (post.VideoURL) {
         const fileIdMatch = post.VideoURL.match(/[-\w]{25,}/);
