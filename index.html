@@ -15,21 +15,19 @@
       --text-main: #1d1d1f; --text-muted: #86868b;
       --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       --sidebar-width: 260px;
-      --vctable: #b4d455; /* V.C. TABLE 品牌綠 */
+      --vctable: #b4d455; 
     }
     
     * { box-sizing: border-box; }
-    html, body { max-width: 100vw; overflow-x: hidden; position: relative; }
+    html, body { max-width: 100vw; overflow-x: hidden; position: relative; height: 100%; }
     body { background-color: var(--bg); font-family: var(--font-family); margin: 0; padding: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    /* 懸浮 Toast 通知 */
     .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; width: 90%; max-width: 400px; align-items: center; }
     .custom-toast { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--text-main); padding: 14px 24px; border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-20px) scale(0.95); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; }
     .custom-toast.show { opacity: 1; transform: translateY(0) scale(1); }
     .toast-error { background: rgba(255, 59, 48, 0.9); color: white; border: none; }
     .toast-success { background: rgba(52, 199, 89, 0.95); color: white; border: none; }
 
-    /* 佈局架構 */
     .app-layout { display: flex; height: 100vh; overflow: hidden; flex-direction: row; }
     .sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 32px 20px; z-index: 100; }
     .main-content { flex: 1; overflow-y: auto; padding: 40px; position: relative; scroll-behavior: smooth; }
@@ -43,6 +41,16 @@
     
     .panel-view { display: none; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease; }
     .panel-view.active { display: block; }
+    
+    /* 🔥 [針對部落格分頁的全螢幕特殊排版] */
+    #tab-blog.active {
+      display: flex !important;
+      flex-direction: column;
+      height: calc(100vh - 80px); /* 扣除上下 padding 以佔滿螢幕 */
+      max-width: 100%;
+      padding: 0;
+    }
+
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
     .card-panel { background: var(--surface); border-radius: 24px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); margin-bottom: 24px; border: 1px solid rgba(0,0,0,0.02); }
@@ -55,7 +63,6 @@
     .btn-brand:hover { background-color: var(--primary-hover); transform: translateY(-1px); color: white; }
     .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; padding: 14px; width: 100%; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
 
-    /* V.C TABLE 專屬樣式 */
     .vc-card { background: linear-gradient(135deg, #111, #2c2c2c); color: white; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
     .vc-card::before { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: var(--vctable); filter: blur(80px); opacity: 0.2; border-radius: 50%; pointer-events: none; }
     .vc-badge { background: rgba(180, 212, 85, 0.2); color: var(--vctable); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; }
@@ -63,20 +70,17 @@
     .btn-vc { background-color: var(--vctable); color: #111; border: none; border-radius: 12px; font-weight: 700; padding: 14px; width: 100%; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
     .btn-vc:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(180, 212, 85, 0.4); }
     .vc-log-table { width: 100%; text-align: left; border-collapse: collapse; font-size: 14px; }
-    .vc-log-table th { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-weight: 600; }
-    .vc-log-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); color: var(--primary); }
+    .vc-log-table th { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .vc-log-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); color: var(--primary); white-space: nowrap; }
 
-    /* 浮動 Modal 樣式 (TopUp & Signature) */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
     .modal-content { background: var(--surface); border-radius: 24px; padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative; }
     
-    /* 簽名板樣式 */
     .sig-container { width: 100%; height: 60vh; max-height: 400px; background: #fff; border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 24px; position: relative; overflow: hidden; touch-action: none; }
     canvas { width: 100%; height: 100%; cursor: crosshair; }
     .sig-date-stamp { position: absolute; bottom: 16px; right: 16px; color: var(--text-muted); font-family: monospace; font-size: 14px; pointer-events: none; opacity: 0.5; }
 
-    /* 以下保留原有的各種 CSS 樣式 (卡片、按鈕、導航列等) */
     .profile-stack { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
     .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; }
     .member-code-box { background: var(--bg); padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; cursor: pointer; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); }
@@ -118,6 +122,8 @@
       .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s ease; }
       .mobile-overlay.open { opacity: 1; pointer-events: auto; }
       .controls-overlay { right: 16px; top: 50%; transform: translateY(-50%); flex-direction: column; border-radius: 30px; padding: 24px 12px; }
+      
+      #tab-blog.active { height: calc(100vh - 72px); } /* 手機版 Header 高度扣除 */
     }
 
     .control-btn { background: none; border: none; color: white; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; outline: none; }
@@ -387,25 +393,20 @@
       <div id="schoolFeedContainer" class="form-group-stack"></div>
     </div>
     
-    <div id="tab-blog" class="panel-view" style="max-width: 100%;">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <div id="tab-blog" class="panel-view" style="max-width: 100%; padding-bottom: 0;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 class="fw-bold mb-1">實戰部落格</h2>
-          <p class="text-muted small">GROWTHX 方格子專欄與實戰紀錄</p>
+          <p class="text-muted small m-0">GROWTHX 方格子專欄與實戰紀錄</p>
         </div>
+        <button class="btn-outline w-auto px-3 py-2" onclick="document.getElementById('blogIframe').src = document.getElementById('blogIframe').src"><i data-lucide="refresh-cw" style="width:16px;"></i> 重新整理</button>
       </div>
       
-      <div class="card-panel text-center py-5" style="border-radius: 24px; background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid var(--border);">
-        <div class="mb-4 d-flex justify-content-center">
-          <div style="width: 80px; height: 80px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
-            <i data-lucide="book-open" style="width: 40px; height: 40px; color: var(--primary);"></i>
-          </div>
-        </div>
-        <h3 class="fw-bold mb-3" style="letter-spacing: -0.5px;">GROWTHX 深度實戰專欄</h3>
-        <p class="text-muted mb-5 mx-auto" style="max-width: 400px; line-height: 1.6;">因方格子 (Vocus) 官方安全協定 (X-Frame-Options) 升級，為確保您的瀏覽體驗順暢無阻報錯，已為您開啟安全獨立跳轉通道。</p>
-        <a href="https://vocus.cc/salon/bizgrowthxai" target="_blank" class="btn-brand mx-auto d-inline-flex" style="max-width: 300px; padding: 18px 24px;">
-          <i data-lucide="external-link" style="width:18px;"></i> 點擊開啟獨立閱讀視窗
-        </a>
+      <div class="card-panel p-0" style="flex: 1; border-radius: 24px; overflow: hidden; position: relative; margin-bottom: 0; box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
+        <iframe id="blogIframe" src="https://vocus.cc/salon/bizgrowthxai" 
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+        </iframe>
       </div>
     </div>
 
