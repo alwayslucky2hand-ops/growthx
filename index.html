@@ -15,6 +15,7 @@
       --text-main: #1d1d1f; --text-muted: #86868b;
       --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       --sidebar-width: 260px;
+      --vctable: #b4d455; /* V.C. TABLE 品牌綠 */
     }
     
     * { box-sizing: border-box; }
@@ -54,6 +55,28 @@
     .btn-brand:hover { background-color: var(--primary-hover); transform: translateY(-1px); color: white; }
     .btn-outline { background-color: transparent; color: var(--primary); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; padding: 14px; width: 100%; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
 
+    /* V.C TABLE 專屬樣式 */
+    .vc-card { background: linear-gradient(135deg, #111, #2c2c2c); color: white; border-radius: 24px; padding: 32px; position: relative; overflow: hidden; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+    .vc-card::before { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: var(--vctable); filter: blur(80px); opacity: 0.2; border-radius: 50%; pointer-events: none; }
+    .vc-badge { background: rgba(180, 212, 85, 0.2); color: var(--vctable); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+    .vc-count { font-size: 56px; font-weight: 800; line-height: 1; margin: 0; color: white; }
+    .btn-vc { background-color: var(--vctable); color: #111; border: none; border-radius: 12px; font-weight: 700; padding: 14px; width: 100%; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; }
+    .btn-vc:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(180, 212, 85, 0.4); }
+    .vc-log-table { width: 100%; text-align: left; border-collapse: collapse; font-size: 14px; }
+    .vc-log-table th { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); font-weight: 600; }
+    .vc-log-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); color: var(--primary); }
+
+    /* 浮動 Modal 樣式 (TopUp & Signature) */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+    .modal-content { background: var(--surface); border-radius: 24px; padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative; }
+    
+    /* 簽名板樣式 */
+    .sig-container { width: 100%; height: 60vh; max-height: 400px; background: #fff; border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 24px; position: relative; overflow: hidden; touch-action: none; }
+    canvas { width: 100%; height: 100%; cursor: crosshair; }
+    .sig-date-stamp { position: absolute; bottom: 16px; right: 16px; color: var(--text-muted); font-family: monospace; font-size: 14px; pointer-events: none; opacity: 0.5; }
+
+    /* 以下保留原有的各種 CSS 樣式 (卡片、按鈕、導航列等) */
     .profile-stack { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
     .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 600; }
     .member-code-box { background: var(--bg); padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; cursor: pointer; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); }
@@ -81,7 +104,19 @@
       .mobile-header { display: none; }
       .mobile-overlay { display: none; }
     }
-    @media (max-width: 768px) and (orientation: portrait) {
+    @media (max-width: 768px) {
+      .app-layout { flex-direction: column; }
+      .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 900; }
+      .menu-toggle-btn { background: none; border: none; color: var(--primary); padding: 0; display: flex; align-items: center; cursor: pointer; }
+      .brand-logo-mobile { font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; margin: 0; }
+      
+      .sidebar { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; flex-direction: column; padding: 32px 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 4px 0 24px rgba(0,0,0,0.1); border-right: none; z-index: 1001; justify-content: flex-start; }
+      .sidebar.open { left: 0; }
+      .nav-menu { display: block; width: 100%; }
+      .nav-link { flex-direction: row; font-size: 15px; }
+      .main-content { padding: 20px; flex: 1; }
+      .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s ease; }
+      .mobile-overlay.open { opacity: 1; pointer-events: auto; }
       .controls-overlay { right: 16px; top: 50%; transform: translateY(-50%); flex-direction: column; border-radius: 30px; padding: 24px 12px; }
     }
 
@@ -100,30 +135,6 @@
     .step-section { display: none; animation: fadeIn 0.4s ease; }
     .step-section.active { display: block; }
 
-    /* 📱 手機版漢堡選單與側滑樣式 */
-    @media (max-width: 768px) {
-      .app-layout { flex-direction: column; }
-      
-      .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 900; }
-      .menu-toggle-btn { background: none; border: none; color: var(--primary); padding: 0; display: flex; align-items: center; cursor: pointer; }
-      .brand-logo-mobile { font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; margin: 0; }
-      
-      .sidebar { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; flex-direction: column; padding: 32px 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 4px 0 24px rgba(0,0,0,0.1); border-right: none; z-index: 1001; justify-content: flex-start; }
-      .sidebar.open { left: 0; }
-      
-      .brand-logo { display: flex; margin-bottom: 32px; }
-      .nav-menu { display: block; width: 100%; }
-      .nav-item { margin-bottom: 8px; }
-      .nav-link { flex-direction: row; gap: 14px; padding: 12px 16px; font-size: 15px; background: transparent; }
-      .nav-link.active { background: var(--primary); color: white; }
-      .nav-footer { display: block; margin-top: auto; }
-      
-      .main-content { padding: 20px; flex: 1; overflow-y: auto; }
-      
-      .mobile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s ease; }
-      .mobile-overlay.open { opacity: 1; pointer-events: auto; }
-    }
-
     .copy-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
     .copy-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
     
@@ -131,8 +142,6 @@
     .page-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
     .page-btn:hover:not(:disabled) { background: var(--bg); color: var(--primary); border-color: var(--primary); }
     .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .iframe-video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; border-radius: 12px; overflow: hidden; margin-top: 12px; background: #000; }
-    .iframe-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
     .post-toggle-details { width: 100%; }
     .post-header-summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; list-style: none; outline: none; user-select: none; transition: background 0.2s; border-radius: 12px; }
@@ -140,47 +149,16 @@
     .post-toggle-details[open] .expand-icon { transform: rotate(180deg); }
     .expand-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .transcript-details { margin-top: 16px; }
     .transcript-summary { display: flex; align-items: center; cursor: pointer; list-style: none; outline: none; padding: 14px 16px; background: rgba(0, 102, 204, 0.04); border-radius: 12px; transition: 0.2s; color: var(--accent); font-size: 15px; font-weight: 600; }
     .transcript-summary:hover { background: rgba(0, 102, 204, 0.08); }
     .transcript-summary::-webkit-details-marker { display: none; }
     
-    .transcript-box { 
-      background: var(--bg); 
-      border: 1px solid var(--border); 
-      border-radius: 16px; 
-      padding: 24px; 
-      font-size: 15px; 
-      line-height: 1.8; 
-      color: #333; 
-      max-height: 500px; 
-      overflow-y: auto; 
-      white-space: pre-wrap;
-      word-break: break-word; 
-      font-family: var(--font-family);
-    }
+    .transcript-box { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; font-size: 15px; line-height: 1.8; color: #333; max-height: 500px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; font-family: var(--font-family); }
 
-    .vocus-style {
-      font-family: "Noto Sans TC", "SF Pro Display", "SF Pro Text", sans-serif;
-      font-size: 16px;
-      line-height: 1.9;
-      color: #2c2c2c;
-      letter-spacing: 0.5px;
-    }
-    .vocus-style h1, .vocus-style h2, .vocus-style h3, .vocus-style h4, .vocus-style h5, .vocus-style h6 {
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-top: 1.6em;
-      margin-bottom: 0.6em;
-      line-height: 1.4;
-    }
-    .vocus-style strong {
-      color: #111;
-      background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%);
-    }
+    .vocus-style { font-family: "Noto Sans TC", "SF Pro Display", sans-serif; font-size: 16px; line-height: 1.9; color: #2c2c2c; letter-spacing: 0.5px; }
+    .vocus-style h1, .vocus-style h2, .vocus-style h3, .vocus-style h4, .vocus-style h5, .vocus-style h6 { font-weight: 700; color: #1a1a1a; margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.4; }
+    .vocus-style strong { color: #111; background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); }
     .vocus-style p { margin-bottom: 1.4em; }
-    .vocus-style ul, .vocus-style ol { margin-bottom: 1.4em; padding-left: 1.5em; }
-    .vocus-style li { margin-bottom: 0.6em; }
   </style>
 </head>
 <body>
@@ -278,8 +256,8 @@
           <div class="status-stack mt-2">
             <div style="font-size:13px; color:var(--text-muted);">身份：<span id="roleTxt" class="fw-bold text-primary"></span></div>
             <div style="font-size:13px; color:var(--text-muted);">註冊日：<span id="regDateTxt"></span></div>
-            <div class="fw-bold" style="font-size: 15px;">到期日：<span id="expiryDateTxt"></span></div>
-            <a href="#" id="dynamicPaymentBtn" target="_blank" class="btn-brand mt-2" style="padding: 12px;"><i data-lucide="credit-card" style="width:16px;"></i> 我要儲值</a>
+            <div class="fw-bold" style="font-size: 15px;">到期日 (1年)：<span id="expiryDateTxt"></span></div>
+            <a href="#" id="dynamicPaymentBtn" target="_blank" class="btn-outline mt-2 d-none" style="padding: 12px;"><i data-lucide="credit-card" style="width:16px;"></i> 月費會員繳款</a>
           </div>
         </div>
         
@@ -288,6 +266,46 @@
           <div><label class="form-label">真實姓名</label><input type="text" id="inputName" class="form-control"></div>
           <div><label class="form-label text-danger">專屬 API_KEY (必填)</label><input type="password" id="inputApiKey" class="form-control"></div>
           <button class="btn-brand" onclick="saveProfile()" id="btnSaveProfile">儲存設定</button>
+        </div>
+      </div>
+
+      <div class="vc-card">
+        <div class="vc-badge"><i data-lucide="zap" style="width:14px;"></i> 賦能陪跑桌 V.C. TABLE</div>
+        <div class="d-flex justify-content-between align-items-end mb-4">
+          <div>
+            <p class="text-white-50 m-0 mb-1" style="font-size: 14px;">可用剩餘次數 (無期限)</p>
+            <h2 class="vc-count" id="vcUsesDisplay">0</h2>
+          </div>
+          <button class="btn-vc w-auto px-4" onclick="openSignatureModal()"><i data-lucide="pen-tool" style="width:18px;"></i> 我要使用</button>
+        </div>
+        
+        <div class="d-flex gap-3 mb-4 border-top border-secondary pt-4 mt-4">
+          <button class="btn-outline text-white border-secondary w-100" onclick="openTopUpModal()"><i data-lucide="credit-card" style="width:16px;"></i> 方案儲值</button>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center" style="font-size: 13px; color: #aaa;">
+          <span>上次儲值日：<strong id="vcLastTopUpDate" class="text-white">無</strong></span>
+          <span>上次金額：<strong id="vcLastTopUpAmount" class="text-white">$0</strong></span>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <h5 class="fw-bold mb-4">V.C. TABLE 交易明細</h5>
+        <div style="overflow-x: auto;">
+          <table class="vc-log-table">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>類型</th>
+                <th>金額</th>
+                <th>次數異動</th>
+                <th>結餘</th>
+                <th>備註 / 憑證</th>
+              </tr>
+            </thead>
+            <tbody id="vcLogTableBody">
+              </tbody>
+          </table>
         </div>
       </div>
 
@@ -370,20 +388,70 @@
     </div>
     
     <div id="tab-blog" class="panel-view" style="max-width: 100%;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 class="fw-bold mb-1">實戰部落格</h2>
           <p class="text-muted small">GROWTHX 方格子專欄與實戰紀錄</p>
         </div>
-        <button class="btn-outline w-auto px-3 py-2" onclick="document.getElementById('blogIframe').src = document.getElementById('blogIframe').src"><i data-lucide="refresh-cw" style="width:16px;"></i> 重新整理</button>
       </div>
       
-      <div class="card-panel p-0" style="height: calc(100vh - 180px); min-height: 800px; overflow: hidden; border-radius: 24px; position: relative;">
-        <iframe id="blogIframe" src="" data-src="https://vocus.cc/salon/bizgrowthxai" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"></iframe>
+      <div class="card-panel text-center py-5" style="border-radius: 24px; background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); border: 1px solid var(--border);">
+        <div class="mb-4 d-flex justify-content-center">
+          <div style="width: 80px; height: 80px; border-radius: 20px; background: var(--bg); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
+            <i data-lucide="book-open" style="width: 40px; height: 40px; color: var(--primary);"></i>
+          </div>
+        </div>
+        <h3 class="fw-bold mb-3" style="letter-spacing: -0.5px;">GROWTHX 深度實戰專欄</h3>
+        <p class="text-muted mb-5 mx-auto" style="max-width: 400px; line-height: 1.6;">因方格子 (Vocus) 官方安全協定 (X-Frame-Options) 升級，為確保您的瀏覽體驗順暢無阻報錯，已為您開啟安全獨立跳轉通道。</p>
+        <a href="https://vocus.cc/salon/bizgrowthxai" target="_blank" class="btn-brand mx-auto d-inline-flex" style="max-width: 300px; padding: 18px 24px;">
+          <i data-lucide="external-link" style="width:18px;"></i> 點擊開啟獨立閱讀視窗
+        </a>
       </div>
     </div>
 
   </main>
+</div>
+
+<div id="topupModal" class="modal-overlay">
+  <div class="modal-content text-center">
+    <h4 class="fw-bold mb-1">V.C. TABLE 儲值方案</h4>
+    <p class="text-muted small mb-4">付款完成後次數將立即無縫生效</p>
+    
+    <div class="form-group-stack">
+      <button class="btn-outline w-100" style="padding: 24px; flex-direction: column; gap: 8px; border: 2px solid var(--border);" onclick="executeTopUp(600)">
+        <div class="fw-bold" style="font-size: 20px; color: var(--primary);">$600 TWD</div>
+        <div class="text-muted small">賦能陪跑桌 1 次</div>
+      </button>
+      
+      <button class="btn-outline w-100" style="padding: 24px; flex-direction: column; gap: 8px; border: 2px solid var(--accent); background: rgba(0,102,204,0.03);" onclick="executeTopUp(3000)">
+        <div class="fw-bold" style="font-size: 20px; color: var(--accent);">$3,000 TWD</div>
+        <div class="text-muted small fw-bold text-accent">賦能陪跑桌 6 次 (最划算)</div>
+      </button>
+    </div>
+    
+    <button class="btn-outline mt-4 border-0 text-muted" onclick="closeModals()">取消返回</button>
+  </div>
+</div>
+
+<div id="signatureModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 800px; width: 95%;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold m-0"><i data-lucide="pen-tool" style="width: 20px; margin-right: 8px;"></i> V.C. TABLE 教練確認簽名</h5>
+      <span class="badge bg-dark">將扣除 1 次額度</span>
+    </div>
+    <p class="text-muted small mb-3">請由教練 (特洛伊) 於下方全螢幕面板簽名確認本次陪跑指導。</p>
+    
+    <div class="sig-container">
+      <canvas id="sigCanvas"></canvas>
+      <div id="sigDateStamp" class="sig-date-stamp"></div>
+    </div>
+    
+    <div class="d-flex gap-3">
+      <button class="btn-outline" onclick="clearSignature()"><i data-lucide="rotate-ccw" style="width:16px;"></i> 清空重簽</button>
+      <button class="btn-outline border-0 text-muted" onclick="closeModals()">取消</button>
+      <button class="btn-brand" id="btnConfirmSig" onclick="confirmSignature()"><i data-lucide="check" style="width:16px;"></i> 確認核銷</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -395,59 +463,115 @@
   let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
-
   let currentFeedPage = 1;
   const feedPerPage = 10;
   let globalFeedData = [];
 
-  // 👑 [本次重點升級：掛載 GEM 5 卡片與內容]
+  // ================= 簽名板 Canvas 邏輯 =================
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+
+  function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#1d1d1f';
+    ctx.lineWidth = 4;
+  }
+  
+  window.addEventListener('resize', resizeCanvas);
+  
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    e.preventDefault(); drawing = true;
+    const pos = getPos(e);
+    ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+  }
+  function draw(e) {
+    if (!drawing) return; e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineTo(pos.x, pos.y); ctx.stroke();
+  }
+  function endDraw() { drawing = false; ctx.beginPath(); }
+
+  canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mouseout', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive: false}); canvas.addEventListener('touchmove', draw, {passive: false}); canvas.addEventListener('touchend', endDraw);
+
+  function openSignatureModal() {
+    document.getElementById('signatureModal').classList.add('active');
+    document.getElementById('sigDateStamp').innerText = new Date().toLocaleString('zh-TW', {hour12:false});
+    setTimeout(resizeCanvas, 50); // 等待 Modal 展開後校正尺寸
+  }
+  function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  function closeModals() {
+    document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+    clearSignature();
+  }
+
+  async function confirmSignature() {
+    // 檢查是否有簽名畫過 (簡單驗證)
+    const blank = document.createElement('canvas');
+    blank.width = canvas.width; blank.height = canvas.height;
+    if(canvas.toDataURL() === blank.toDataURL()) { return showToast("請教練先於上方簽名確認", "warning"); }
+
+    const btn = document.getElementById('btnConfirmSig');
+    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 核銷中...'; lucide.createIcons();
+    
+    try {
+      // 將時間浮水印壓印上去
+      ctx.font = "14px monospace"; ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillText(document.getElementById('sigDateStamp').innerText, canvas.offsetWidth - 160, canvas.offsetHeight - 20);
+      
+      const sigData = canvas.toDataURL('image/png');
+      const msg = await api({ action: "consumeVCTable", email: currentUser.email, signatureBase64: sigData });
+      
+      showToast(msg, "success");
+      closeModals();
+      loadDashboard(); // 重新整理餘額與明細
+    } catch(e) {
+      showToast(e.message, "error");
+    } finally {
+      btn.disabled = false; btn.innerHTML = '<i data-lucide="check" style="width:16px;"></i> 確認核銷'; lucide.createIcons();
+    }
+  }
+
+  function openTopUpModal() { document.getElementById('topupModal').classList.add('active'); }
+  
+  async function executeTopUp(amount) {
+    if(confirm(`是否確定要模擬進行 $${amount} 儲值？\n(正式環境將串接黑貓PAY金流跳轉)`)) {
+      closeModals();
+      showToast("連線至伺服器處理中...", "success");
+      try {
+        const msg = await api({ action: "simulateTopUp", email: currentUser.email, amount: amount });
+        showToast(msg, "success");
+        loadDashboard();
+      } catch(e) {
+        showToast(e.message, "error");
+      }
+    }
+  }
+  // ========================================================
+
+  // GEM 5 更新模塊
   function renderGemMatrix() {
     const gems = [
-      { 
-        name: "GEM 1：系統許願機", 
-        subtitle: "抓漏老闆大腦的戰略軍師",
-        intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。告別不切實際的空話，第一步就鎖定利潤！", 
-        output: "【矩陣一：老闆需求總帳】",
-        value: "幫你省下好幾萬跟科技公司「講聽不懂的火星文」的來回溝通成本。清楚定錨出這個系統是「做給誰用」、「什麼時候會自動上工」，以及這台數位機器每個月到底能幫你的團隊省下多少手工時間、降低多少出錯損失（投資報酬率）。",
-        journey: "<strong>1. 大膽許願：</strong>學員用最白話的商業語言告訴軍師。<br><strong>2. 點餐答題：</strong>軍師會貼心地把 24 題生硬的系統分析題目，變成「一題一個生活譬喻、主動送上 A/B/C 選項」的點餐是非題。學員像點菜一樣輕鬆勾選，完全不燒腦。<br><strong>3. 定錨解鎖：</strong>螢幕上方會顯示破關進度條。答完 24 題後，學員輸入「統整」，核心戰略總帳便完美誕生！",
-        url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" 
-      },
-      { 
-        name: "GEM 2：工作流水線拆解器", 
-        subtitle: "抓出隱形吸血鬼的營運專家",
-        intro: "把你和員工每天重複到手酸、心煩、容易漏單的「手眼動作與肌肉記憶」，像工廠傳送帶一樣切碎檢查，找出天天在偷吸公司時間與金錢的「隱形吸血鬼路段」。", 
-        output: "【矩陣二：現況流程與應變地圖】",
-        value: "把員工平日的抱怨、主管天天在糾錯的痛點，全部變成系統升級的免費養分。最重要的是，它會幫你把「如果遇到奧客棄單、資料缺漏等突發狀況」的應變劇本與防呆邏輯全部寫清楚，確保未來的系統絕不漏單。",
-        journey: "<strong>1. 輸入總帳：</strong>學員複製 GEM 1 的成果貼給專家。<br><strong>2. 畫出傳送帶：</strong>專家引導學員定錨這項工作的「起點（原料進廠）」與「終點（成品出貨）」，主動提議 3~5 個水平大階段。<br><strong>3. 獵殺吸血鬼：</strong>專家逐一拆解垂直小步驟，拋出三大暗黑痛點場景。學員只要指著選項大喊對，專家就會自動記錄，並在打出「統整」時生成無懈可擊的應變地圖。",
-        url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" 
-      },
-      { 
-        name: "GEM 3：數位新工廠設計師", 
-        subtitle: "蓋房子不踩坑的施工藍圖總監",
-        intro: "把前兩步的「想法與工作流程」，正式變成一張蓋房子用的「實體施工圖紙」。決定你的數位系統有幾個畫面、按鈕點下去要去翻哪本帳本（Google Sheets）、檔案要收進哪個實體櫃子（Google Drive）。", 
-        output: "【矩陣三：終極施工產品規格書】",
-        value: "這是一張「工程師與 AI 工具看一眼就會驚呼太專業、能直接開工的圖紙」。它把生硬的程式權限與資料庫，翻譯成日常的「鑰匙權限」與「實體建檔總帳」，幫你省下未來開發時 90% 以上因為「做出來跟想的不一樣」而砍掉重練的冤枉錢！",
-        journey: "<strong>1. 輸入藍圖：</strong>學員把 GEM 1 與 GEM 2 的兩個矩陣同時貼給總監。<br><strong>2. 實體工廠巡禮：</strong>總監會像帶你參觀實體工廠一樣，引導你確認系統的[分頁 $\\rightarrow$ 頁籤 $\\rightarrow$ 區塊]。<br><strong>3. 鎖定 16 大參數：</strong>總監用白話引導你勾選：「這區誰有鑰匙可以改？」、「算完的數字寫進哪本新帳本？」。當 16 個大門全部上鎖，學員輸入「統整」，專業度爆表的終極規格書就此完工！",
-        url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" 
-      },
-      { 
-        name: "GEM 4：全能 AI 開發特助", 
-        subtitle: "邊體驗邊生出系統的終極魔術師",
-        intro: "真正幫你「把系統當場生出來、並陪你無限升級」的黑科技隨身助教！你不用懂任何一行程式碼，只要像個挑剔的體驗官一樣去用用看、挑毛病，它就會一字不漏地把完整的系統網頁與後端大腦寫好雙手奉上。", 
-        output: "【100% 完整雙棲前端網頁原始碼 ＋ 後端生態系串接控制器 ＋ 試算表欄位表】",
-        value: "讓一個文科生、或完全不會寫程式的微創老闆，當場擁有一個活生生、能動、能自動寫入 Sheets、讀取 Drive 資料夾、串接官方 LINE 帳號或 FB/IG 的跨平台企業級系統！",
-        journey: "<strong>1. 圖紙合體：</strong>學員把前三階段的轉型成果貼給魔術師。<br><strong>2. 代碼第一次爆發：</strong>魔術師針對功能美學等進行確認。學員一說「OK」，魔術師就會毫無保留地噴出 100% 完整的全套程式碼！<br><strong>3. 一鍵強制解鎖權限：</strong>教導學員手動點擊執行，一鍵打通 Google 諸神生態系，消滅所有權限鬼故事。<br><strong>4. 四維除錯與增量升級：</strong>學員發現跑版或想新增功能，直接把截圖和代碼丟回給魔術師。魔術師會自動歸類問題，在舊代碼基礎上直接「增量升級」，直到系統完美落地！",
-        url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" 
-      },
-      { 
-        name: "GEM 5：AI 程式需求收斂師 (Spec Builder)", 
-        subtitle: "專為 Vibe Coding 設計的 AI 產品經理",
-        intro: "負責將學員天馬行空、模糊的想法或講不清楚的 Bug，收斂成精確的結構化開發指令，讓程式 AI 能夠 100% 精確地迭代優化程式碼。", 
-        output: "【終極指令輸出格式範本】(AI Code Iteration Prompt)",
-        value: "梳理乾淨天馬行空的想法，一鍵生成包含現況、UX、業務邏輯、資料流與串接邏輯的精準規格書，讓寫程式的 AI (如 Gemini 或 Cursor) 完美幫你修改代碼，杜絕越改越錯的鬼故事！",
-        journey: "<strong>1. 同理與現況釐清：</strong>溫和肯定學員想法，釐清現有程式碼與預期落差。<br><strong>2. 核心邏輯與資料流：</strong>鎖定資料流的起點、終點與 Gemini 觸發時機。<br><strong>3. 畫面與意象反覆確認：</strong>重塑白話運作情境，取得學員「對！這就是我要的」確認。<br><strong>4. 生成精確開發指令：</strong>產出一鍵複製的標準化 Prompt，完美銜接 AI 寫碼環節。",
-        url: "https://gemini.google.com/gem/19JlFWAlNouNnPnIaozcho8mZSKmm57Mp?usp=sharing" 
-      }
+      { name: "GEM 1：系統許願機", subtitle: "抓漏老闆大腦的戰略軍師", intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。", output: "【矩陣一：老闆需求總帳】", value: "省下數萬溝通成本，清楚定錨系統價值。", journey: "<strong>1. 大膽許願</strong><br><strong>2. 點餐答題</strong><br><strong>3. 定錨解鎖</strong>", url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" },
+      { name: "GEM 2：工作流水線拆解器", subtitle: "抓出隱形吸血鬼的營運專家", intro: "把你和員工每天重複到手酸的「手眼動作」，像工廠傳送帶一樣切碎檢查，找出痛點。", output: "【矩陣二：現況流程與應變地圖】", value: "將抱怨變升級養分，確保系統絕不漏單。", journey: "<strong>1. 輸入總帳</strong><br><strong>2. 畫出傳送帶</strong><br><strong>3. 獵殺吸血鬼</strong>", url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" },
+      { name: "GEM 3：數位新工廠設計師", subtitle: "蓋房子不踩坑的施工藍圖總監", intro: "把前兩步的流程，正式變成一張蓋房子用的「實體施工圖紙」。", output: "【矩陣三：終極施工產品規格書】", value: "工程師與 AI 工具看一眼就能開工的終極圖紙。", journey: "<strong>1. 輸入藍圖</strong><br><strong>2. 實體工廠巡禮</strong><br><strong>3. 鎖定 16 大參數</strong>", url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" },
+      { name: "GEM 4：全能 AI 開發特助", subtitle: "邊體驗邊生出系統的終極魔術師", intro: "不用懂程式碼，像個挑剔的體驗官挑毛病，助教一字不漏把網頁與後端寫好雙手奉上。", output: "【100% 完整雙棲前端網頁原始碼】", value: "文科生也能當場擁有活生生的跨平台系統！", journey: "<strong>1. 圖紙合體</strong><br><strong>2. 代碼爆發</strong><br><strong>3. 權限解鎖</strong><br><strong>4. 增量升級</strong>", url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" },
+      { name: "GEM 5：AI 程式需求收斂師", subtitle: "專為 Vibe Coding 設計的 AI 產品經理", intro: "將天馬行空或講不清楚的 Bug，收斂成精確的結構化開發指令。", output: "【終極指令輸出格式範本】", value: "讓寫程式的 AI 完美幫你修改代碼，杜絕越改越錯的鬼故事！", journey: "<strong>1. 同理釐清</strong><br><strong>2. 核心邏輯確認</strong><br><strong>3. 精確指令生成</strong>", url: "https://gemini.google.com/gem/19JlFWAlNouNnPnIaozcho8mZSKmm57Mp?usp=sharing" }
     ];
 
     document.getElementById('gemContainer').innerHTML = gems.map(g => `
@@ -459,25 +583,17 @@
             <p class="text-muted m-0 small fw-medium mt-1">${g.subtitle}</p>
           </div>
         </div>
-        
         <p class="fw-bold text-primary mb-2" style="font-size:14px;"><i data-lucide="lightbulb" style="width:16px; margin-right:4px;"></i>一句話白話介紹</p>
         <p class="small text-muted mb-4" style="line-height:1.6;">${g.intro}</p>
-        
         <div class="p-3 bg-light rounded mb-4" style="border-left: 3px solid var(--accent);">
           <p class="fw-bold mb-2" style="font-size: 13.5px;"><i data-lucide="target" style="width:14px; margin-right:4px;"></i>階段成果：${g.output}</p>
           <p class="small text-muted m-0" style="line-height:1.6;"><strong>落地價值：</strong>${g.value}</p>
         </div>
-
         <details>
           <summary class="small fw-bold"><i data-lucide="map" style="width:14px; margin-right:4px;"></i>查看學員互動旅程</summary>
-          <div class="details-content mt-2 small text-muted" style="line-height:1.7;">
-            ${g.journey}
-          </div>
+          <div class="details-content mt-2 small text-muted" style="line-height:1.7;">${g.journey}</div>
         </details>
-
-        <a href="${g.url}" target="_blank" class="btn-brand mt-4">
-          進入大腦通道 <i data-lucide="arrow-right" style="width:16px;"></i>
-        </a>
+        <a href="${g.url}" target="_blank" class="btn-brand mt-4">進入大腦通道 <i data-lucide="arrow-right" style="width:16px;"></i></a>
       </div>
     `).join('');
     lucide.createIcons();
@@ -591,13 +707,6 @@
     document.getElementById(tabId).classList.add('active'); 
     document.getElementById('nav-' + tabId).classList.add('active'); 
     
-    if (tabId === 'tab-blog') {
-      const iframe = document.getElementById('blogIframe');
-      if (!iframe.getAttribute('src')) {
-        iframe.setAttribute('src', iframe.getAttribute('data-src'));
-      }
-    }
-
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('mobileOverlay');
     if (sidebar && sidebar.classList.contains('open')) {
@@ -625,6 +734,29 @@
         document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
       }
 
+      // V.C. TABLE 顯示與明細更新
+      document.getElementById('vcUsesDisplay').innerText = p.vcUses;
+      document.getElementById('vcLastTopUpDate').innerText = p.lastTopUpDate;
+      document.getElementById('vcLastTopUpAmount').innerText = `$${p.lastTopUpAmount}`;
+
+      const vcLogBody = document.getElementById('vcLogTableBody');
+      if (data.vcLogs && data.vcLogs.length > 0) {
+        vcLogBody.innerHTML = data.vcLogs.map(log => `
+          <tr>
+            <td class="text-muted" style="font-family: monospace;">${log.date}</td>
+            <td><span class="badge ${log.type === '儲值' ? 'bg-success' : 'bg-primary'}">${log.type}</span></td>
+            <td>$${log.amount}</td>
+            <td class="fw-bold ${parseInt(log.change) > 0 ? 'text-success' : 'text-danger'}">${log.change}</td>
+            <td class="fw-bold">${log.balance} 次</td>
+            <td>
+              ${log.note ? `<a href="${log.note}" target="_blank" class="btn-outline" style="padding:4px 8px; font-size:12px;"><i data-lucide="image" style="width:12px;"></i> 簽名憑證</a>` : '-'}
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        vcLogBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted p-4">目前尚無交易明細</td></tr>';
+      }
+
       const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
       document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
       
@@ -635,6 +767,7 @@
     } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
   }
 
+  // 影音錄製引擎相關函數保持原狀
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -642,35 +775,21 @@
   async function acquireStream() {
     if (currentStream) currentStream.getTracks().forEach(track => track.stop());
     const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
-    
     try {
       if (desktopSource === "screen") {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } }, audio: true });
         let micStream = null;
         try { micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); } catch(e) { log("未獲取麥克風"); }
-        
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         mixedAudioDestination = audioContext.createMediaStreamDestination();
-        
-        if (screenStream.getAudioTracks().length > 0) {
-          const screenSource = audioContext.createMediaStreamSource(screenStream);
-          screenSource.connect(mixedAudioDestination);
-        }
-        if (micStream && micStream.getAudioTracks().length > 0) {
-          const micSource = audioContext.createMediaStreamSource(micStream);
-          micSource.connect(mixedAudioDestination);
-        }
-        
-        currentStream = new MediaStream([
-          screenStream.getVideoTracks()[0],
-          mixedAudioDestination.stream.getAudioTracks()[0]
-        ]);
+        if (screenStream.getAudioTracks().length > 0) { const screenSource = audioContext.createMediaStreamSource(screenStream); screenSource.connect(mixedAudioDestination); }
+        if (micStream && micStream.getAudioTracks().length > 0) { const micSource = audioContext.createMediaStreamSource(micStream); micSource.connect(mixedAudioDestination); }
+        currentStream = new MediaStream([ screenStream.getVideoTracks()[0], mixedAudioDestination.stream.getAudioTracks()[0] ]);
       } else {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const facing = isMobile ? mobileFacingMode : "user";
         currentStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 426 }, height: { ideal: 240 }, facingMode: facing }, audio: audioConstraints });
       }
-      
       document.getElementById('mediaPlayer').srcObject = currentStream;
       const videoTrack = currentStream.getVideoTracks()[0];
       if (videoTrack) videoTrack.enabled = isVideoEnabled;
@@ -681,15 +800,10 @@
     currentRecordContext = context;
     document.getElementById('triggerRecordBox').style.display = 'none';
     if(document.getElementById('triggerSchoolRecordBox')) document.getElementById('triggerSchoolRecordBox').style.display = 'none';
-    
     const ui = document.getElementById('recordUI');
     ui.style.display = 'block'; 
-    if(context === 'school') {
-      document.getElementById('coachPublishArea').insertBefore(ui, document.getElementById('coachPublishArea').children[1]);
-    } else {
-      document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
-    }
-    
+    if(context === 'school') { document.getElementById('coachPublishArea').insertBefore(ui, document.getElementById('coachPublishArea').children[1]); } 
+    else { document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]); }
     document.getElementById('videoContainer').style.display = 'block'; 
     await acquireStream();
   }
@@ -698,13 +812,9 @@
     const btn = document.getElementById('btnStartPost'); btn.disabled = true;
     const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
     log("正在對齊試算表總帳碼頭...");
-    
     try {
-      if (currentRecordContext === 'school') {
-        postData = await api({ action: "initSchoolPost", email: currentUser.email });
-      } else {
-        postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
-      }
+      if (currentRecordContext === 'school') { postData = await api({ action: "initSchoolPost", email: currentUser.email }); } 
+      else { postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role }); }
       isRecording = true; chunkIndex = 1;
       document.getElementById('recBadge').style.display = 'flex'; document.getElementById('btnStop').style.display = 'flex'; document.getElementById('btnPause').style.display = 'flex';
       btn.style.display = 'none';
@@ -745,19 +855,15 @@
     document.getElementById('recBadge').style.display = 'none'; document.getElementById('playerControls').style.display = 'none';
     if(currentStream) currentStream.getTracks().forEach(t => t.stop());
     if(audioContext) audioContext.close();
-
     log("整合背景任務，執行魔術師大腦封裝...");
     while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
-    
     log("等待雲端試算表安全同步...");
     await new Promise(r => setTimeout(r, 2000));
-    
     try {
       if (currentRecordContext === 'school') {
         const textContent = document.getElementById('schoolPostContent').value || "今日影音教材說明";
         await api({ action: "finalizeSchoolPost", rowIndex: postData.rowIndex, email: currentUser.email, content: textContent });
         showToast("學堂影音教材上架成功！", "success");
-        document.getElementById('schoolPostContent').value = '';
       } else {
         await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
         showToast("陪跑日誌上傳成功！", "success");
@@ -776,15 +882,7 @@
     if (wasRecording && !isPaused) startChunkRecording();
   }
   function toggleVideo() { isVideoEnabled = !isVideoEnabled; if(currentStream) currentStream.getVideoTracks()[0].enabled = isVideoEnabled; }
-  
-  function pauseMeeting() { 
-    isPaused = true; 
-    if (mediaRecorder && mediaRecorder.state === "recording") { 
-      mediaRecorder.stop(); 
-      clearTimeout(chunkInterval); 
-      log("日誌錄製已暫停。正在處理已錄製區段..."); 
-    } 
-  }
+  function pauseMeeting() { isPaused = true; if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); clearTimeout(chunkInterval); log("日誌錄製已暫停。正在處理已錄製區段..."); } }
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
@@ -792,17 +890,11 @@
     globalFeedData = posts || [];
     currentFeedPage = page;
     const container = document.getElementById('feedContainer');
-    
-    if (globalFeedData.length === 0) { 
-      container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; 
-      return; 
-    }
-    
+    if (globalFeedData.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; return; }
     const startIndex = (currentFeedPage - 1) * feedPerPage;
     const endIndex = startIndex + feedPerPage;
     const pagePosts = globalFeedData.slice(startIndex, endIndex);
     const totalPages = Math.ceil(globalFeedData.length / feedPerPage);
-
     container.innerHTML = pagePosts.map(post => {
       let actionBtns = '';
       if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
@@ -814,16 +906,12 @@
           </div>`;
       }
       let videoUrlsHtml = '';
-      if (post.VideoURLs) {
-        videoUrlsHtml = `<div class="form-group-stack mt-4">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`;
-      }
-
+      if (post.VideoURLs) { videoUrlsHtml = `<div class="form-group-stack mt-4">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`; }
       let prettyTranscript = (post.Transcript || '無紀錄')
         .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; display: inline-block;">第 $1 分鐘紀錄</h5>\n')
         .replace(/\[畫面描述\]/g, '\n<span class="badge bg-primary me-2 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">畫面描述</span>\n')
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
-
       return `
       <div class="post-card">
         <details class="post-toggle-details">
@@ -839,7 +927,6 @@
               <i data-lucide="chevron-down" class="expand-icon" style="width:24px; color:var(--text-muted);"></i>
             </div>
           </summary>
-          
           <div class="post-body-content mt-4 pt-4" style="border-top: 1px solid var(--border);">
             <div>
               <div class="d-flex justify-content-between align-items-center mb-3">
@@ -848,15 +935,11 @@
               </div>
               <div id="summary_${post.PostID}" class="summary-box vocus-style mb-4">${marked.parse(post.AI_Summary || '')}</div>
             </div>
-            
             ${post.AI_Reply ? `<div class="ai-reply-box mb-4"><h5 class="fw-bold mb-3" style="color: var(--primary);"><i data-lucide="cpu" style="width:20px; margin-right:4px;"></i> AI 總監指導視角</h5><div class="vocus-style p-4 rounded" style="background: var(--bg); border-left: 4px solid var(--primary);">${marked.parse(post.AI_Reply)}</div></div>` : ''}
-            
             <details class="transcript-details">
               <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看畫面描述與語音逐字稿原檔</summary>
               <div class="details-content mt-3 p-0" style="background: transparent;">
-                <div class="d-flex justify-content-end mb-2">
-                  <button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button>
-                </div>
+                <div class="d-flex justify-content-end mb-2"><button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button></div>
                 <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
                 ${videoUrlsHtml}
               </div>
@@ -866,74 +949,22 @@
         </details>
       </div>`;
     }).join('');
-
-    if (totalPages > 1) {
-      container.innerHTML += `
-        <div class="pagination-container">
-          <button class="page-btn" ${currentFeedPage === 1 ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage - 1})"><i data-lucide="chevron-left" style="width:16px;"></i></button>
-          <span class="fw-bold text-muted mx-2" style="font-size:14px;">第 ${currentFeedPage} / ${totalPages} 頁</span>
-          <button class="page-btn" ${currentFeedPage === totalPages ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage + 1})"><i data-lucide="chevron-right" style="width:16px;"></i></button>
-        </div>
-      `;
-    }
-
+    if (totalPages > 1) { container.innerHTML += `<div class="pagination-container"><button class="page-btn" ${currentFeedPage === 1 ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage - 1})"><i data-lucide="chevron-left" style="width:16px;"></i></button><span class="fw-bold text-muted mx-2" style="font-size:14px;">第 ${currentFeedPage} / ${totalPages} 頁</span><button class="page-btn" ${currentFeedPage === totalPages ? 'disabled' : ''} onclick="changeFeedPage(${currentFeedPage + 1})"><i data-lucide="chevron-right" style="width:16px;"></i></button></div>`; }
     lucide.createIcons();
   }
 
-  function changeFeedPage(newPage) {
-    renderFeed(globalFeedData, newPage);
-    document.getElementById('tab-coach').scrollIntoView({ behavior: 'smooth' });
-  }
+  function changeFeedPage(newPage) { renderFeed(globalFeedData, newPage); document.getElementById('tab-coach').scrollIntoView({ behavior: 'smooth' }); }
 
   function renderSchoolFeed(items) {
     const container = document.getElementById('schoolFeedContainer');
-    const posts = items.filter(i => i.Type === "POST");
-    const comments = items.filter(i => i.Type === "COMMENT");
-    
+    const posts = items.filter(i => i.Type === "POST"); const comments = items.filter(i => i.Type === "COMMENT");
     if (posts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">學堂牆上目前空空如也。</div>'; return; }
-    
     container.innerHTML = posts.map(post => {
       const myComments = comments.filter(c => c.ParentID === post.RowID);
-      const commentsHtml = myComments.map(c => `
-        <div class="comment-box">
-          <div class="d-flex justify-content-between small fw-bold"><span>代碼：${c.AuthorCode}</span><span class="text-muted font-monospace">${c.Timestamp || ''}</span></div>
-          <div class="small mt-1 text-secondary">${c.Content || ''}</div>
-        </div>
-      `).join('');
-
+      const commentsHtml = myComments.map(c => `<div class="comment-box"><div class="d-flex justify-content-between small fw-bold"><span>代碼：${c.AuthorCode}</span><span class="text-muted font-monospace">${c.Timestamp || ''}</span></div><div class="small mt-1 text-secondary">${c.Content || ''}</div></div>`).join('');
       let videoHtml = '';
-      if (post.VideoURL) {
-        const fileIdMatch = post.VideoURL.match(/[-\w]{25,}/);
-        if (fileIdMatch) {
-          videoHtml = `<div class="iframe-video-container"><iframe src="https://drive.google.com/file/d/${fileIdMatch[0]}/preview" allow="autoplay; fullscreen"></iframe></div>`;
-        } else {
-          videoHtml = `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音</a>`;
-        }
-      }
-
-      return `
-      <div class="post-card">
-        <div class="post-header">
-          <span class="fw-bold text-primary">教練發布教材</span>
-          <span class="small text-muted font-monospace">${post.Timestamp || ''}</span>
-        </div>
-        <div class="fw-medium text-main mb-2">${post.Content || ''}</div>
-        <div class="p-3 rounded bg-light" style="font-size:13.5px; border-left:3px solid var(--accent);">
-          <h6 class="fw-bold mb-2"><i data-lucide="file-text" style="width:14px;"></i> 教材觀念重點摘要</h6>
-          <div style="line-height:1.5;">${marked.parse(post.Summary || '無內容')}</div>
-        </div>
-        
-        ${videoHtml}
-        
-        <div class="mt-3">
-          <h6 class="fw-bold mb-2 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 全體互動學員留言區 (${myComments.length})</h6>
-          ${commentsHtml}
-          <div class="form-group-stack mt-3">
-            <input type="text" id="comment_input_${post.RowID}" class="form-control" style="padding:10px;" placeholder="使用會員代碼接續留言...">
-            <button class="btn-brand" style="padding:10px; font-size:13px;" onclick="submitComment('${post.RowID}')">送出互動留言</button>
-          </div>
-        </div>
-      </div>`;
+      if (post.VideoURL) { const fileIdMatch = post.VideoURL.match(/[-\w]{25,}/); if (fileIdMatch) { videoHtml = `<div class="iframe-video-container"><iframe src="https://drive.google.com/file/d/${fileIdMatch[0]}/preview" allow="autoplay; fullscreen"></iframe></div>`; } else { videoHtml = `<a href="${post.VideoURL}" target="_blank" class="btn-outline mt-2"><i data-lucide="video" style="width:16px;"></i> 點擊播放教學影音</a>`; } }
+      return `<div class="post-card"><div class="post-header"><span class="fw-bold text-primary">教練發布教材</span><span class="small text-muted font-monospace">${post.Timestamp || ''}</span></div><div class="fw-medium text-main mb-2">${post.Content || ''}</div><div class="p-3 rounded bg-light" style="font-size:13.5px; border-left:3px solid var(--accent);"><h6 class="fw-bold mb-2"><i data-lucide="file-text" style="width:14px;"></i> 教材觀念重點摘要</h6><div style="line-height:1.5;">${marked.parse(post.Summary || '無內容')}</div></div>${videoHtml}<div class="mt-3"><h6 class="fw-bold mb-2 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 全體互動學員留言區 (${myComments.length})</h6>${commentsHtml}<div class="form-group-stack mt-3"><input type="text" id="comment_input_${post.RowID}" class="form-control" style="padding:10px;" placeholder="使用會員代碼接續留言..."><button class="btn-brand" style="padding:10px; font-size:13px;" onclick="submitComment('${post.RowID}')">送出互動留言</button></div></div></div>`;
     }).join('');
     lucide.createIcons();
   }
@@ -943,25 +974,21 @@
     if (!input.value.trim()) return showToast("內文不可為空", "warning");
     try {
       await api({ action: "addSchoolComment", email: currentUser.email, parentId: postId, content: input.value.trim() });
-      showToast("互動留言成功！", "success");
-      location.reload();
+      showToast("互動留言成功！", "success"); location.reload();
     } catch(e) { showToast("留言失敗", "error"); }
   }
 
   async function publishSchoolPost() {
     const text = document.getElementById('schoolPostContent').value.trim();
     if(!text) return showToast("請先輸入影音教材解說內文", "warning");
-    showToast("影音與內文總帳同步封裝中...", "success");
-    await stopMeeting();
+    showToast("影音與內文總帳同步封裝中...", "success"); await stopMeeting();
   }
 
   async function updateStatus(postId, status) {
     if(confirm(`確定標記為「${status}」嗎？`)) {
       await api({ action: "updateStatus", postId: postId, status: status });
       showToast("狀態已更新", "success");
-      if (status === '呼叫教練') {
-        showToast("已同步發送信件通知教練！", "success");
-      }
+      if (status === '呼叫教練') { showToast("已同步發送信件通知教練！", "success"); }
       setTimeout(() => location.reload(), 1500);
     }
   }
