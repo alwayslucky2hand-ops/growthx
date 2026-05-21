@@ -26,7 +26,6 @@
     .custom-toast { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--text-main); padding: 14px 24px; border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-20px) scale(0.95); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; }
     .custom-toast.show { opacity: 1; transform: translateY(0) scale(1); }
     
-    /* 🔥 [Apple 風格質感背景色提示字] */
     .toast-error { background: rgba(255, 59, 48, 0.95) !important; color: white !important; border: none !important; }
     .toast-success { background: rgba(52, 199, 89, 0.95) !important; color: white !important; border: none !important; }
     .toast-warning { background: rgba(255, 149, 0, 0.95) !important; color: white !important; border: none !important; }
@@ -357,33 +356,34 @@
       <div id="gemContainer" class="form-group-stack"></div>
     </div>
 
+    <!-- 🌟 共用專業錄影引擎 (DOM Node) -->
+    <div id="recordUI" class="card-panel mb-5" style="display:none;">
+      <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">全端除錯與錄影引擎</h4>
+      <div class="video-container" id="videoContainer">
+        <div id="recBadge" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
+        <video id="mediaPlayer" autoplay muted playsinline></video>
+        <div class="controls-overlay" id="playerControls">
+           <button class="control-btn" onclick="switchSourceAction()"><i data-lucide="switch-camera" id="icon-source"></i></button>
+           <button class="control-btn" onclick="toggleVideo()"><i data-lucide="video-off" id="icon-video"></i></button>
+           <button class="control-btn pause-btn" id="btnPause" onclick="pauseMeeting()"><i data-lucide="pause"></i></button>
+           <button class="control-btn play-btn" id="btnResume" onclick="resumeMeeting()" style="display:none;"><i data-lucide="play"></i></button>
+           <button class="control-btn stop-btn" id="btnStop" onclick="stopMeeting()"><i data-lucide="square" style="color: #ff3b30;"></i></button>
+        </div>
+      </div>
+      <div class="form-group-stack">
+        <button class="btn-brand" id="btnStartPost" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製</button>
+        <div id="systemLog" class="log-box" style="display:none;"></div>
+      </div>
+    </div>
+
     <div id="tab-coach" class="panel-view">
       <div id="triggerRecordBox" class="trigger-card" onclick="toggleRecordUI('posts')">
         <div class="trigger-icon-wrapper"><i data-lucide="video" style="width: 32px; height: 32px; color: white;"></i></div>
         <h4 class="fw-bold m-0" style="letter-spacing: -0.5px;">點擊開啟相機與螢幕權限</h4>
-        <p class="mt-2 mb-0" style="color: rgba(255,255,255,0.7); font-size: 14px;">啟動系統雙軌音訊與預覽引擎</p>
-      </div>
-
-      <div id="recordUI" class="card-panel mb-5" style="display:none;">
-        <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">全端除錯與錄影引擎</h4>
-        <div class="video-container" id="videoContainer">
-          <div id="recBadge" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
-          <video id="mediaPlayer" autoplay muted playsinline></video>
-          <div class="controls-overlay" id="playerControls">
-             <button class="control-btn" onclick="switchSourceAction()"><i data-lucide="switch-camera" id="icon-source"></i></button>
-             <button class="control-btn" onclick="toggleVideo()"><i data-lucide="video-off" id="icon-video"></i></button>
-             <button class="control-btn pause-btn" id="btnPause" onclick="pauseMeeting()"><i data-lucide="pause"></i></button>
-             <button class="control-btn play-btn" id="btnResume" onclick="resumeMeeting()" style="display:none;"><i data-lucide="play"></i></button>
-             <button class="control-btn stop-btn" id="btnStop" onclick="stopMeeting()"><i data-lucide="square" style="color: #ff3b30;"></i></button>
-          </div>
-        </div>
-        <div class="form-group-stack">
-          <button class="btn-brand" id="btnStartPost" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製</button>
-          <div id="systemLog" class="log-box" style="display:none;"></div>
-        </div>
+        <p class="mt-2 mb-0" style="color: rgba(255,255,255,0.7); font-size: 14px;">啟動陪跑系統雙軌音訊與預覽引擎</p>
       </div>
       
-      <div class="mb-4"><h4 class="fw-bold m-0" style="letter-spacing: -0.5px;">歷史日誌總帳</h4></div>
+      <div class="mb-4 mt-5"><h4 class="fw-bold m-0" style="letter-spacing: -0.5px;">歷史日誌總帳</h4></div>
       <div id="feedContainer"></div>
     </div>
 
@@ -391,29 +391,17 @@
     <div id="tab-school" class="panel-view">
       <div class="mb-4">
         <h2 class="fw-bold mb-1">FFS 學堂</h2>
-        <p class="text-muted small">教練專屬影音發布與全體學員互動大本營</p>
+        <p class="text-muted small">教練專屬 1080p 影音發布與全體學員互動大本營</p>
       </div>
 
       <div id="coachPublishArea" class="card-panel" style="display:none;">
         <h5 class="fw-bold mb-3">發布全新學堂教材影音</h5>
         <div id="triggerSchoolRecordBox" class="trigger-card" onclick="toggleRecordUI('school')">
           <div class="trigger-icon-wrapper"><i data-lucide="video" style="width:24px; color:white;"></i></div>
-          <h6 class="m-0">開啟學堂 1080p 教材錄影機</h6>
+          <h6 class="m-0">開啟學堂 1080p 專業錄影機</h6>
         </div>
         
-        <!-- 學堂專用獨立 1080p 錄影 UI -->
-        <div id="schoolRecordUI" style="display:none;">
-          <div class="video-container" id="videoContainerSchool" style="display:block;">
-            <div id="recBadgeSchool" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
-            <video id="mediaPlayerSchool" autoplay muted playsinline></video>
-            <div class="controls-overlay" id="playerControlsSchool" style="display:none;">
-               <button class="control-btn stop-btn" id="btnStopSchool" onclick="stopMeeting()"><i data-lucide="square" style="color: #ff3b30;"></i></button>
-            </div>
-          </div>
-          <button class="btn-brand mb-4" id="btnStartPostSchool" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製</button>
-        </div>
-
-        <div class="form-group-stack mt-3">
+        <div id="schoolActionArea" class="form-group-stack mt-4" style="display:none;">
           <textarea id="schoolPostContent" class="form-control" rows="3" placeholder="請輸入本次影音教學的核心觀念或白話解說..."></textarea>
           <button class="btn-brand" id="btnPublishSchool" onclick="publishSchoolPost()">確定發布 (啟用背景 AI 結構萃取)</button>
         </div>
@@ -841,7 +829,7 @@
     });
   }
 
-  // ================= 影音錄製與雙軌切片引擎 =================
+  // ================= 共用專業錄影與雙軌切片引擎 =================
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -850,79 +838,86 @@
     if (currentStream) currentStream.getTracks().forEach(track => track.stop());
     const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
     try {
-      if (currentRecordContext === 'school') {
-        // 學堂專用 1080p 教練錄影模式
-        currentStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: audioConstraints });
-        document.getElementById('mediaPlayerSchool').srcObject = currentStream;
+      // 根據情境判斷畫質：學堂模式使用 1080p，陪跑日誌使用一般畫質
+      let vidConstraints = (currentRecordContext === 'school')
+          ? { width: { ideal: 1920 }, height: { ideal: 1080 } }
+          : { width: { ideal: 426 }, height: { ideal: 240 } };
+      let screenVidConstraints = (currentRecordContext === 'school')
+          ? { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 15 } }
+          : { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } };
+
+      if (desktopSource === "screen") {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: screenVidConstraints, audio: true });
+        let micStream = null;
+        try { micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); } catch(e) { log("未獲取麥克風"); }
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        mixedAudioDestination = audioContext.createMediaStreamDestination();
+        if (screenStream.getAudioTracks().length > 0) { const screenSource = audioContext.createMediaStreamSource(screenStream); screenSource.connect(mixedAudioDestination); }
+        if (micStream && micStream.getAudioTracks().length > 0) { const micSource = audioContext.createMediaStreamSource(micStream); micSource.connect(mixedAudioDestination); }
+        currentStream = new MediaStream([ screenStream.getVideoTracks()[0], mixedAudioDestination.stream.getAudioTracks()[0] ]);
       } else {
-        // 陪跑日誌雙軌模式
-        if (desktopSource === "screen") {
-          const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } }, audio: true });
-          let micStream = null;
-          try { micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); } catch(e) { log("未獲取麥克風"); }
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          mixedAudioDestination = audioContext.createMediaStreamDestination();
-          if (screenStream.getAudioTracks().length > 0) { const screenSource = audioContext.createMediaStreamSource(screenStream); screenSource.connect(mixedAudioDestination); }
-          if (micStream && micStream.getAudioTracks().length > 0) { const micSource = audioContext.createMediaStreamSource(micStream); micSource.connect(mixedAudioDestination); }
-          currentStream = new MediaStream([ screenStream.getVideoTracks()[0], mixedAudioDestination.stream.getAudioTracks()[0] ]);
-        } else {
-          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-          const facing = isMobile ? mobileFacingMode : "user";
-          currentStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 426 }, height: { ideal: 240 }, facingMode: facing }, audio: audioConstraints });
-        }
-        document.getElementById('mediaPlayer').srcObject = currentStream;
-        const videoTrack = currentStream.getVideoTracks()[0];
-        if (videoTrack) videoTrack.enabled = isVideoEnabled;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const facing = isMobile ? mobileFacingMode : "user";
+        vidConstraints.facingMode = facing;
+        currentStream = await navigator.mediaDevices.getUserMedia({ video: vidConstraints, audio: audioConstraints });
       }
+      
+      document.getElementById('mediaPlayer').srcObject = currentStream;
+      const videoTrack = currentStream.getVideoTracks()[0];
+      if (videoTrack) videoTrack.enabled = isVideoEnabled;
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
+  // 核心：透過 DOM Node Relocation 重用統一的錄影控制面板
   async function toggleRecordUI(context) {
     currentRecordContext = context;
+    const ui = document.getElementById('recordUI');
+    ui.style.display = 'block';
+
     if (context === 'school') {
       document.getElementById('triggerSchoolRecordBox').style.display = 'none';
-      document.getElementById('schoolRecordUI').style.display = 'block';
+      document.getElementById('schoolActionArea').style.display = 'flex';
+      // 將共用控制面板完美安插在發布按鈕前
+      document.getElementById('coachPublishArea').insertBefore(ui, document.getElementById('schoolActionArea'));
+      document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動 1080p 學堂錄製';
     } else {
       document.getElementById('triggerRecordBox').style.display = 'none';
-      const ui = document.getElementById('recordUI');
-      ui.style.display = 'block'; 
       document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
-      document.getElementById('videoContainer').style.display = 'block'; 
+      document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製';
     }
+    
+    document.getElementById('videoContainer').style.display = 'block';
     await acquireStream();
+    lucide.createIcons();
   }
 
   async function startPost() {
-    if (currentRecordContext === 'school') {
-      const btn = document.getElementById('btnStartPostSchool'); btn.disabled = true; btn.innerHTML = '連線大腦中...';
-      try {
+    const btn = document.getElementById('btnStartPost'); btn.disabled = true;
+    const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
+    log("正在對齊試算表總帳碼頭...");
+    
+    try {
+      if (currentRecordContext === 'school') {
         postData = await api({ action: "initSchoolPost", email: currentUser.email });
-        isRecording = true; chunkIndex = 1;
-        document.getElementById('recBadgeSchool').style.display = 'flex'; 
-        document.getElementById('playerControlsSchool').style.display = 'flex';
-        btn.style.display = 'none';
-        startChunkRecording();
-      } catch(e) { showToast("引擎初始化失敗", "error"); btn.disabled = false; }
-    } else {
-      const btn = document.getElementById('btnStartPost'); btn.disabled = true;
-      const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
-      log("正在對齊試算表總帳碼頭...");
-      try {
-        postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role }); 
-        isRecording = true; chunkIndex = 1;
-        document.getElementById('recBadge').style.display = 'flex'; document.getElementById('btnStop').style.display = 'flex'; document.getElementById('btnPause').style.display = 'flex';
-        btn.style.display = 'none';
-        log("雙軌音訊混音引擎封裝成功，開始錄製。");
-        startChunkRecording();
-      } catch(e) { showToast("引擎初始化失敗", "error"); btn.disabled = false; }
-    }
+      } else {
+        postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
+      }
+      isRecording = true; chunkIndex = 1;
+      document.getElementById('recBadge').style.display = 'flex';
+      document.getElementById('btnStop').style.display = 'flex';
+      document.getElementById('btnPause').style.display = 'flex';
+      btn.style.display = 'none';
+      
+      log(currentRecordContext === 'school' ? "啟動 1080p HD 高畫質雙軌引擎，開始錄製學堂。" : "雙軌音訊混音引擎封裝成功，開始錄製。");
+      startChunkRecording();
+    } catch(e) { showToast("引擎初始化失敗", "error"); btn.disabled = false; }
   }
 
   function startChunkRecording() {
     if (!isRecording || !currentStream || isPaused) return;
     let chunks = []; 
-    // 學堂 1080p 使用高碼率，陪跑日誌維持一般
     const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    // 學堂模式加強傳輸編碼率
     const options = currentRecordContext === 'school' ? {mimeType: mime, videoBitsPerSecond: 2500000} : {mimeType: mime};
     
     mediaRecorder = new MediaRecorder(currentStream, options);
@@ -932,7 +927,7 @@
   }
 
   function processChunk(blob, mime, cIndex) {
-    if(currentRecordContext !== 'school') log(`區段 ${cIndex} 音畫封裝寫入雲端中...`);
+    log(`區段 ${cIndex} 音畫封裝寫入雲端中...`);
     const task = new Promise(resolve => {
       const reader = new FileReader(); reader.readAsDataURL(blob);
       reader.onloadend = async () => {
@@ -940,12 +935,13 @@
         try {
           if (currentRecordContext === 'school') {
             await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'school' });
+            log(`區段 ${cIndex} 1080p 高清切片建檔寫入儲存格完成。`);
           } else {
             await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
             await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email });
             log(`區段 ${cIndex} 辨讀歸檔完成。`);
           }
-        } catch(e) { if(currentRecordContext !== 'school') log(`區段 ${cIndex} 寫入失敗`); }
+        } catch(e) { log(`區段 ${cIndex} 寫入失敗`); }
         resolve();
       };
     });
@@ -956,17 +952,18 @@
     isRecording = false; isPaused = false; clearTimeout(chunkInterval);
     if(mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
     
+    document.getElementById('recBadge').style.display = 'none';
+    document.getElementById('playerControls').style.display = 'none';
+    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+    if(audioContext) audioContext.close();
+    
+    log("整合背景任務，執行魔術師大腦封裝...");
+    while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
+    
     if(currentRecordContext === 'school') {
-      document.getElementById('recBadgeSchool').style.display = 'none'; document.getElementById('playerControlsSchool').style.display = 'none';
-      if(currentStream) currentStream.getTracks().forEach(t => t.stop());
-      while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
-      showToast("所有 1080p 影音切片入庫完成，請輸入下方解說描述並點擊發布。", "success");
+      log("1080p 切片寫入雲端完成。請在下方輸入教材描述並點擊發布。");
+      showToast("切片入庫完成，請輸入描述並發布。", "success");
     } else {
-      document.getElementById('recBadge').style.display = 'none'; document.getElementById('playerControls').style.display = 'none';
-      if(currentStream) currentStream.getTracks().forEach(t => t.stop());
-      if(audioContext) audioContext.close();
-      log("整合背景任務，執行魔術師大腦封裝...");
-      while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
       log("等待雲端試算表安全同步...");
       await new Promise(r => setTimeout(r, 2000));
       try {
@@ -991,7 +988,7 @@
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
-  // 陪跑日誌列表
+  // ================= 陪跑日誌列表 =================
   function renderFeed(posts, page = 1) {
     globalFeedData = posts || [];
     currentFeedPage = page;
