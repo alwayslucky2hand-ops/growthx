@@ -73,7 +73,7 @@
     .modal-content { background: var(--surface); border-radius: 24px; padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); position: relative; }
     
     .sig-container { width: 100%; height: 60vh; max-height: 400px; background: #fff; border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 24px; position: relative; overflow: hidden; touch-action: none; }
-    canvas { width: 100%; height: 100%; cursor: crosshair; }
+    .sig-canvas-style { width: 100%; height: 100%; cursor: crosshair; }
     .sig-date-stamp { position: absolute; bottom: 16px; right: 16px; color: var(--text-muted); font-family: monospace; font-size: 14px; pointer-events: none; opacity: 0.5; }
 
     .profile-stack { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
@@ -91,7 +91,7 @@
     .trigger-icon-wrapper { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.1); margin-bottom: 20px; }
 
     .video-container { position: relative; width: 100%; max-height: 480px; background: #000; border-radius: 20px; margin-bottom: 24px; overflow: hidden; display: none; }
-    video { width: 100%; height: 100%; object-fit: cover; }
+    .video-player-style { width: 100%; height: 100%; object-fit: cover; }
     .status-badge { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: none; align-items: center; gap: 8px; }
     .pulse-dot { width: 6px; height: 6px; background-color: #ff3b30; border-radius: 50%; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
@@ -161,7 +161,6 @@
     .vocus-style strong { color: #111; background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); }
     .vocus-style p { margin-bottom: 1.4em; }
 
-    /* 🎬 Apple Style Video Carousel */
     .video-carousel-container { position: relative; width: 100%; border-radius: 16px; overflow: hidden; background: #000; min-height: 240px; margin-bottom: 24px; }
     .carousel-item { display: none; width: 100%; height: 100%; }
     .carousel-item.active { display: block; animation: fadeIn 0.3s; }
@@ -172,13 +171,18 @@
     .carousel-next { right: 16px; }
     .carousel-indicator { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
 
-    /* Manager Dropdown */
     .manager-menu-container { position: absolute; right: 32px; top: 32px; z-index: 50; }
     .manager-dropdown { position: absolute; right: 0; top: 40px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: none; flex-direction: column; overflow: hidden; width: 140px; }
     .manager-dropdown.show { display: flex; animation: fadeIn 0.2s ease; }
     .manager-dropdown button { background: none; border: none; padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--primary); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
     .manager-dropdown button:hover { background: var(--bg); }
     .manager-dropdown button.text-danger { color: #ff3b30; border-top: 1px solid var(--border); }
+
+    /* Recommend Button Styles */
+    .btn-recommend { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 8px 16px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+    .btn-recommend:hover { background: rgba(0, 102, 204, 0.05); border-color: var(--accent); color: var(--accent); }
+    .btn-recommend.active { background: rgba(0, 102, 204, 0.1); border-color: var(--accent); color: var(--accent); }
+    .stat-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -265,6 +269,7 @@
 
   <main class="main-content">
     
+    <!-- 會員中心 -->
     <div id="tab-member" class="panel-view active">
       <div class="card-panel">
         <div class="profile-stack">
@@ -348,6 +353,7 @@
       <div id="webAppsContainer" class="form-group-stack"></div>
     </div>
 
+    <!-- AI 助教 -->
     <div id="tab-gem" class="panel-view">
       <div class="mb-5 text-center text-md-start">
         <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
@@ -361,7 +367,7 @@
       <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">全端除錯與錄影引擎</h4>
       <div class="video-container" id="videoContainer">
         <div id="recBadge" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
-        <video id="mediaPlayer" autoplay muted playsinline></video>
+        <video id="mediaPlayer" class="video-player-style" autoplay muted playsinline></video>
         <div class="controls-overlay" id="playerControls">
            <button class="control-btn" onclick="switchSourceAction()"><i data-lucide="switch-camera" id="icon-source"></i></button>
            <button class="control-btn" onclick="toggleVideo()"><i data-lucide="video-off" id="icon-video"></i></button>
@@ -376,6 +382,7 @@
       </div>
     </div>
 
+    <!-- 陪跑日誌 -->
     <div id="tab-coach" class="panel-view">
       <div id="triggerRecordBox" class="trigger-card" onclick="toggleRecordUI('posts')">
         <div class="trigger-icon-wrapper"><i data-lucide="video" style="width: 32px; height: 32px; color: white;"></i></div>
@@ -387,29 +394,32 @@
       <div id="feedContainer"></div>
     </div>
 
-    <!-- 🌟 更新版 FFS 學堂 -->
+    <!-- 🌟 更新版 FFS 學堂 (YouTube 發布版) -->
     <div id="tab-school" class="panel-view">
       <div class="mb-4">
         <h2 class="fw-bold mb-1">FFS 學堂</h2>
-        <p class="text-muted small">教練專屬 1080p 影音發布與全體學員互動大本營</p>
+        <p class="text-muted small">教練專屬影音發布與全體學員互動大本營</p>
       </div>
 
       <div id="coachPublishArea" class="card-panel" style="display:none;">
-        <h5 class="fw-bold mb-3">發布全新學堂教材影音</h5>
-        <div id="triggerSchoolRecordBox" class="trigger-card" onclick="toggleRecordUI('school')">
-          <div class="trigger-icon-wrapper"><i data-lucide="video" style="width:24px; color:white;"></i></div>
-          <h6 class="m-0">開啟學堂 1080p 專業錄影機</h6>
-        </div>
-        
-        <div id="schoolActionArea" class="form-group-stack mt-4" style="display:none;">
-          <textarea id="schoolPostContent" class="form-control" rows="3" placeholder="請輸入本次影音教學的核心觀念或白話解說..."></textarea>
-          <button class="btn-brand" id="btnPublishSchool" onclick="publishSchoolPost()">確定發布 (啟用背景 AI 結構萃取)</button>
+        <h5 class="fw-bold mb-3">發布全新學堂教材 (YouTube 嵌入)</h5>
+        <div class="form-group-stack mt-4">
+          <div>
+            <label class="form-label">YouTube 影片 / 直播連結</label>
+            <input type="url" id="schoolYtUrl" class="form-control" placeholder="例如：https://www.youtube.com/watch?v=xxxx 或 https://youtu.be/xxxx">
+          </div>
+          <div>
+            <label class="form-label">教材內容描述</label>
+            <textarea id="schoolPostContent" class="form-control" rows="4" placeholder="請輸入本次影音教學的核心觀念或 Markdown 筆記..."></textarea>
+          </div>
+          <button class="btn-brand" id="btnPublishSchool" onclick="publishSchoolPost()"><i data-lucide="send" style="width:16px;"></i> 確定發布</button>
         </div>
       </div>
 
       <div id="schoolFeedContainer" class="form-group-stack mt-4"></div>
     </div>
     
+    <!-- 實戰部落格 -->
     <div id="tab-blog" class="panel-view" style="max-width: 100%; padding-bottom: 0;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -462,7 +472,7 @@
     <p class="text-muted small mb-3">請由教練 (特洛伊) 於下方全螢幕面板簽名確認本次陪跑指導。</p>
     
     <div class="sig-container">
-      <canvas id="sigCanvas"></canvas>
+      <canvas id="sigCanvas" class="sig-canvas-style"></canvas>
       <div id="sigDateStamp" class="sig-date-stamp"></div>
     </div>
     
@@ -498,8 +508,11 @@
   let currentRecordContext = "posts"; 
   let currentFeedPage = 1;
   const feedPerPage = 10;
+  
+  // 🌟 全域資料暫存，用於 Optimistic UI
   let globalFeedData = [];
-  let carouselStates = {}; // FFS學堂輪播器狀態
+  let globalSchoolFeedData = []; 
+  let carouselStates = {}; 
 
   // ================= 簽名板 Canvas 邏輯 =================
   const canvas = document.getElementById('sigCanvas');
@@ -526,76 +539,39 @@
     return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
-  function startDraw(e) {
-    e.preventDefault(); drawing = true;
-    const pos = getPos(e);
-    ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
-  }
-  function draw(e) {
-    if (!drawing) return; e.preventDefault();
-    const pos = getPos(e);
-    ctx.lineTo(pos.x, pos.y); ctx.stroke();
-  }
+  function startDraw(e) { e.preventDefault(); drawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
+  function draw(e) { if (!drawing) return; e.preventDefault(); const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); }
   function endDraw() { drawing = false; ctx.beginPath(); }
 
   canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mouseout', endDraw);
   canvas.addEventListener('touchstart', startDraw, {passive: false}); canvas.addEventListener('touchmove', draw, {passive: false}); canvas.addEventListener('touchend', endDraw);
 
-  function openSignatureModal() {
-    document.getElementById('signatureModal').classList.add('active');
-    document.getElementById('sigDateStamp').innerText = new Date().toLocaleString('zh-TW', {hour12:false});
-    setTimeout(resizeCanvas, 50); 
-  }
-  function clearSignature() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  function closeModals() {
-    document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
-    clearSignature();
-  }
+  function openSignatureModal() { document.getElementById('signatureModal').classList.add('active'); document.getElementById('sigDateStamp').innerText = new Date().toLocaleString('zh-TW', {hour12:false}); setTimeout(resizeCanvas, 50); }
+  function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  function closeModals() { document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active')); clearSignature(); }
 
   async function confirmSignature() {
-    const blank = document.createElement('canvas');
-    blank.width = canvas.width; blank.height = canvas.height;
+    const blank = document.createElement('canvas'); blank.width = canvas.width; blank.height = canvas.height;
     if(canvas.toDataURL() === blank.toDataURL()) { return showToast("請教練先於上方簽名確認", "warning"); }
 
-    const btn = document.getElementById('btnConfirmSig');
-    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 核銷中...'; lucide.createIcons();
-    
+    const btn = document.getElementById('btnConfirmSig'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 核銷中...'; lucide.createIcons();
     try {
-      ctx.font = "14px monospace"; ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillText(document.getElementById('sigDateStamp').innerText, canvas.offsetWidth - 160, canvas.offsetHeight - 20);
-      
+      ctx.font = "14px monospace"; ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillText(document.getElementById('sigDateStamp').innerText, canvas.offsetWidth - 160, canvas.offsetHeight - 20);
       const sigData = canvas.toDataURL('image/png');
       const msg = await api({ action: "consumeVCTable", email: currentUser.email, signatureBase64: sigData });
-      
-      showToast(msg, "success");
-      closeModals();
-      loadDashboard(); 
-    } catch(e) {
-      showToast(e.message, "error");
-    } finally {
-      btn.disabled = false; btn.innerHTML = '<i data-lucide="check" style="width:16px;"></i> 確認核銷'; lucide.createIcons();
-    }
+      showToast(msg, "success"); closeModals(); loadDashboard(); 
+    } catch(e) { showToast(e.message, "error"); } 
+    finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="check" style="width:16px;"></i> 確認核銷'; lucide.createIcons(); }
   }
 
   function openTopUpModal() { document.getElementById('topupModal').classList.add('active'); }
-  
   async function executeTopUp(amount) {
     if(confirm(`是否確定要模擬進行 $${amount} 儲值？\n(正式環境將串接黑貓PAY金流跳轉)`)) {
-      closeModals();
-      showToast("連線至伺服器處理中...", "success");
-      try {
-        const msg = await api({ action: "simulateTopUp", email: currentUser.email, amount: amount });
-        showToast(msg, "success");
-        loadDashboard();
-      } catch(e) {
-        showToast(e.message, "error");
-      }
+      closeModals(); showToast("連線至伺服器處理中...", "success");
+      try { const msg = await api({ action: "simulateTopUp", email: currentUser.email, amount: amount }); showToast(msg, "success"); loadDashboard(); } catch(e) { showToast(e.message, "error"); }
     }
   }
 
-  // GEM 5 更新模塊
   function renderGemMatrix() {
     const gems = [
       { name: "GEM 1：系統許願機", subtitle: "抓漏老闆大腦的戰略軍師", intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。", output: "【矩陣一：老闆需求總帳】", value: "省下數萬溝通成本，清楚定錨系統價值。", journey: "<strong>1. 大膽許願</strong><br><strong>2. 點餐答題</strong><br><strong>3. 定錨解鎖</strong>", url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" },
@@ -604,26 +580,16 @@
       { name: "GEM 4：全能 AI 開發特助", subtitle: "邊體驗邊生出系統的終極魔術師", intro: "不用懂程式碼，像個挑剔的體驗官挑毛病，助教一字不漏把網頁與後端寫好雙手奉上。", output: "【100% 完整雙棲前端網頁原始碼】", value: "文科生也能當場擁有活生生的跨平台系統！", journey: "<strong>1. 圖紙合體</strong><br><strong>2. 代碼爆發</strong><br><strong>3. 權限解鎖</strong><br><strong>4. 增量升級</strong>", url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" },
       { name: "GEM 5：AI 程式需求收斂師", subtitle: "專為 Vibe Coding 設計的 AI 產品經理", intro: "將天馬行空或講不清楚的 Bug，收斂成精確的結構化開發指令。", output: "【終極指令輸出格式範本】", value: "讓寫程式的 AI 完美幫你修改代碼，杜絕越改越錯的鬼故事！", journey: "<strong>1. 同理釐清</strong><br><strong>2. 核心邏輯確認</strong><br><strong>3. 精確指令生成</strong>", url: "https://gemini.google.com/gem/19JlFWAlNouNnPnIaozcho8mZSKmm57Mp?usp=sharing" }
     ];
-
     document.getElementById('gemContainer').innerHTML = gems.map(g => `
       <div class="gem-pro-card">
         <div class="d-flex align-items-center gap-3 mb-3">
           <div class="gem-icon-box" style="flex-shrink:0;"><i data-lucide="cpu" style="width:24px;"></i></div>
-          <div>
-            <h4 class="fw-bold m-0" style="color: var(--primary); letter-spacing:-0.5px;">${g.name}</h4>
-            <p class="text-muted m-0 small fw-medium mt-1">${g.subtitle}</p>
-          </div>
+          <div><h4 class="fw-bold m-0" style="color: var(--primary); letter-spacing:-0.5px;">${g.name}</h4><p class="text-muted m-0 small fw-medium mt-1">${g.subtitle}</p></div>
         </div>
         <p class="fw-bold text-primary mb-2" style="font-size:14px;"><i data-lucide="lightbulb" style="width:16px; margin-right:4px;"></i>一句話白話介紹</p>
         <p class="small text-muted mb-4" style="line-height:1.6;">${g.intro}</p>
-        <div class="p-3 bg-light rounded mb-4" style="border-left: 3px solid var(--accent);">
-          <p class="fw-bold mb-2" style="font-size: 13.5px;"><i data-lucide="target" style="width:14px; margin-right:4px;"></i>階段成果：${g.output}</p>
-          <p class="small text-muted m-0" style="line-height:1.6;"><strong>落地價值：</strong>${g.value}</p>
-        </div>
-        <details>
-          <summary class="small fw-bold"><i data-lucide="map" style="width:14px; margin-right:4px;"></i>查看學員互動旅程</summary>
-          <div class="details-content mt-2 small text-muted" style="line-height:1.7;">${g.journey}</div>
-        </details>
+        <div class="p-3 bg-light rounded mb-4" style="border-left: 3px solid var(--accent);"><p class="fw-bold mb-2" style="font-size: 13.5px;"><i data-lucide="target" style="width:14px; margin-right:4px;"></i>階段成果：${g.output}</p><p class="small text-muted m-0" style="line-height:1.6;"><strong>落地價值：</strong>${g.value}</p></div>
+        <details><summary class="small fw-bold"><i data-lucide="map" style="width:14px; margin-right:4px;"></i>查看學員互動旅程</summary><div class="details-content mt-2 small text-muted" style="line-height:1.7;">${g.journey}</div></details>
         <a href="${g.url}" target="_blank" class="btn-brand mt-4">進入大腦通道 <i data-lucide="arrow-right" style="width:16px;"></i></a>
       </div>
     `).join('');
@@ -632,47 +598,35 @@
   renderGemMatrix();
 
   function copyContent(elementId, btn) {
-    const el = document.getElementById(elementId);
-    let text = el.innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      const originalHtml = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="check" style="width:14px;"></i> 已複製';
-      lucide.createIcons();
-      setTimeout(() => { btn.innerHTML = originalHtml; lucide.createIcons(); }, 2000);
-    });
+    const el = document.getElementById(elementId); let text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => { const originalHtml = btn.innerHTML; btn.innerHTML = '<i data-lucide="check" style="width:14px;"></i> 已複製'; lucide.createIcons(); setTimeout(() => { btn.innerHTML = originalHtml; lucide.createIcons(); }, 2000); });
   }
 
   function showToast(message, type = 'error') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `custom-toast toast-${type}`;
+    const container = document.getElementById('toast-container'); const toast = document.createElement('div'); toast.className = `custom-toast toast-${type}`;
     const icon = type === 'success' ? 'check-circle' : (type === 'warning' ? 'alert-triangle' : 'alert-circle');
     toast.innerHTML = `<i data-lucide="${icon}" style="width:18px; flex-shrink:0;"></i><span>${message}</span>`;
-    container.appendChild(toast);
-    lucide.createIcons();
-    setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 4000);
+    container.appendChild(toast); lucide.createIcons();
+    setTimeout(() => toast.classList.add('show'), 10); setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 4000);
   }
 
   async function api(payload) {
     if (isGAS) {
       return new Promise((resolve, reject) => {
-        google.script.run.withSuccessHandler(resStr => {
-          try {
-            const res = JSON.parse(resStr);
-            if(res.status === 'success') resolve(res.data);
-            else reject(new Error(res.message));
-          } catch(e) { reject(new Error("系統資料格式異常")); }
-        }).withFailureHandler(err => reject(err)).processFrontendApi(JSON.stringify(payload));
+        google.script.run.withSuccessHandler(resStr => { try { const res = JSON.parse(resStr); if(res.status === 'success') resolve(res.data); else reject(new Error(res.message)); } catch(e) { reject(new Error("系統資料格式異常")); } }).withFailureHandler(err => reject(err)).processFrontendApi(JSON.stringify(payload));
       });
     } else {
-      try {
-        const response = await fetch(GAS_WEBAPP_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const res = await response.json();
-        if(res.status === 'success') return res.data;
-        else throw new Error(res.message);
-      } catch (err) { throw new Error("伺服器無法存取，請檢查網路狀態。"); }
+      try { const response = await fetch(GAS_WEBAPP_URL, { method: 'POST', body: JSON.stringify(payload) }); const res = await response.json(); if(res.status === 'success') return res.data; else throw new Error(res.message); } catch (err) { throw new Error("伺服器無法存取，請檢查網路狀態。"); }
     }
+  }
+
+  // 背景同步函式 (用於 Optimistic UI，更新完畫面後靜默拉取最新資料)
+  async function backgroundSync() {
+    try {
+      const data = await api({ action: "getDashboardData", email: currentUser.email, role: currentUser.role });
+      globalFeedData = data.posts || [];
+      globalSchoolFeedData = data.schoolFeed || [];
+    } catch(e) { console.error("背景同步失敗", e); }
   }
 
   if (currentUser && currentUser.email) {
@@ -681,55 +635,36 @@
     if(currentUser.email === "alwayslucky2hand@gmail.com") {
       document.getElementById('coachPublishArea').style.display = 'block';
     }
-    loadDashboard();
+    loadDashboard(); // 初次載入所有資料
   }
 
   async function checkEmail() {
     const email = document.getElementById('loginEmail').value;
     if(!email) return showToast("請輸入工作信箱", "warning");
     if(!email.toLowerCase().endsWith('@gmail.com')) return showToast("請使用 Google (Gmail) 帳號註冊與登入", "warning");
-    
     try {
       const res = await api({ action: "checkEmail", email });
-      if (res.isRegistered) {
-        await api({ action: "sendCode", email });
-        document.getElementById('displayTargetEmail').innerText = email;
-        switchLoginStep('step-code');
-      } else { switchLoginStep('step-register'); }
+      if (res.isRegistered) { await api({ action: "sendCode", email }); document.getElementById('displayTargetEmail').innerText = email; switchLoginStep('step-code'); } else { switchLoginStep('step-register'); }
     } catch(e) { showToast(e.message, "error"); }
   }
 
   async function registerAccount() {
-    const email = document.getElementById('loginEmail').value;
-    const name = document.getElementById('regName').value;
-    const apiKey = document.getElementById('regApiKey').value;
-    if (!email.toLowerCase().endsWith('@gmail.com')) return showToast("請使用 Google (Gmail) 帳號註冊", "warning");
-    if (!name || !apiKey) return showToast("欄位皆為必填", "warning");
-    try {
-      await api({ action: "registerAndSendCode", email, name, apiKey });
-      document.getElementById('displayTargetEmail').innerText = email;
-      switchLoginStep('step-code');
-    } catch(e) { showToast(e.message, "error"); }
+    const email = document.getElementById('loginEmail').value; const name = document.getElementById('regName').value; const apiKey = document.getElementById('regApiKey').value;
+    if (!email.toLowerCase().endsWith('@gmail.com')) return showToast("請使用 Google (Gmail) 帳號註冊", "warning"); if (!name || !apiKey) return showToast("欄位皆為必填", "warning");
+    try { await api({ action: "registerAndSendCode", email, name, apiKey }); document.getElementById('displayTargetEmail').innerText = email; switchLoginStep('step-code'); } catch(e) { showToast(e.message, "error"); }
   }
   
   async function verifyCode() {
-    const email = document.getElementById('loginEmail').value;
-    const code = document.getElementById('loginCode').value;
-    try {
-      const data = await api({ action: "verifyCode", email, code });
-      localStorage.setItem('gx_saas_user', JSON.stringify(data)); 
-      location.reload();
-    } catch(e) { showToast(e.message, "error"); }
+    const email = document.getElementById('loginEmail').value; const code = document.getElementById('loginCode').value;
+    try { const data = await api({ action: "verifyCode", email, code }); localStorage.setItem('gx_saas_user', JSON.stringify(data)); location.reload(); } catch(e) { showToast(e.message, "error"); }
   }
 
   function logout() { localStorage.removeItem('gx_saas_user'); location.reload(); }
   function switchLoginStep(stepId) { document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active')); document.getElementById(stepId).classList.add('active'); }
   
   function toggleMobileMenu() {
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    if(sidebar) sidebar.classList.toggle('open');
-    if(overlay) overlay.classList.toggle('open');
+    const sidebar = document.querySelector('.sidebar'); const overlay = document.getElementById('mobileOverlay');
+    if(sidebar) sidebar.classList.toggle('open'); if(overlay) overlay.classList.toggle('open');
   }
 
   function switchTab(tabId) { 
@@ -738,11 +673,12 @@
     document.getElementById(tabId).classList.add('active'); 
     document.getElementById('nav-' + tabId).classList.add('active'); 
     
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('mobileOverlay');
-    if (sidebar && sidebar.classList.contains('open')) {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('open');
+    const sidebar = document.querySelector('.sidebar'); const overlay = document.getElementById('mobileOverlay');
+    if (sidebar && sidebar.classList.contains('open')) { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+    
+    // 當切換到 FFS 學堂時，確保畫面是最新狀態並處理瀏覽邏輯
+    if(tabId === 'tab-school') {
+      renderSchoolFeed(globalSchoolFeedData);
     }
   }
 
@@ -761,75 +697,44 @@
       document.getElementById('inputName').value = p.name || '';
       document.getElementById('inputApiKey').value = p.apiKey || '';
       
-      if (p.paymentUrl) {
-        document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
-      }
-
+      if (p.paymentUrl) document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
       document.getElementById('vcUsesDisplay').innerText = p.vcUses;
       document.getElementById('vcLastTopUpDate').innerText = p.lastTopUpDate;
       document.getElementById('vcLastTopUpAmount').innerText = `$${p.lastTopUpAmount}`;
 
       const vcLogBody = document.getElementById('vcLogTableBody');
       if (data.vcLogs && data.vcLogs.length > 0) {
-        vcLogBody.innerHTML = data.vcLogs.map(log => `
-          <tr>
-            <td class="text-muted" style="font-family: monospace;">${log.date}</td>
-            <td><span class="badge ${log.type === '儲值' ? 'bg-success' : 'bg-primary'}">${log.type}</span></td>
-            <td>$${log.amount}</td>
-            <td class="fw-bold ${parseInt(log.change) > 0 ? 'text-success' : 'text-danger'}">${log.change}</td>
-            <td class="fw-bold">${log.balance} 次</td>
-            <td>
-              ${log.note ? `<a href="${log.note}" target="_blank" class="btn-outline" style="padding:4px 8px; font-size:12px;"><i data-lucide="image" style="width:12px;"></i> 簽名憑證</a>` : '-'}
-            </td>
-          </tr>
-        `).join('');
-      } else {
-        vcLogBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted p-4">目前尚無交易明細</td></tr>';
-      }
+        vcLogBody.innerHTML = data.vcLogs.map(log => `<tr><td class="text-muted" style="font-family: monospace;">${log.date}</td><td><span class="badge ${log.type === '儲值' ? 'bg-success' : 'bg-primary'}">${log.type}</span></td><td>$${log.amount}</td><td class="fw-bold ${parseInt(log.change) > 0 ? 'text-success' : 'text-danger'}">${log.change}</td><td class="fw-bold">${log.balance} 次</td><td>${log.note ? `<a href="${log.note}" target="_blank" class="btn-outline" style="padding:4px 8px; font-size:12px;"><i data-lucide="image" style="width:12px;"></i> 簽名憑證</a>` : '-'}</td></tr>`).join('');
+      } else { vcLogBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted p-4">目前尚無交易明細</td></tr>'; }
 
       const appsHtml = (data.webApps || []).map(app => `<div class="app-card"><h6 class="fw-bold m-0">${app.name}</h6><p class="text-muted small m-0">${app.desc}</p><a href="${app.url}" target="_blank" class="btn-outline mt-2"><i data-lucide="external-link" style="width:14px;"></i> 開啟應用</a></div>`).join('');
       document.getElementById('webAppsContainer').innerHTML = appsHtml || '<div class="text-muted small text-center p-4">尚未登錄任何數位資產。</div>';
       
       globalFeedData = data.posts || [];
       renderFeed(globalFeedData, 1); 
-      renderSchoolFeed(data.schoolFeed || []); 
+      
+      globalSchoolFeedData = data.schoolFeed || [];
+      renderSchoolFeed(globalSchoolFeedData); 
       lucide.createIcons();
     } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
   }
 
   function saveProfile() {
-    const nameVal = document.getElementById('inputName').value.trim();
-    const apiKeyVal = document.getElementById('inputApiKey').value.trim();
-    
-    if(!apiKeyVal) {
-      showToast("專屬 API KEY 為必填項目！", "warning");
-      return;
-    }
-    
-    document.getElementById('btnSaveProfile').disabled = true;
-    document.getElementById('btnSaveProfile').innerText = "儲存中...";
+    const nameVal = document.getElementById('inputName').value.trim(); const apiKeyVal = document.getElementById('inputApiKey').value.trim();
+    if(!apiKeyVal) { showToast("專屬 API KEY 為必填項目！", "warning"); return; }
+    document.getElementById('btnSaveProfile').disabled = true; document.getElementById('btnSaveProfile').innerText = "儲存中...";
 
-    api({ 
-      action: "updateProfile", 
-      email: currentUser.email, 
-      profileData: { name: nameVal, apiKey: apiKeyVal } 
-    }).then(msg => {
+    api({ action: "updateProfile", email: currentUser.email, profileData: { name: nameVal, apiKey: apiKeyVal } }).then(msg => {
       showToast(msg, "success");
       document.getElementById('profileNameDisplay').innerText = nameVal || '未填寫姓名';
       document.getElementById('userInitial').innerText = (nameVal ? nameVal.charAt(0) : 'U').toUpperCase();
-      currentUser.name = nameVal;
-      localStorage.setItem('gx_saas_user', JSON.stringify(currentUser));
-      loadDashboard();
-    }).catch(err => {
-      showToast(err.message, "error");
-    }).finally(() => {
-      document.getElementById('btnSaveProfile').disabled = false;
-      document.getElementById('btnSaveProfile').innerText = "儲存設定";
-      lucide.createIcons();
+      currentUser.name = nameVal; localStorage.setItem('gx_saas_user', JSON.stringify(currentUser));
+    }).catch(err => { showToast(err.message, "error"); }).finally(() => {
+      document.getElementById('btnSaveProfile').disabled = false; document.getElementById('btnSaveProfile').innerText = "儲存設定"; lucide.createIcons();
     });
   }
 
-  // ================= 共用專業錄影與雙軌切片引擎 =================
+  // ================= 共用專業錄影與雙軌切片引擎 (陪跑日誌專用) =================
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -838,13 +743,8 @@
     if (currentStream) currentStream.getTracks().forEach(track => track.stop());
     const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
     try {
-      // 根據情境判斷畫質：學堂模式使用 1080p，陪跑日誌使用一般畫質
-      let vidConstraints = (currentRecordContext === 'school')
-          ? { width: { ideal: 1920 }, height: { ideal: 1080 } }
-          : { width: { ideal: 426 }, height: { ideal: 240 } };
-      let screenVidConstraints = (currentRecordContext === 'school')
-          ? { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 15 } }
-          : { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } };
+      let vidConstraints = { width: { ideal: 426 }, height: { ideal: 240 } };
+      let screenVidConstraints = { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 5 } };
 
       if (desktopSource === "screen") {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: screenVidConstraints, audio: true });
@@ -868,47 +768,27 @@
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
-  // 核心：透過 DOM Node Relocation 重用統一的錄影控制面板
   async function toggleRecordUI(context) {
-    currentRecordContext = context;
-    const ui = document.getElementById('recordUI');
-    ui.style.display = 'block';
-
-    if (context === 'school') {
-      document.getElementById('triggerSchoolRecordBox').style.display = 'none';
-      document.getElementById('schoolActionArea').style.display = 'flex';
-      // 將共用控制面板完美安插在發布按鈕前
-      document.getElementById('coachPublishArea').insertBefore(ui, document.getElementById('schoolActionArea'));
-      document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動 1080p 學堂錄製';
-    } else {
-      document.getElementById('triggerRecordBox').style.display = 'none';
-      document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
-      document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製';
-    }
-    
+    currentRecordContext = context; const ui = document.getElementById('recordUI'); ui.style.display = 'block';
+    document.getElementById('triggerRecordBox').style.display = 'none';
+    document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
+    document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製';
     document.getElementById('videoContainer').style.display = 'block';
-    await acquireStream();
-    lucide.createIcons();
+    await acquireStream(); lucide.createIcons();
   }
 
   async function startPost() {
     const btn = document.getElementById('btnStartPost'); btn.disabled = true;
     const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
     log("正在對齊試算表總帳碼頭...");
-    
     try {
-      if (currentRecordContext === 'school') {
-        postData = await api({ action: "initSchoolPost", email: currentUser.email });
-      } else {
-        postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
-      }
+      postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
       isRecording = true; chunkIndex = 1;
       document.getElementById('recBadge').style.display = 'flex';
       document.getElementById('btnStop').style.display = 'flex';
       document.getElementById('btnPause').style.display = 'flex';
       btn.style.display = 'none';
-      
-      log(currentRecordContext === 'school' ? "啟動 1080p HD 高畫質雙軌引擎，開始錄製學堂。" : "雙軌音訊混音引擎封裝成功，開始錄製。");
+      log("雙軌音訊混音引擎封裝成功，開始錄製。");
       startChunkRecording();
     } catch(e) { showToast("引擎初始化失敗", "error"); btn.disabled = false; }
   }
@@ -917,9 +797,7 @@
     if (!isRecording || !currentStream || isPaused) return;
     let chunks = []; 
     const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
-    // 學堂模式加強傳輸編碼率
-    const options = currentRecordContext === 'school' ? {mimeType: mime, videoBitsPerSecond: 2500000} : {mimeType: mime};
-    
+    const options = {mimeType: mime};
     mediaRecorder = new MediaRecorder(currentStream, options);
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
     mediaRecorder.onstop = () => { if (chunks.length > 0) processChunk(new Blob(chunks, {type: mime}), mime, chunkIndex++); if (isRecording && !isPaused) startChunkRecording(); };
@@ -933,14 +811,9 @@
       reader.onloadend = async () => {
         const b64 = reader.result.split(',')[1];
         try {
-          if (currentRecordContext === 'school') {
-            await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'school' });
-            log(`區段 ${cIndex} 1080p 高清切片建檔寫入儲存格完成。`);
-          } else {
-            await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
-            await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email });
-            log(`區段 ${cIndex} 辨讀歸檔完成。`);
-          }
+          await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
+          await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email });
+          log(`區段 ${cIndex} 辨讀歸檔完成。`);
         } catch(e) { log(`區段 ${cIndex} 寫入失敗`); }
         resolve();
       };
@@ -951,38 +824,25 @@
   async function stopMeeting() {
     isRecording = false; isPaused = false; clearTimeout(chunkInterval);
     if(mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-    
-    document.getElementById('recBadge').style.display = 'none';
-    document.getElementById('playerControls').style.display = 'none';
-    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
-    if(audioContext) audioContext.close();
+    document.getElementById('recBadge').style.display = 'none'; document.getElementById('playerControls').style.display = 'none';
+    if(currentStream) currentStream.getTracks().forEach(t => t.stop()); if(audioContext) audioContext.close();
     
     log("整合背景任務，執行魔術師大腦封裝...");
     while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
-    
-    if(currentRecordContext === 'school') {
-      log("1080p 切片寫入雲端完成。請在下方輸入教材描述並點擊發布。");
-      showToast("切片入庫完成，請輸入描述並發布。", "success");
-    } else {
-      log("等待雲端試算表安全同步...");
-      await new Promise(r => setTimeout(r, 2000));
-      try {
-        await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
-        showToast("陪跑日誌上傳成功！", "success");
-        location.reload();
-      } catch(e) { showToast("封裝結算異常", "error"); }
-    }
+    log("等待雲端試算表安全同步...");
+    await new Promise(r => setTimeout(r, 2000));
+    try {
+      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
+      showToast("陪跑日誌上傳成功！", "success");
+      
+      // Optimistic 隱藏錄影區塊並拉新資料，不用 reload
+      document.getElementById('recordUI').style.display = 'none';
+      document.getElementById('triggerRecordBox').style.display = 'block';
+      backgroundSync().then(() => renderFeed(globalFeedData, 1));
+    } catch(e) { showToast("封裝結算異常", "error"); }
   }
 
-  async function switchSourceAction() {
-    const wasRecording = isRecording;
-    if (wasRecording && mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); clearTimeout(chunkInterval); }
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
-    else desktopSource = (desktopSource === "camera") ? "screen" : "camera";
-    await acquireStream();
-    if (wasRecording && !isPaused) startChunkRecording();
-  }
+  async function switchSourceAction() { const wasRecording = isRecording; if (wasRecording && mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); clearTimeout(chunkInterval); } const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user"; else desktopSource = (desktopSource === "camera") ? "screen" : "camera"; await acquireStream(); if (wasRecording && !isPaused) startChunkRecording(); }
   function toggleVideo() { isVideoEnabled = !isVideoEnabled; if(currentStream) currentStream.getVideoTracks()[0].enabled = isVideoEnabled; }
   function pauseMeeting() { isPaused = true; if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); clearTimeout(chunkInterval); log("日誌錄製已暫停。正在處理已錄製區段..."); } }
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
@@ -1060,23 +920,67 @@
 
   async function updateStatus(postId, status) {
     if(confirm(`確定標記為「${status}」嗎？`)) {
-      await api({ action: "updateStatus", postId: postId, status: status });
-      showToast("狀態已更新", "success");
-      if (status === '呼叫教練') { showToast("已同步發送信件通知教練！", "success"); }
-      setTimeout(() => location.reload(), 1500);
+      // Optimistic UI update
+      const post = globalFeedData.find(p => p.PostID === postId);
+      if(post) post.Status = status;
+      renderFeed(globalFeedData, currentFeedPage);
+      
+      try {
+        await api({ action: "updateStatus", postId: postId, status: status });
+        showToast("狀態已更新", "success");
+        if (status === '呼叫教練') { showToast("已同步發送信件通知教練！", "success"); }
+        backgroundSync();
+      } catch(e) { showToast("狀態更新失敗", "error"); }
     }
   }
 
-  // ================= 學堂輪播與互動引擎 =================
+  // ================= FFS 學堂 YouTube 互動引擎 (Optimistic UI) =================
+  function extractYTVideoId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  }
+
   async function publishSchoolPost() {
     const text = document.getElementById('schoolPostContent').value.trim();
-    if(!text) return showToast("請先輸入影音教材解說內文", "warning");
-    const btn = document.getElementById('btnPublishSchool'); btn.disabled = true; btn.innerText = "背景 AI 喚醒中...";
+    const ytUrl = document.getElementById('schoolYtUrl').value.trim();
+    if(!text || !ytUrl) return showToast("請輸入教材描述並貼上 YouTube 網址", "warning");
+    
+    const btn = document.getElementById('btnPublishSchool'); btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 發布中...'; lucide.createIcons();
+    
+    // 建立臨時 Post 物件 (Optimistic)
+    const newPost = {
+      PostID: "TEMP_" + Date.now(),
+      ParentID: "",
+      Email: currentUser.email,
+      AuthorCode: currentUser.email.split('@')[0],
+      Timestamp: new Date().toLocaleString('zh-TW', {hour12:false}),
+      VideoURLs: "",
+      Content: text,
+      Recommendations: "",
+      Viewers: currentUser.email,
+      TotalViews: 1,
+      Type: "POST",
+      Status: "已發布",
+      YouTubeURL: ytUrl
+    };
+    
+    globalSchoolFeedData.unshift(newPost);
+    renderSchoolFeed(globalSchoolFeedData);
+    document.getElementById('schoolPostContent').value = '';
+    document.getElementById('schoolYtUrl').value = '';
+    showToast("發布成功！", "success");
+    
     try {
-      const msg = await api({ action: "finalizeSchoolPost", rowIndex: postData.rowIndex, email: currentUser.email, content: text });
-      showToast(msg, "success");
-      setTimeout(() => location.reload(), 2000);
-    } catch(e) { showToast(e.message, "error"); btn.disabled = false; }
+      await api({ action: "publishSchoolPostYT", email: currentUser.email, content: text, ytUrl: ytUrl });
+      backgroundSync(); // 靜默拉取真實 rowIndex 等資料
+    } catch(e) { 
+      showToast(e.message, "error"); 
+      // 若失敗，移除剛剛新增的臨時畫面
+      globalSchoolFeedData.shift(); renderSchoolFeed(globalSchoolFeedData);
+    } finally { 
+      btn.disabled = false; btn.innerHTML = '<i data-lucide="send" style="width:16px;"></i> 確定發布'; lucide.createIcons(); 
+    }
   }
 
   function renderSchoolFeed(items) {
@@ -1085,35 +989,43 @@
     const comments = items.filter(i => i.Type === "COMMENT");
     if (posts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">學堂牆上目前空空如也。</div>'; return; }
     
+    // 檢查瀏覽紀錄並自動記錄 (自動 Viewers)
+    let hasNewViews = false;
+    posts.forEach(post => {
+      let viewers = post.Viewers ? post.Viewers.split(',').filter(v=>v.trim()) : [];
+      if(!viewers.includes(currentUser.email)) {
+        viewers.push(currentUser.email);
+        post.Viewers = viewers.join(',');
+        post.TotalViews = (parseInt(post.TotalViews) || 0) + 1;
+        hasNewViews = true;
+        // 非同步通知後端
+        if(!post.PostID.startsWith("TEMP_")) {
+          api({ action: "recordView", email: currentUser.email, postId: post.PostID }).catch(()=>{});
+        }
+      }
+    });
+    
     container.innerHTML = posts.map(post => {
       const myComments = comments.filter(c => c.ParentID === post.PostID);
       const commentsHtml = myComments.map(c => `<div class="p-3 bg-light rounded mb-2 small"><div class="d-flex justify-content-between fw-bold mb-1"><span>代碼：${c.AuthorCode}</span><span class="text-muted">${c.Timestamp}</span></div><div class="text-secondary">${c.Content}</div></div>`).join('');
       
-      // 輪播引擎
-      let carouselHtml = '';
-      if (post.VideoURLs) {
-        const urls = post.VideoURLs.split(',').filter(u => u.trim());
-        if(urls.length > 0) {
-          carouselStates[post.PostID] = { current: 0, total: urls.length };
-          let slides = urls.map((url, idx) => {
-             let fileIdMatch = url.match(/[-\w]{25,}/);
-             let src = fileIdMatch ? `https://drive.google.com/file/d/${fileIdMatch[0]}/preview` : url;
-             return `<div class="carousel-item ${idx===0?'active':''}" id="slide_${post.PostID}_${idx}"><iframe class="carousel-iframe" src="${src}" allow="autoplay; fullscreen"></iframe></div>`;
-          }).join('');
-          
-          let navBtns = urls.length > 1 ? `
-            <button class="carousel-nav-btn carousel-prev" onclick="moveCarousel('${post.PostID}', -1)"><i data-lucide="chevron-left"></i></button>
-            <button class="carousel-nav-btn carousel-next" onclick="moveCarousel('${post.PostID}', 1)"><i data-lucide="chevron-right"></i></button>
-            <div class="carousel-indicator" id="indicator_${post.PostID}">切片 1 / ${urls.length}</div>
-          ` : '';
-
-          carouselHtml = `<div class="video-carousel-container" id="carousel_${post.PostID}">${slides}${navBtns}</div>`;
+      // 處理 YouTube 影片渲染
+      let mediaHtml = '';
+      if (post.YouTubeURL && post.YouTubeURL.trim() !== '') {
+        const videoId = extractYTVideoId(post.YouTubeURL);
+        if (videoId) {
+          mediaHtml = `<div class="video-carousel-container" style="border-radius:12px; overflow:hidden;"><iframe class="carousel-iframe" src="https://www.youtube.com/embed/${videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        } else {
+          mediaHtml = `<a href="${post.YouTubeURL}" target="_blank" class="btn-outline mb-4"><i data-lucide="youtube" style="width:16px;"></i> 開啟影音連結</a>`;
         }
+      } else if (post.VideoURLs && post.VideoURLs.trim() !== '') {
+        // 向下相容舊有的 Google Drive 影片
+        mediaHtml = `<a href="${post.VideoURLs.split(',')[0]}" target="_blank" class="btn-outline mb-4"><i data-lucide="video" style="width:16px;"></i> 觀看舊版雲端影片</a>`;
       }
 
       // 教練專屬管理下拉選單
       let managerMenu = '';
-      if (currentUser.email === 'alwayslucky2hand@gmail.com') {
+      if (currentUser.email === 'alwayslucky2hand@gmail.com' && !post.PostID.startsWith("TEMP_")) {
         managerMenu = `
           <div class="manager-menu-container">
             <button class="btn-outline border-0 p-2 text-muted" onclick="toggleMenu('${post.PostID}')"><i data-lucide="more-vertical" style="width:20px;"></i></button>
@@ -1125,26 +1037,30 @@
         `;
       }
 
-      let statusHtml = post.Status === 'AI處理中' ? `<span class="badge bg-warning text-dark"><i data-lucide="loader" class="spin" style="width:12px; margin-right:4px;"></i>AI 背景結構萃取中</span>` : `<span class="badge bg-success"><i data-lucide="check" style="width:12px; margin-right:4px;"></i>大師級結構已萃取</span>`;
+      // 推薦 (Like) 系統
+      let recs = post.Recommendations ? post.Recommendations.split(',').filter(e=>e.trim()) : [];
+      let isRecommended = recs.includes(currentUser.email);
+      let recCount = recs.length;
+      let totalViews = parseInt(post.TotalViews) || 1; // 預設至少1次
 
       return `
       <div class="post-card">
         ${managerMenu}
-        <div class="post-header border-0 pb-0">
-          <div><h5 class="fw-bold m-0 text-primary">教練實戰教材</h5><p class="small text-muted m-0 mt-1">${post.Timestamp} · ${statusHtml}</p></div>
+        <div class="post-header border-0 pb-0 mb-3">
+          <div><h5 class="fw-bold m-0 text-primary">學堂實戰教材</h5><p class="small text-muted m-0 mt-1">${post.Timestamp}</p></div>
         </div>
-        <p class="fw-medium text-main m-0 px-2" style="font-size: 15px; line-height:1.6;">${post.Content}</p>
         
-        ${carouselHtml}
+        ${mediaHtml}
         
-        <div class="p-4 rounded" style="background: var(--bg); font-size:14px; border-left:4px solid var(--primary);">
-           ${post.Status === 'AI處理中' ? '<div class="text-center text-muted py-4">AI 正在背景解析影片中，您可以先離開，稍後回來刷新查看完美筆記。</div>' : `<div class="vocus-style">${marked.parse(post.AI_Summary || '尚無大綱')}</div>`}
+        <div class="vocus-style mt-3" style="font-size: 15px; line-height:1.8;">${marked.parse(post.Content || '')}</div>
+        
+        <div class="d-flex align-items-center gap-4 mt-4 pt-4 border-top">
+          <button class="btn-recommend ${isRecommended ? 'active' : ''}" onclick="toggleRecommend('${post.PostID}')">
+            <i data-lucide="thumbs-up" style="width:16px; ${isRecommended ? 'fill: currentColor;' : ''}"></i>
+            <span>推薦 (${recCount})</span>
+          </button>
+          <div class="stat-badge"><i data-lucide="eye" style="width:16px;"></i> ${totalViews} 次瀏覽</div>
         </div>
-
-        <details>
-           <summary class="small fw-bold text-accent" style="cursor:pointer; outline:none; display:flex; align-items:center; gap:6px;"><i data-lucide="align-left" style="width:14px;"></i> 查看原始每分鐘逐字稿</summary>
-           <div class="mt-3 p-3 bg-white border rounded small text-muted" style="white-space:pre-wrap; max-height:300px; overflow-y:auto; line-height:1.6;">${post.Transcript || '解析中...'}</div>
-        </details>
         
         <div class="mt-4 pt-4 border-top">
           <h6 class="fw-bold mb-3 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 學員互動區 (${myComments.length})</h6>
@@ -1159,53 +1075,63 @@
     lucide.createIcons();
   }
 
-  function moveCarousel(postId, dir) {
-    let state = carouselStates[postId];
-    document.getElementById(`slide_${postId}_${state.current}`).classList.remove('active');
-    state.current += dir;
-    if(state.current < 0) state.current = state.total - 1;
-    if(state.current >= state.total) state.current = 0;
-    document.getElementById(`slide_${postId}_${state.current}`).classList.add('active');
-    document.getElementById(`indicator_${postId}`).innerText = `切片 ${state.current + 1} / ${state.total}`;
+  // Optimistic Toggle Recommend
+  async function toggleRecommend(postId) {
+    if(postId.startsWith("TEMP_")) return showToast("發布處理中，請稍後再試", "warning");
+    const post = globalSchoolFeedData.find(p => p.PostID === postId);
+    if(!post) return;
+    
+    let recs = post.Recommendations ? post.Recommendations.split(',').filter(e=>e.trim()) : [];
+    const idx = recs.indexOf(currentUser.email);
+    if(idx > -1) { recs.splice(idx, 1); } else { recs.push(currentUser.email); }
+    post.Recommendations = recs.join(',');
+    
+    renderSchoolFeed(globalSchoolFeedData); // 立即更新畫面
+    
+    try {
+      await api({ action: "toggleRecommend", email: currentUser.email, postId: postId });
+    } catch(e) { console.error("推薦狀態更新失敗", e); }
   }
 
-  function toggleMenu(postId) {
-    const menu = document.getElementById(`menu_${postId}`);
-    menu.classList.toggle('show');
+  // Optimistic Add Comment
+  async function submitSchoolComment(postId) {
+    if(postId.startsWith("TEMP_")) return showToast("發布處理中，請稍後再試", "warning");
+    const input = document.getElementById(`comment_input_${postId}`);
+    const text = input.value.trim();
+    if (!text) return showToast("內文不可為空", "warning");
+
+    const newComment = {
+      PostID: "TEMP_C_" + Date.now(), ParentID: postId, Email: currentUser.email, AuthorCode: currentUser.email.split('@')[0],
+      Timestamp: new Date().toLocaleString('zh-TW', {hour12:false}), Content: text, Type: "COMMENT"
+    };
+    
+    globalSchoolFeedData.push(newComment);
+    renderSchoolFeed(globalSchoolFeedData);
+    input.value = '';
+    showToast("互動留言成功！", "success");
+
+    try {
+      await api({ action: "addSchoolComment", email: currentUser.email, parentId: postId, content: text });
+      backgroundSync();
+    } catch(e) { showToast("留言寫入失敗", "error"); }
   }
+
+  function toggleMenu(postId) { const menu = document.getElementById(`menu_${postId}`); menu.classList.toggle('show'); }
 
   function openEditModal(rowIndex, currentContent) {
-    document.getElementById('editRowId').value = rowIndex;
-    document.getElementById('editContentArea').value = currentContent;
-    document.getElementById('editModal').classList.add('active');
-    document.querySelectorAll('.manager-dropdown').forEach(el => el.classList.remove('show'));
+    document.getElementById('editRowId').value = rowIndex; document.getElementById('editContentArea').value = currentContent;
+    document.getElementById('editModal').classList.add('active'); document.querySelectorAll('.manager-dropdown').forEach(el => el.classList.remove('show'));
   }
 
   async function saveEditPost() {
-    const rowId = document.getElementById('editRowId').value;
-    const newContent = document.getElementById('editContentArea').value;
-    try {
-      await api({ action: "editSchoolPost", rowIndex: rowId, email: currentUser.email, newContent: newContent });
-      showToast("更新成功", "success"); closeModals(); loadDashboard();
-    } catch(e) { showToast("更新失敗", "error"); }
+    const rowId = document.getElementById('editRowId').value; const newContent = document.getElementById('editContentArea').value;
+    try { await api({ action: "editSchoolPost", rowIndex: rowId, email: currentUser.email, newContent: newContent }); showToast("更新成功", "success"); closeModals(); backgroundSync().then(()=>renderSchoolFeed(globalSchoolFeedData)); } catch(e) { showToast("更新失敗", "error"); }
   }
 
   async function executeDelete(rowIndex) {
     if(confirm("確定要將這堂課程從系統徹底刪除嗎？")) {
-      try {
-        await api({ action: "deleteSchoolPost", rowIndex: rowIndex, email: currentUser.email });
-        showToast("刪除成功", "success"); loadDashboard();
-      } catch(e) { showToast("刪除失敗", "error"); }
+      try { await api({ action: "deleteSchoolPost", rowIndex: rowIndex, email: currentUser.email }); showToast("刪除成功", "success"); backgroundSync().then(()=>renderSchoolFeed(globalSchoolFeedData)); } catch(e) { showToast("刪除失敗", "error"); }
     }
-  }
-
-  async function submitSchoolComment(postId) {
-    const input = document.getElementById(`comment_input_${postId}`);
-    if (!input.value.trim()) return showToast("內文不可為空", "warning");
-    try {
-      await api({ action: "addSchoolComment", email: currentUser.email, parentId: postId, content: input.value.trim() });
-      showToast("互動留言成功！", "success"); loadDashboard();
-    } catch(e) { showToast("留言失敗", "error"); }
   }
 
   function copyCode() { navigator.clipboard.writeText(document.getElementById('memberCodeTxt').innerText); showToast("會員代碼已複製", "success"); }
