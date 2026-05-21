@@ -164,7 +164,7 @@
     .vocus-style strong { color: #111; background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); }
     .vocus-style p { margin-bottom: 1.4em; }
 
-    /* Manager Dropdown overrides for coach reply */
+    /* Manager Dropdown */
     .manager-menu-container { position: absolute; right: 32px; top: 32px; z-index: 50; }
     .manager-dropdown { position: absolute; right: 0; top: 40px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: none; flex-direction: column; overflow: hidden; width: 140px; }
     .manager-dropdown.show { display: flex; animation: fadeIn 0.2s ease; }
@@ -404,7 +404,6 @@
         <p class="text-muted small">教練專屬影音發布與全體學員互動大本營</p>
       </div>
 
-      <!-- 純粹垂直排列檢索面板 -->
       <div class="card-panel mb-4 p-4">
         <h6 class="fw-bold mb-4">學堂課程過濾與排序</h6>
         <div class="form-group-stack">
@@ -519,7 +518,6 @@
   </div>
 </div>
 
-<!-- FFS 學堂教材 編輯彈窗 -->
 <div id="editModal" class="modal-overlay">
   <div class="modal-content">
     <h5 class="fw-bold mb-3">編輯教材描述</h5>
@@ -532,13 +530,11 @@
   </div>
 </div>
 
-<!-- 陪跑日誌 教練回覆 編輯彈窗 -->
 <div id="editCoachReplyModal" class="modal-overlay">
   <div class="modal-content">
-    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯教練回覆重點</h5>
+    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯教練回覆與指導總帳</h5>
     <input type="hidden" id="editCoachReplyPostId">
-    <input type="hidden" id="editCoachReplyIsVideo">
-    <textarea id="editCoachReplyArea" class="form-control mb-4" rows="5"></textarea>
+    <textarea id="editCoachReplyArea" class="form-control mb-4" rows="10"></textarea>
     <div class="d-flex gap-3">
       <button class="btn-outline border-0 text-muted" onclick="closeModals()">取消</button>
       <button class="btn-brand" onclick="saveEditCoachReply()">儲存更新</button>
@@ -555,7 +551,7 @@
   let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
-  let currentReplyParentId = ""; // 教練回覆時綁定學員文章的 ID
+  let currentReplyParentId = ""; // 單列無限蓋樓綁定用
   let currentFeedPage = 1;
   const feedPerPage = 10;
   
@@ -789,7 +785,7 @@
     });
   }
 
-  // ================= 共用專業錄影與雙軌切片引擎 =================
+  // ================= 共用專業錄影與雙軌切片引擎 (無限蓋樓邏輯) =================
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -823,17 +819,17 @@
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
-  // 喚醒教練影音回覆的專屬觸發器
-  function triggerCoachReplyRecord(parentId) {
+  // 單列無限蓋樓綁定觸發
+  function triggerRecord(parentId) {
     currentReplyParentId = parentId;
     toggleRecordUI('reply');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast("請點擊下方『啟動系統錄製』開始回覆學員", "success");
+    showToast("請點擊『啟動系統錄製』開始追加影音紀錄！", "success");
   }
 
   async function toggleRecordUI(context) {
     currentRecordContext = context; 
-    if(context !== 'reply') { currentReplyParentId = ""; } // 清除綁定確保發布新文不互相干擾
+    if(context !== 'reply') { currentReplyParentId = ""; } // 清除綁定確保發起新文不干擾
     
     const ui = document.getElementById('recordUI'); ui.style.display = 'block';
     document.getElementById('triggerRecordBox').style.display = 'none';
@@ -848,7 +844,6 @@
     const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
     log("正在對齊試算表總帳碼頭...");
     try {
-      // 若為教練回覆，將夾帶 currentReplyParentId 以子貼文形式寫入試算表
       postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role, parentId: currentReplyParentId || "" });
       isRecording = true; chunkIndex = 1;
       document.getElementById('recBadge').style.display = 'flex';
@@ -879,7 +874,7 @@
         const b64 = reader.result.split(',')[1];
         try {
           await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
-          await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email });
+          await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply });
           log(`區段 ${cIndex} 辨讀歸檔完成。`);
         } catch(e) { log(`區段 ${cIndex} 寫入失敗`); }
         resolve();
@@ -899,10 +894,10 @@
     log("等待雲端試算表安全同步...");
     await new Promise(r => setTimeout(r, 2000));
     try {
-      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
-      showToast(currentReplyParentId ? "影音回覆已成功送出！" : "陪跑日誌上傳成功！", "success");
+      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply });
+      showToast(currentReplyParentId ? "影音已成功追加回覆！" : "陪跑日誌上傳成功！", "success");
       
-      currentReplyParentId = ""; // 重置狀態
+      currentReplyParentId = ""; // 重置綁定
       document.getElementById('recordUI').style.display = 'none';
       document.getElementById('triggerRecordBox').style.display = 'block';
       backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
@@ -915,24 +910,18 @@
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
-  // ================= 陪跑日誌列表與教練影音回覆渲染 =================
+  // ================= 陪跑日誌列表 - 完美單列讀取 =================
   function renderFeed(posts, page = 1) {
     globalFeedData = posts || [];
     currentFeedPage = page;
     const container = document.getElementById('feedContainer');
     if (globalFeedData.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; return; }
     
-    // 將母貼文與子貼文分流，確保列表只顯示最高層級的提問
-    const parentPosts = globalFeedData.filter(p => !p.ParentID);
-    const childPosts = globalFeedData.filter(p => p.ParentID);
-    
     const startIndex = (currentFeedPage - 1) * feedPerPage;
     const endIndex = startIndex + feedPerPage;
-    const pagePosts = parentPosts.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(parentPosts.length / feedPerPage);
+    const pagePosts = globalFeedData.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(globalFeedData.length / feedPerPage);
     
-    if (pagePosts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">目前無日誌內容。</div>'; return; }
-
     container.innerHTML = pagePosts.map(post => {
       let actionBtns = '';
       if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
@@ -945,65 +934,62 @@
       }
       
       let videoUrlsHtml = '';
-      if (post.VideoURLs) { videoUrlsHtml = `<div class="form-group-stack mt-4">` + post.VideoURLs.split(',').map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + `</div>`; }
+      if (post.VideoURLs) { 
+        videoUrlsHtml = `<div class="form-group-stack mt-4">` + 
+          post.VideoURLs.split(',').filter(u=>u.trim()).map((url, i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 雲端切片檔案 ${i+1}</a>`).join('') + 
+          `</div>`; 
+      }
+      
+      // 處理逐字稿 (標籤化呈現追加內容)
       let prettyTranscript = (post.Transcript || '無紀錄')
-        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; display: inline-block;">第 $1 分鐘紀錄</h5>\n')
+        .replace(/--- 【教練 追加影音】第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3 p-2 rounded text-white" style="background:var(--accent);"><i data-lucide="user-check" style="width:18px; margin-right:6px; display:inline-block;"></i>教練追加影音 - 第 $1 分鐘</h5>\n')
+        .replace(/--- 【學員 追加影音】第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3 p-2 rounded text-white" style="background:#ff9500;"><i data-lucide="user" style="width:18px; margin-right:6px; display:inline-block;"></i>學員追問影音 - 第 $1 分鐘</h5>\n')
+        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 6px; display: inline-block;">原始發問影音 - 第 $1 分鐘</h5>\n')
         .replace(/\[畫面描述\]/g, '\n<span class="badge bg-primary me-2 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">畫面描述</span>\n')
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
       
-      // 處理教練的影音回覆子貼文
-      let childRepliesHtml = '';
-      const replies = childPosts.filter(c => c.ParentID === post.PostID);
-      replies.forEach(reply => {
-         childRepliesHtml += `
-         <div class="mt-4 p-4 rounded position-relative" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
-             ${currentUser.role === '教練' ? `
-             <div class="position-absolute top-0 end-0 mt-3 me-3">
-                 <div class="manager-menu-container position-relative m-0 p-0" style="right:0; top:0;">
-                     <button class="btn-outline border-0 p-1 text-muted shadow-none" onclick="toggleMenu('reply_${reply.PostID}')"><i data-lucide="more-vertical" style="width:20px;"></i></button>
-                     <div id="menu_reply_${reply.PostID}" class="manager-dropdown" style="right:0; width: 160px; z-index: 100;">
-                        <button onclick="openEditCoachReplyModal('${reply.PostID}', \`${(reply.AI_Summary||'').replace(/`/g, "'").replace(/\n/g, "\\n")}\`, true)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆總結</button>
-                        <button onclick="deleteCoachReply('${reply.PostID}', true)" class="text-danger"><i data-lucide="trash-2" style="width:14px;"></i> 刪除此影音</button>
-                     </div>
-                 </div>
-             </div>` : ''}
-             <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="video" style="width:20px; margin-right:4px;"></i> 教練影音回覆</h5>
-             <span class="small text-muted mb-3 d-block"><i data-lucide="clock" style="width:14px; margin-right:4px;"></i> ${reply.Timestamp}</span>
-             <div class="vocus-style mb-4" style="font-size: 15px;">${marked.parse(reply.AI_Summary || '')}</div>
-             
-             <details class="transcript-details border-0 bg-white shadow-sm" style="border-radius: 12px; overflow: hidden;">
-               <summary class="transcript-summary bg-light m-0"><i data-lucide="play-circle" style="width:18px; margin-right:8px;"></i> 觀看教練影音與原版逐字稿</summary>
-               <div class="p-4">
-                 ${reply.VideoURLs ? `<div class="form-group-stack mb-3">` + reply.VideoURLs.split(',').map((url,i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 觀看教練切片檔 ${i+1}</a>`).join('') + `</div>` : ''}
-                 <div class="text-muted small" style="white-space: pre-wrap; line-height: 1.6;">${(reply.Transcript||'無紀錄').replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h6 class="fw-bold mt-3 mb-2" style="color:var(--accent);">第 $1 分鐘紀錄</h6>').replace(/\[畫面描述\]/g, '<span class="badge bg-primary me-2 mb-2">畫面描述</span>').replace(/\[語音逐字稿\]/g, '<span class="badge bg-success me-2 mt-2 mb-2">語音逐字稿</span>')}</div>
-               </div>
-             </details>
-         </div>`;
-      });
-
-      // 處理相容舊版的純文字教練回覆
-      let textFallbackHtml = '';
-      if (post.Coach_Reply || post.CoachReply) {
-         textFallbackHtml = `
-         <div class="mt-4 p-4 rounded position-relative" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
-             <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="user-check" style="width:20px; margin-right:4px;"></i> 教練文字回覆</h5>
-             <div class="vocus-style" style="font-size: 15px;">${marked.parse(post.Coach_Reply || post.CoachReply)}</div>
-             ${currentUser.role === '教練' ? `
-             <div class="d-flex gap-2 mt-3">
-                 <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditCoachReplyModal('${post.PostID}', \`${(post.Coach_Reply||post.CoachReply).replace(/`/g, "'").replace(/\n/g, "\\n")}\`, false)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆</button>
-                 <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="deleteCoachReply('${post.PostID}', false)"><i data-lucide="trash-2" style="width:14px;"></i> 刪除回覆</button>
-             </div>` : ''}
-         </div>`;
+      // 教練專屬回覆大總帳 (K欄)
+      let coachReplyHtml = '';
+      const coachReplyContent = post.Coach_Reply || post.CoachReply || '';
+      
+      if (coachReplyContent) {
+        let coachEditBtns = '';
+        if (currentUser.role === '教練') {
+            coachEditBtns = `
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditCoachReplyModal('${post.PostID}', \`${coachReplyContent.replace(/`/g, "'").replace(/\n/g, "\\n")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆總帳</button>
+                <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="deleteCoachReply('${post.PostID}')"><i data-lucide="trash-2" style="width:14px;"></i> 清空回覆總帳</button>
+            </div>`;
+        }
+        coachReplyHtml = `
+        <div class="mt-4 p-4 rounded" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
+            <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="user-check" style="width:20px; margin-right:4px;"></i> 教練指導與回覆總帳</h5>
+            <div class="vocus-style" style="font-size: 15px;">${marked.parse(coachReplyContent)}</div>
+            ${coachEditBtns}
+        </div>`;
+      } 
+      
+      // 教練回覆輸入區塊
+      if (currentUser.role === '教練') {
+        coachReplyHtml += `
+        <div class="mt-4 pt-4 border-top">
+            <h6 class="fw-bold mb-3 text-accent"><i data-lucide="corner-down-right" style="width:16px;"></i> 新增教練回覆</h6>
+            <textarea id="coach_reply_input_${post.PostID}" class="form-control mb-3" rows="3" placeholder="輸入文字指導建議 (支援 Markdown 排版)..."></textarea>
+            <div class="d-flex gap-2">
+                <button class="btn-brand flex-grow-1" onclick="submitCoachReply('${post.PostID}')"><i data-lucide="send" style="width:16px;"></i> 送出文字回覆</button>
+                <button class="btn-brand flex-grow-1" style="background: var(--accent); border: none;" onclick="triggerRecord('${post.PostID}')"><i data-lucide="video" style="width:18px;"></i> 錄製影音指導</button>
+            </div>
+        </div>`;
       }
 
-      // 教練專屬的新增影音回覆按鈕
-      let coachActionBtn = '';
-      if (currentUser.role === '教練') {
-         coachActionBtn = `
-         <div class="mt-4 pt-4 border-top">
-             <button class="btn-brand w-100 shadow-sm" style="background: var(--accent); border: none;" onclick="triggerCoachReplyRecord('${post.PostID}')"><i data-lucide="video" style="width:18px; margin-right:6px;"></i> 錄製影音回覆學員</button>
-         </div>`;
+      // 學員專屬追加影音按鈕
+      let studentActionBtn = '';
+      if (currentUser.role === '學員' && post.Email === currentUser.email && post.Status !== '已解決') {
+          studentActionBtn = `
+          <div class="mt-4 pt-4 border-top">
+              <button class="btn-brand w-100 shadow-sm" style="background: #ff9500; border: none;" onclick="triggerRecord('${post.PostID}')"><i data-lucide="video" style="width:18px; margin-right:6px;"></i> 🙋‍♂️ 教練我還有問題 (錄製影音追問)</button>
+          </div>`;
       }
 
       let statusBadgeClass = post.Status === '呼叫教練' ? 'bg-danger pulse-badge' : 'bg-dark';
@@ -1026,25 +1012,26 @@
           <div class="post-body-content mt-4 pt-4" style="border-top: 1px solid var(--border);">
             <div>
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold m-0" style="color: var(--primary);"><i data-lucide="file-text" style="width:20px; margin-right:4px;"></i> 核心問題總結</h5>
+                <h5 class="fw-bold m-0" style="color: var(--primary);"><i data-lucide="file-text" style="width:20px; margin-right:4px;"></i> 核心問題與追問總結</h5>
                 <button class="copy-btn" onclick="copyContent('summary_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製摘要</button>
               </div>
               <div id="summary_${post.PostID}" class="summary-box vocus-style mb-4">${marked.parse(post.AI_Summary || '')}</div>
             </div>
             
-            ${textFallbackHtml}
-            ${childRepliesHtml}
+            ${post.AI_Reply ? `<div class="ai-reply-box mb-4"><h5 class="fw-bold mb-3" style="color: var(--primary);"><i data-lucide="cpu" style="width:20px; margin-right:4px;"></i> AI 總監指導視角</h5><div class="vocus-style p-4 rounded" style="background: var(--bg); border-left: 4px solid var(--primary);">${marked.parse(post.AI_Reply)}</div></div>` : ''}
+            
+            ${coachReplyHtml}
 
             <details class="transcript-details mt-4 border-top pt-4">
-              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看學員原始畫面描述與逐字稿</summary>
+              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看所有完整逐字稿與影音檔案</summary>
               <div class="details-content mt-3 p-0" style="background: transparent;">
-                <div class="d-flex justify-content-end mb-2"><button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button></div>
+                <div class="d-flex justify-content-end mb-2"><button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製全紀錄</button></div>
                 <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
                 ${videoUrlsHtml}
               </div>
             </details>
             ${actionBtns}
-            ${coachActionBtn}
+            ${studentActionBtn}
           </div>
         </details>
       </div>`;
@@ -1070,44 +1057,52 @@
     }
   }
 
-  // 教練回覆編輯與刪除觸發
-  function openEditCoachReplyModal(postId, content, isVideo) {
+  // 教練回覆前端控制函式
+  async function submitCoachReply(postId) {
+    const content = document.getElementById(`coach_reply_input_${postId}`).value.trim();
+    if(!content) return showToast("回覆內容不可為空", "warning");
+    try {
+      await api({action: "submitCoachReply", postId: postId, replyContent: content});
+      showToast("回覆已成功追加寫入", "success");
+      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
+    } catch(e) { showToast(e.message, "error"); }
+  }
+
+  function openEditCoachReplyModal(postId, content) {
     document.getElementById('editCoachReplyPostId').value = postId;
-    document.getElementById('editCoachReplyIsVideo').value = isVideo ? "true" : "false";
     document.getElementById('editCoachReplyArea').value = content;
     document.getElementById('editCoachReplyModal').classList.add('active');
   }
 
   async function saveEditCoachReply() {
     const postId = document.getElementById('editCoachReplyPostId').value;
-    const isVideo = document.getElementById('editCoachReplyIsVideo').value === "true";
     const content = document.getElementById('editCoachReplyArea').value.trim();
-    if(!content) return showToast("回覆內容不可為空", "warning");
+    if(!content) return showToast("內容不可為空", "warning");
     
     const btn = document.querySelector('#editCoachReplyModal .btn-brand');
     const originalText = btn.innerHTML;
     btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 儲存中...'; lucide.createIcons();
     
     try {
-      await api({action: "editCoachReply", postId: postId, newContent: content, isVideo: isVideo});
-      showToast("回覆已成功更新", "success");
+      await api({action: "editCoachReply", postId: postId, newContent: content});
+      showToast("歷史回覆總帳已成功覆寫更新", "success");
       closeModals();
       backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
     } catch(e) { showToast(e.message, "error"); }
     finally { btn.disabled = false; btn.innerHTML = originalText; lucide.createIcons(); }
   }
 
-  async function deleteCoachReply(postId, isVideo) {
-    if(confirm("確定要刪除此回覆嗎？刪除後學員將無法看見，此動作無法復原。")) {
+  async function deleteCoachReply(postId) {
+    if(confirm("確定要徹底清空教練回覆大總帳嗎？此動作將刪除該儲存格內的所有歷史回覆紀錄，無法復原。")) {
       try {
-        await api({action: "deleteCoachReply", postId: postId, isVideo: isVideo});
-        showToast("回覆已成功刪除", "success");
+        await api({action: "deleteCoachReply", postId: postId});
+        showToast("教練回覆已清空", "success");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
       } catch(e) { showToast(e.message, "error"); }
     }
   }
 
-  // ================= FFS 學堂檢索與動態渲染引擎 (含進階排序) =================
+  // ================= FFS 學堂檢索與動態渲染引擎 =================
   function extractYTVideoId(url) {
     const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regExp);
@@ -1382,8 +1377,6 @@
     try { await api({ action: "addSchoolComment", email: currentUser.email, parentId: postId, content: text }); backgroundSync(); } 
     catch(e) { showToast("寫入失敗", "error"); }
   }
-
-  function toggleMenu(postId) { const menu = document.getElementById(`menu_${postId}`); menu.classList.toggle('show'); }
 
   function openEditModal(rowIndex, currentContent) {
     document.getElementById('editRowId').value = rowIndex; document.getElementById('editContentArea').value = currentContent;
