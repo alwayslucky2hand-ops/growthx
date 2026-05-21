@@ -401,26 +401,36 @@
         <p class="text-muted small">教練專屬影音發布與全體學員互動大本營</p>
       </div>
 
-      <!-- 無縫檢索過濾儀表板 -->
+      <!-- 純粹垂直排列檢索面板 (無並排 UI) -->
       <div class="card-panel mb-4 p-4">
-        <div class="row g-3">
-          <div class="col-md-5">
+        <h6 class="fw-bold mb-4">學堂課程過濾與排序</h6>
+        <div class="form-group-stack">
+          <div>
+            <label class="form-label text-muted small mb-2">關鍵字檢索</label>
             <div class="d-flex align-items-center form-control p-0 overflow-hidden">
               <div class="ps-3 pe-2 text-muted"><i data-lucide="search" style="width:16px;"></i></div>
-              <input type="text" id="schoolSearchKeyword" class="form-control border-0 bg-transparent shadow-none" placeholder="搜尋標題或關鍵字..." oninput="filterSchoolFeed()">
+              <input type="text" id="schoolSearchKeyword" class="form-control border-0 bg-transparent shadow-none" placeholder="輸入課程標題或相關關鍵字..." oninput="filterSchoolFeed()">
             </div>
           </div>
-          <div class="col-md-7">
-            <div class="d-flex align-items-center gap-2">
-              <div class="d-flex align-items-center form-control p-0 overflow-hidden w-50">
-                <div class="ps-3 pe-2 text-muted"><i data-lucide="calendar" style="width:16px;"></i></div>
-                <input type="date" id="schoolStartDate" class="form-control border-0 bg-transparent shadow-none" onchange="filterSchoolFeed()">
-              </div>
-              <span class="text-muted font-monospace">-</span>
-              <div class="d-flex align-items-center form-control p-0 overflow-hidden w-50">
-                <div class="ps-3 pe-2 text-muted"><i data-lucide="calendar" style="width:16px;"></i></div>
-                <input type="date" id="schoolEndDate" class="form-control border-0 bg-transparent shadow-none" onchange="filterSchoolFeed()">
-              </div>
+          <div>
+            <label class="form-label text-muted small mb-2">排序方式</label>
+            <select id="schoolSortOrder" class="form-control" onchange="filterSchoolFeed()">
+              <option value="newest">發布時間：由新到舊 (最新在上)</option>
+              <option value="oldest">發布時間：由舊到新 (最舊在上)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label text-muted small mb-2">篩選起始日</label>
+            <div class="d-flex align-items-center form-control p-0 overflow-hidden">
+              <div class="ps-3 pe-2 text-muted"><i data-lucide="calendar" style="width:16px;"></i></div>
+              <input type="date" id="schoolStartDate" class="form-control border-0 bg-transparent shadow-none" onchange="filterSchoolFeed()">
+            </div>
+          </div>
+          <div>
+            <label class="form-label text-muted small mb-2">篩選結束日</label>
+            <div class="d-flex align-items-center form-control p-0 overflow-hidden">
+              <div class="ps-3 pe-2 text-muted"><i data-lucide="calendar" style="width:16px;"></i></div>
+              <input type="date" id="schoolEndDate" class="form-control border-0 bg-transparent shadow-none" onchange="filterSchoolFeed()">
             </div>
           </div>
         </div>
@@ -957,7 +967,7 @@
     }
   }
 
-  // ================= FFS 學堂檢索與動態渲染引擎 =================
+  // ================= FFS 學堂檢索與動態渲染引擎 (含進階排序) =================
   function extractYTVideoId(url) {
     const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regExp);
@@ -974,6 +984,7 @@
     const kw = document.getElementById('schoolSearchKeyword').value.toLowerCase().trim();
     const sd = document.getElementById('schoolStartDate').value;
     const ed = document.getElementById('schoolEndDate').value;
+    const sortOrder = document.getElementById('schoolSortOrder').value; 
     
     let filteredPosts = globalSchoolFeedData.filter(item => {
       if(item.Type !== 'POST') return true; 
@@ -990,6 +1001,16 @@
       return matchKw && matchSd && matchEd;
     });
     
+    filteredPosts.sort((a, b) => {
+      const timeA = new Date(a.Timestamp).getTime();
+      const timeB = new Date(b.Timestamp).getTime();
+      if (sortOrder === 'oldest') {
+        return (isNaN(timeA) ? 0 : timeA) - (isNaN(timeB) ? 0 : timeB);
+      } else {
+        return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+      }
+    });
+
     renderSchoolFeed(filteredPosts);
   }
 
@@ -1023,7 +1044,6 @@
   }
 
   function renderSchoolFeed(items) {
-    // 渲染前清除既有播放器狀態以避免記憶體殘留
     for (const key in ytPlayers) { delete ytPlayers[key]; }
     for (const key in ytTimers) { clearInterval(ytTimers[key]); delete ytTimers[key]; }
 
