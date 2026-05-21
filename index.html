@@ -25,8 +25,11 @@
     .toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; width: 90%; max-width: 400px; align-items: center; }
     .custom-toast { background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); color: var(--text-main); padding: 14px 24px; border-radius: 999px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-20px) scale(0.95); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); pointer-events: auto; }
     .custom-toast.show { opacity: 1; transform: translateY(0) scale(1); }
-    .toast-error { background: rgba(255, 59, 48, 0.9); color: white; border: none; }
-    .toast-success { background: rgba(52, 199, 89, 0.95); color: white; border: none; }
+    
+    /* 🔥 [Apple 風格質感背景色提示字] */
+    .toast-error { background: rgba(255, 59, 48, 0.95) !important; color: white !important; border: none !important; }
+    .toast-success { background: rgba(52, 199, 89, 0.95) !important; color: white !important; border: none !important; }
+    .toast-warning { background: rgba(255, 149, 0, 0.95) !important; color: white !important; border: none !important; }
 
     .app-layout { display: flex; height: 100vh; overflow: hidden; flex-direction: row; }
     .sidebar { width: var(--sidebar-width); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 32px 20px; z-index: 100; }
@@ -42,11 +45,10 @@
     .panel-view { display: none; max-width: 700px; margin: 0 auto; animation: fadeIn 0.4s ease; }
     .panel-view.active { display: block; }
     
-    /* 🔥 [針對部落格分頁的全螢幕特殊排版] */
     #tab-blog.active {
       display: flex !important;
       flex-direction: column;
-      height: calc(100vh - 80px); /* 扣除上下 padding 以佔滿螢幕 */
+      height: calc(100vh - 80px); 
       max-width: 100%;
       padding: 0;
     }
@@ -123,7 +125,7 @@
       .mobile-overlay.open { opacity: 1; pointer-events: auto; }
       .controls-overlay { right: 16px; top: 50%; transform: translateY(-50%); flex-direction: column; border-radius: 30px; padding: 24px 12px; }
       
-      #tab-blog.active { height: calc(100vh - 72px); } /* 手機版 Header 高度扣除 */
+      #tab-blog.active { height: calc(100vh - 72px); } 
     }
 
     .control-btn { background: none; border: none; color: white; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; outline: none; }
@@ -511,7 +513,7 @@
   function openSignatureModal() {
     document.getElementById('signatureModal').classList.add('active');
     document.getElementById('sigDateStamp').innerText = new Date().toLocaleString('zh-TW', {hour12:false});
-    setTimeout(resizeCanvas, 50); // 等待 Modal 展開後校正尺寸
+    setTimeout(resizeCanvas, 50); 
   }
   function clearSignature() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -522,7 +524,6 @@
   }
 
   async function confirmSignature() {
-    // 檢查是否有簽名畫過 (簡單驗證)
     const blank = document.createElement('canvas');
     blank.width = canvas.width; blank.height = canvas.height;
     if(canvas.toDataURL() === blank.toDataURL()) { return showToast("請教練先於上方簽名確認", "warning"); }
@@ -531,7 +532,6 @@
     btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 核銷中...'; lucide.createIcons();
     
     try {
-      // 將時間浮水印壓印上去
       ctx.font = "14px monospace"; ctx.fillStyle = "rgba(0,0,0,0.4)";
       ctx.fillText(document.getElementById('sigDateStamp').innerText, canvas.offsetWidth - 160, canvas.offsetHeight - 20);
       
@@ -540,7 +540,7 @@
       
       showToast(msg, "success");
       closeModals();
-      loadDashboard(); // 重新整理餘額與明細
+      loadDashboard(); 
     } catch(e) {
       showToast(e.message, "error");
     } finally {
@@ -563,7 +563,6 @@
       }
     }
   }
-  // ========================================================
 
   // GEM 5 更新模塊
   function renderGemMatrix() {
@@ -735,7 +734,6 @@
         document.getElementById('dynamicPaymentBtn').href = p.paymentUrl;
       }
 
-      // V.C. TABLE 顯示與明細更新
       document.getElementById('vcUsesDisplay').innerText = p.vcUses;
       document.getElementById('vcLastTopUpDate').innerText = p.lastTopUpDate;
       document.getElementById('vcLastTopUpAmount').innerText = `$${p.lastTopUpAmount}`;
@@ -768,7 +766,47 @@
     } catch(e) { showToast("目前資料庫尚無紀錄或載入異常。", "warning"); }
   }
 
-  // 影音錄製引擎相關函數保持原狀
+  // 🔥 [UI/UX 重構：修改設定採無感更新，並精準噴出 Apple 級綠色質感 Toast，絕不重新整理沖掉畫面]
+  function saveProfile() {
+    const nameVal = document.getElementById('inputName').value.trim();
+    const apiKeyVal = document.getElementById('inputApiKey').value.trim();
+    
+    if(!apiKeyVal) {
+      showToast("專屬 API KEY 為必填項目！", "warning");
+      return;
+    }
+    
+    document.getElementById('btnSaveProfile').disabled = true;
+    document.getElementById('btnSaveProfile').innerText = "儲存中...";
+
+    api({ 
+      action: "updateProfile", 
+      email: currentUser.email, 
+      profileData: { name: nameVal, apiKey: apiKeyVal } 
+    }).then(msg => {
+      // 1. 噴出綠色背景的高級質感提示字
+      showToast(msg, "success");
+      
+      // 2. 靜態更新 UI 元素，杜絕重整
+      document.getElementById('profileNameDisplay').innerText = nameVal || '未填寫姓名';
+      document.getElementById('userInitial').innerText = (nameVal ? nameVal.charAt(0) : 'U').toUpperCase();
+      
+      // 3. 同步修正瀏覽器 LocalStorage 快取
+      currentUser.name = nameVal;
+      localStorage.setItem('gx_saas_user', JSON.stringify(currentUser));
+      
+      // 4. 背景安全同步面板總帳
+      loadDashboard();
+    }).catch(err => {
+      showToast(err.message, "error");
+    }).finally(() => {
+      document.getElementById('btnSaveProfile').disabled = false;
+      document.getElementById('btnSaveProfile').innerText = "儲存設定";
+      lucide.createIcons();
+    });
+  }
+
+  // 影音錄製引擎相關函數保持原檔完整封裝
   let currentStream = null, mediaRecorder = null, isRecording = false, chunkInterval, chunkIndex = 1, postData = {};
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
@@ -993,7 +1031,6 @@
       setTimeout(() => location.reload(), 1500);
     }
   }
-  function saveProfile() { api({ action: "updateProfile", email: currentUser.email, profileData: {name: document.getElementById('inputName').value, apiKey: document.getElementById('inputApiKey').value} }).then(msg => { showToast(msg, "success"); location.reload(); }); }
   function copyCode() { navigator.clipboard.writeText(document.getElementById('memberCodeTxt').innerText); showToast("會員代碼已複製", "success"); }
 </script>
 </body>
