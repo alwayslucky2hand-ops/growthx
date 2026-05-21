@@ -532,7 +532,7 @@
 
 <div id="editCoachReplyModal" class="modal-overlay">
   <div class="modal-content">
-    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯教練回覆與指導總帳</h5>
+    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯歷史回覆與指導總帳</h5>
     <input type="hidden" id="editCoachReplyPostId">
     <textarea id="editCoachReplyArea" class="form-control mb-4" rows="10"></textarea>
     <div class="d-flex gap-3">
@@ -551,7 +551,13 @@
   let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
-  let currentReplyParentId = ""; // 單列無限蓋樓綁定用
+  
+  // 記錄目前錄製是屬於哪個 PostID 的追加回覆/追問
+  let currentReplyParentId = ""; 
+  // 用於前端暫存單次錄影切割的所有網址與逐字稿，等待結算一併上傳
+  let sessionUrls = [];
+  let sessionTranscripts = [];
+
   let currentFeedPage = 1;
   const feedPerPage = 10;
   
@@ -819,11 +825,12 @@
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
-  // 單列無限蓋樓綁定觸發
+  // 單列無限蓋樓綁定觸發，點擊後精準滾動到錄影區塊 (解決痛點 2)
   function triggerRecord(parentId) {
     currentReplyParentId = parentId;
     toggleRecordUI('reply');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 精準滑動至錄影區段的頂部
+    document.getElementById('recordUI').scrollIntoView({ behavior: 'smooth', block: 'start' });
     showToast("請點擊『啟動系統錄製』開始追加影音紀錄！", "success");
   }
 
@@ -842,6 +849,11 @@
   async function startPost() {
     const btn = document.getElementById('btnStartPost'); btn.disabled = true;
     const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
+    
+    // 初始化暫存陣列，確保每次錄影都是乾淨的
+    sessionUrls = [];
+    sessionTranscripts = [];
+    
     log("正在對齊試算表總帳碼頭...");
     try {
       postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role, parentId: currentReplyParentId || "" });
@@ -866,6 +878,7 @@
     mediaRecorder.start(); chunkInterval = setTimeout(() => { if (mediaRecorder.state === "recording") mediaRecorder.stop(); }, 60000);
   }
 
+  // 每個區段非同步獨立取得檔案 URL 與 AI 逐字稿
   function processChunk(blob, mime, cIndex) {
     log(`區段 ${cIndex} 音畫封裝寫入雲端中...`);
     const task = new Promise(resolve => {
@@ -873,8 +886,14 @@
       reader.onloadend = async () => {
         const b64 = reader.result.split(',')[1];
         try {
-          await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
-          await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply });
+          // 儲存雲端並取得網址
+          const url = await api({ action: "saveDrive", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, sheetName: 'Posts' });
+          sessionUrls.push(url);
+          
+          // 取得 AI 辨識文字
+          const transcript = await api({ action: "recognizeAI", base64Data: b64, mimeType: mime, folderId: postData.folderId, rowIndex: postData.rowIndex, chunkIndex: cIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply });
+          sessionTranscripts.push({ index: cIndex, text: transcript });
+          
           log(`區段 ${cIndex} 辨讀歸檔完成。`);
         } catch(e) { log(`區段 ${cIndex} 寫入失敗`); }
         resolve();
@@ -892,9 +911,12 @@
     log("整合背景任務，執行魔術師大腦封裝...");
     while(activeProcessingTasks.size > 0) { await Promise.all(Array.from(activeProcessingTasks)); }
     log("等待雲端試算表安全同步...");
-    await new Promise(r => setTimeout(r, 2000));
+    
     try {
-      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply });
+      // 確保陣列照時間順序排列，並呼叫結算 (一次性完美寫入)
+      sessionTranscripts.sort((a, b) => a.index - b.index);
+      await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email, role: currentUser.role, isReply: postData.isReply, urls: sessionUrls, transcripts: sessionTranscripts });
+      
       showToast(currentReplyParentId ? "影音已成功追加回覆！" : "陪跑日誌上傳成功！", "success");
       
       currentReplyParentId = ""; // 重置綁定
@@ -940,16 +962,14 @@
           `</div>`; 
       }
       
-      // 處理逐字稿 (標籤化呈現追加內容)
+      // 處理原始發問的逐字稿渲染
       let prettyTranscript = (post.Transcript || '無紀錄')
-        .replace(/--- 【教練 追加影音】第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3 p-2 rounded text-white" style="background:var(--accent);"><i data-lucide="user-check" style="width:18px; margin-right:6px; display:inline-block;"></i>教練追加影音 - 第 $1 分鐘</h5>\n')
-        .replace(/--- 【學員 追加影音】第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3 p-2 rounded text-white" style="background:#ff9500;"><i data-lucide="user" style="width:18px; margin-right:6px; display:inline-block;"></i>學員追問影音 - 第 $1 分鐘</h5>\n')
-        .replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 6px; display: inline-block;">原始發問影音 - 第 $1 分鐘</h5>\n')
+        .replace(/第 (\d+) 分鐘：/g, '\n\n<h5 class="fw-bold mt-4 mb-3" style="color:var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 6px; display: inline-block;">原始發問影音 - 第 $1 分鐘</h5>\n')
         .replace(/\[畫面描述\]/g, '\n<span class="badge bg-primary me-2 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">畫面描述</span>\n')
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
       
-      // 教練專屬回覆大總帳 (K欄)
+      // 教練專屬回覆大總帳 (K欄，已由後端排版好 Markdown，包含影音連結與 <details>)
       let coachReplyHtml = '';
       const coachReplyContent = post.Coach_Reply || post.CoachReply || '';
       
@@ -957,9 +977,9 @@
         let coachEditBtns = '';
         if (currentUser.role === '教練') {
             coachEditBtns = `
-            <div class="d-flex gap-2 mt-3">
-                <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditCoachReplyModal('${post.PostID}', \`${coachReplyContent.replace(/`/g, "'").replace(/\n/g, "\\n")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆總帳</button>
-                <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="deleteCoachReply('${post.PostID}')"><i data-lucide="trash-2" style="width:14px;"></i> 清空回覆總帳</button>
+            <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                <button class="btn-outline p-2 w-auto" style="font-size: 13px; background: white;" onclick="openEditCoachReplyModal('${post.PostID}', \`${coachReplyContent.replace(/`/g, "'").replace(/\n/g, "\\n")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆總帳</button>
+                <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30; background: white;" onclick="deleteCoachReply('${post.PostID}')"><i data-lucide="trash-2" style="width:14px;"></i> 清空回覆總帳</button>
             </div>`;
         }
         coachReplyHtml = `
@@ -970,7 +990,7 @@
         </div>`;
       } 
       
-      // 教練回覆輸入區塊
+      // 教練回覆輸入區塊 (文字或影音)
       if (currentUser.role === '教練') {
         coachReplyHtml += `
         <div class="mt-4 pt-4 border-top">
@@ -1023,7 +1043,7 @@
             ${coachReplyHtml}
 
             <details class="transcript-details mt-4 border-top pt-4">
-              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看所有完整逐字稿與影音檔案</summary>
+              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看原始發問的完整逐字稿與影音檔案</summary>
               <div class="details-content mt-3 p-0" style="background: transparent;">
                 <div class="d-flex justify-content-end mb-2"><button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製全紀錄</button></div>
                 <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
@@ -1051,7 +1071,6 @@
       try {
         await api({ action: "updateStatus", postId: postId, status: status });
         showToast("狀態已更新", "success");
-        if (status === '呼叫教練') { showToast("已同步發送信件通知教練！", "success"); }
         backgroundSync();
       } catch(e) { showToast("狀態更新失敗", "error"); }
     }
@@ -1093,7 +1112,7 @@
   }
 
   async function deleteCoachReply(postId) {
-    if(confirm("確定要徹底清空教練回覆大總帳嗎？此動作將刪除該儲存格內的所有歷史回覆紀錄，無法復原。")) {
+    if(confirm("確定要徹底清空教練回覆大總帳嗎？此動作將刪除該儲存格內的所有歷史回覆與影音紀錄，無法復原。")) {
       try {
         await api({action: "deleteCoachReply", postId: postId});
         showToast("教練回覆已清空", "success");
