@@ -96,6 +96,8 @@
     .status-badge { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 12px; display: none; align-items: center; gap: 8px; }
     .pulse-dot { width: 6px; height: 6px; background-color: #ff3b30; border-radius: 50%; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
+    .pulse-badge { animation: pulseBadge 2s infinite; }
+    @keyframes pulseBadge { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
     
     .controls-overlay { position: absolute; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 100px; display: flex; gap: 24px; align-items: center; z-index: 20; transition: 0.3s; }
     
@@ -161,6 +163,14 @@
     .vocus-style h1, .vocus-style h2, .vocus-style h3, .vocus-style h4, .vocus-style h5, .vocus-style h6 { font-weight: 700; color: #1a1a1a; margin-top: 1.6em; margin-bottom: 0.6em; line-height: 1.4; }
     .vocus-style strong { color: #111; background: linear-gradient(transparent 60%, rgba(0, 102, 204, 0.12) 40%); }
     .vocus-style p { margin-bottom: 1.4em; }
+
+    /* Manager Dropdown overrides for coach reply */
+    .manager-menu-container { position: absolute; right: 32px; top: 32px; z-index: 50; }
+    .manager-dropdown { position: absolute; right: 0; top: 40px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: none; flex-direction: column; overflow: hidden; width: 140px; }
+    .manager-dropdown.show { display: flex; animation: fadeIn 0.2s ease; }
+    .manager-dropdown button { background: none; border: none; padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--primary); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+    .manager-dropdown button:hover { background: var(--bg); }
+    .manager-dropdown button.text-danger { color: #ff3b30; border-top: 1px solid var(--border); }
 
     /* Recommend Button Styles */
     .btn-recommend { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 8px 16px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
@@ -353,7 +363,7 @@
     <div id="tab-gem" class="panel-view">
       <div class="mb-5 text-center text-md-start">
         <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
-        <h5 class="text-muted fw-normal mb-4">五GEM組合拳大眾落地指南</h5>
+        <h5 class="text-muted fw-normal mb-4">四神組合拳大眾落地指南</h5>
       </div>
       <div id="gemContainer" class="form-group-stack"></div>
     </div>
@@ -525,8 +535,9 @@
 <!-- 陪跑日誌 教練回覆 編輯彈窗 -->
 <div id="editCoachReplyModal" class="modal-overlay">
   <div class="modal-content">
-    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯教練回覆</h5>
+    <h5 class="fw-bold mb-3"><i data-lucide="edit-2" style="width:20px; margin-right:4px;"></i> 編輯教練回覆重點</h5>
     <input type="hidden" id="editCoachReplyPostId">
+    <input type="hidden" id="editCoachReplyIsVideo">
     <textarea id="editCoachReplyArea" class="form-control mb-4" rows="5"></textarea>
     <div class="d-flex gap-3">
       <button class="btn-outline border-0 text-muted" onclick="closeModals()">取消</button>
@@ -544,6 +555,7 @@
   let currentUser = JSON.parse(localStorage.getItem('gx_saas_user') || 'null');
   let audioContext = null, mixedAudioDestination = null; 
   let currentRecordContext = "posts"; 
+  let currentReplyParentId = ""; // 教練回覆時綁定學員文章的 ID
   let currentFeedPage = 1;
   const feedPerPage = 10;
   
@@ -811,8 +823,19 @@
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
+  // 喚醒教練影音回覆的專屬觸發器
+  function triggerCoachReplyRecord(parentId) {
+    currentReplyParentId = parentId;
+    toggleRecordUI('reply');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("請點擊下方『啟動系統錄製』開始回覆學員", "success");
+  }
+
   async function toggleRecordUI(context) {
-    currentRecordContext = context; const ui = document.getElementById('recordUI'); ui.style.display = 'block';
+    currentRecordContext = context; 
+    if(context !== 'reply') { currentReplyParentId = ""; } // 清除綁定確保發布新文不互相干擾
+    
+    const ui = document.getElementById('recordUI'); ui.style.display = 'block';
     document.getElementById('triggerRecordBox').style.display = 'none';
     document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
     document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製';
@@ -825,7 +848,8 @@
     const logBox = document.getElementById('systemLog'); logBox.style.display = 'block'; logBox.innerHTML = '';
     log("正在對齊試算表總帳碼頭...");
     try {
-      postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role });
+      // 若為教練回覆，將夾帶 currentReplyParentId 以子貼文形式寫入試算表
+      postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role, parentId: currentReplyParentId || "" });
       isRecording = true; chunkIndex = 1;
       document.getElementById('recBadge').style.display = 'flex';
       document.getElementById('btnStop').style.display = 'flex';
@@ -876,10 +900,12 @@
     await new Promise(r => setTimeout(r, 2000));
     try {
       await api({ action: "finalizePost", rowIndex: postData.rowIndex, email: currentUser.email });
-      showToast("陪跑日誌上傳成功！", "success");
+      showToast(currentReplyParentId ? "影音回覆已成功送出！" : "陪跑日誌上傳成功！", "success");
+      
+      currentReplyParentId = ""; // 重置狀態
       document.getElementById('recordUI').style.display = 'none';
       document.getElementById('triggerRecordBox').style.display = 'block';
-      backgroundSync().then(() => renderFeed(globalFeedData, 1));
+      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
     } catch(e) { showToast("封裝結算異常", "error"); }
   }
 
@@ -889,17 +915,24 @@
   function resumeMeeting() { isPaused = false; startChunkRecording(); log("日誌錄製已恢復"); }
   function log(msg) { const logBox = document.getElementById('systemLog'); logBox.innerHTML += `${msg}<br>`; logBox.scrollTop = logBox.scrollHeight; }
 
-  // ================= 陪跑日誌列表與教練回覆 =================
+  // ================= 陪跑日誌列表與教練影音回覆渲染 =================
   function renderFeed(posts, page = 1) {
     globalFeedData = posts || [];
     currentFeedPage = page;
     const container = document.getElementById('feedContainer');
     if (globalFeedData.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">尚無陪跑數據。</div>'; return; }
+    
+    // 將母貼文與子貼文分流，確保列表只顯示最高層級的提問
+    const parentPosts = globalFeedData.filter(p => !p.ParentID);
+    const childPosts = globalFeedData.filter(p => p.ParentID);
+    
     const startIndex = (currentFeedPage - 1) * feedPerPage;
     const endIndex = startIndex + feedPerPage;
-    const pagePosts = globalFeedData.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(globalFeedData.length / feedPerPage);
+    const pagePosts = parentPosts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(parentPosts.length / feedPerPage);
     
+    if (pagePosts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">目前無日誌內容。</div>'; return; }
+
     container.innerHTML = pagePosts.map(post => {
       let actionBtns = '';
       if (currentUser.role === '學員' && post.Role === '學員' && post.Status !== '已解決') {
@@ -919,33 +952,61 @@
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
       
-      // 教練回覆區塊處理
-      let coachReplyHtml = '';
-      const coachReplyContent = post.Coach_Reply || post.CoachReply || '';
-      
-      if (coachReplyContent) {
-        let coachEditBtns = '';
-        if (currentUser.role === '教練') {
-            coachEditBtns = `
-            <div class="d-flex gap-2 mt-3">
-                <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditCoachReplyModal('${post.PostID}', \`${coachReplyContent.replace(/`/g, "'")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆</button>
-                <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="deleteCoachReply('${post.PostID}')"><i data-lucide="trash-2" style="width:14px;"></i> 刪除回覆</button>
-            </div>`;
-        }
-        coachReplyHtml = `
-        <div class="mt-4 p-4 rounded" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
-            <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="user-check" style="width:20px; margin-right:4px;"></i> 教練專屬回覆</h5>
-            <div class="vocus-style" style="font-size: 15px;">${marked.parse(coachReplyContent)}</div>
-            ${coachEditBtns}
-        </div>`;
-      } else if (currentUser.role === '教練') {
-        coachReplyHtml = `
-        <div class="mt-4 pt-4 border-top">
-            <h6 class="fw-bold mb-3 text-accent"><i data-lucide="corner-down-right" style="width:16px;"></i> 新增教練回覆</h6>
-            <textarea id="coach_reply_input_${post.PostID}" class="form-control mb-3" rows="3" placeholder="輸入給學員的指導與建議 (支援 Markdown 排版)..."></textarea>
-            <button class="btn-brand w-auto px-4" onclick="submitCoachReply('${post.PostID}')"><i data-lucide="send" style="width:16px;"></i> 送出回覆</button>
-        </div>`;
+      // 處理教練的影音回覆子貼文
+      let childRepliesHtml = '';
+      const replies = childPosts.filter(c => c.ParentID === post.PostID);
+      replies.forEach(reply => {
+         childRepliesHtml += `
+         <div class="mt-4 p-4 rounded position-relative" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
+             ${currentUser.role === '教練' ? `
+             <div class="position-absolute top-0 end-0 mt-3 me-3">
+                 <div class="manager-menu-container position-relative m-0 p-0" style="right:0; top:0;">
+                     <button class="btn-outline border-0 p-1 text-muted shadow-none" onclick="toggleMenu('reply_${reply.PostID}')"><i data-lucide="more-vertical" style="width:20px;"></i></button>
+                     <div id="menu_reply_${reply.PostID}" class="manager-dropdown" style="right:0; width: 160px; z-index: 100;">
+                        <button onclick="openEditCoachReplyModal('${reply.PostID}', \`${(reply.AI_Summary||'').replace(/`/g, "'").replace(/\n/g, "\\n")}\`, true)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆總結</button>
+                        <button onclick="deleteCoachReply('${reply.PostID}', true)" class="text-danger"><i data-lucide="trash-2" style="width:14px;"></i> 刪除此影音</button>
+                     </div>
+                 </div>
+             </div>` : ''}
+             <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="video" style="width:20px; margin-right:4px;"></i> 教練影音回覆</h5>
+             <span class="small text-muted mb-3 d-block"><i data-lucide="clock" style="width:14px; margin-right:4px;"></i> ${reply.Timestamp}</span>
+             <div class="vocus-style mb-4" style="font-size: 15px;">${marked.parse(reply.AI_Summary || '')}</div>
+             
+             <details class="transcript-details border-0 bg-white shadow-sm" style="border-radius: 12px; overflow: hidden;">
+               <summary class="transcript-summary bg-light m-0"><i data-lucide="play-circle" style="width:18px; margin-right:8px;"></i> 觀看教練影音與原版逐字稿</summary>
+               <div class="p-4">
+                 ${reply.VideoURLs ? `<div class="form-group-stack mb-3">` + reply.VideoURLs.split(',').map((url,i) => `<a href="${url.trim()}" target="_blank" class="btn-outline"><i data-lucide="video" style="width:16px;"></i> 觀看教練切片檔 ${i+1}</a>`).join('') + `</div>` : ''}
+                 <div class="text-muted small" style="white-space: pre-wrap; line-height: 1.6;">${(reply.Transcript||'無紀錄').replace(/--- 第 (\d+) 分鐘紀錄 ---/g, '\n\n<h6 class="fw-bold mt-3 mb-2" style="color:var(--accent);">第 $1 分鐘紀錄</h6>').replace(/\[畫面描述\]/g, '<span class="badge bg-primary me-2 mb-2">畫面描述</span>').replace(/\[語音逐字稿\]/g, '<span class="badge bg-success me-2 mt-2 mb-2">語音逐字稿</span>')}</div>
+               </div>
+             </details>
+         </div>`;
+      });
+
+      // 處理相容舊版的純文字教練回覆
+      let textFallbackHtml = '';
+      if (post.Coach_Reply || post.CoachReply) {
+         textFallbackHtml = `
+         <div class="mt-4 p-4 rounded position-relative" style="background: rgba(0, 102, 204, 0.04); border-left: 4px solid var(--accent);">
+             <h5 class="fw-bold mb-3" style="color: var(--accent);"><i data-lucide="user-check" style="width:20px; margin-right:4px;"></i> 教練文字回覆</h5>
+             <div class="vocus-style" style="font-size: 15px;">${marked.parse(post.Coach_Reply || post.CoachReply)}</div>
+             ${currentUser.role === '教練' ? `
+             <div class="d-flex gap-2 mt-3">
+                 <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditCoachReplyModal('${post.PostID}', \`${(post.Coach_Reply||post.CoachReply).replace(/`/g, "'").replace(/\n/g, "\\n")}\`, false)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯回覆</button>
+                 <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="deleteCoachReply('${post.PostID}', false)"><i data-lucide="trash-2" style="width:14px;"></i> 刪除回覆</button>
+             </div>` : ''}
+         </div>`;
       }
+
+      // 教練專屬的新增影音回覆按鈕
+      let coachActionBtn = '';
+      if (currentUser.role === '教練') {
+         coachActionBtn = `
+         <div class="mt-4 pt-4 border-top">
+             <button class="btn-brand w-100 shadow-sm" style="background: var(--accent); border: none;" onclick="triggerCoachReplyRecord('${post.PostID}')"><i data-lucide="video" style="width:18px; margin-right:6px;"></i> 錄製影音回覆學員</button>
+         </div>`;
+      }
+
+      let statusBadgeClass = post.Status === '呼叫教練' ? 'bg-danger pulse-badge' : 'bg-dark';
 
       return `
       <div class="post-card">
@@ -955,7 +1016,7 @@
               <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <strong style="font-size: 16px; color: var(--primary);">${post.Role || '系統'}</strong>
-                  <span class="badge bg-dark">${post.Status || '完成'}</span>
+                  <span class="badge ${statusBadgeClass}">${post.Status || '完成'}</span>
                 </div>
                 <span class="small text-muted font-monospace">${post.Timestamp || ''}</span>
               </div>
@@ -970,12 +1031,12 @@
               </div>
               <div id="summary_${post.PostID}" class="summary-box vocus-style mb-4">${marked.parse(post.AI_Summary || '')}</div>
             </div>
-            ${post.AI_Reply ? `<div class="ai-reply-box mb-4"><h5 class="fw-bold mb-3" style="color: var(--primary);"><i data-lucide="cpu" style="width:20px; margin-right:4px;"></i> AI 總監指導視角</h5><div class="vocus-style p-4 rounded" style="background: var(--bg); border-left: 4px solid var(--primary);">${marked.parse(post.AI_Reply)}</div></div>` : ''}
             
-            ${coachReplyHtml}
+            ${textFallbackHtml}
+            ${childRepliesHtml}
 
-            <details class="transcript-details mt-4">
-              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看畫面描述與語音逐字稿原檔</summary>
+            <details class="transcript-details mt-4 border-top pt-4">
+              <summary class="transcript-summary"><i data-lucide="align-left" style="width:18px; margin-right:8px;"></i> 查看學員原始畫面描述與逐字稿</summary>
               <div class="details-content mt-3 p-0" style="background: transparent;">
                 <div class="d-flex justify-content-end mb-2"><button class="copy-btn" onclick="copyContent('transcript_${post.PostID}', this)"><i data-lucide="copy" style="width:14px;"></i> 複製逐字稿</button></div>
                 <div id="transcript_${post.PostID}" class="transcript-box mb-3">${prettyTranscript}</div>
@@ -983,6 +1044,7 @@
               </div>
             </details>
             ${actionBtns}
+            ${coachActionBtn}
           </div>
         </details>
       </div>`;
@@ -1008,46 +1070,44 @@
     }
   }
 
-  // 教練回覆前端控制函式
-  async function submitCoachReply(postId) {
-    const content = document.getElementById(`coach_reply_input_${postId}`).value.trim();
-    if(!content) return showToast("回覆內容不可為空", "warning");
-    try {
-      await api({action: "submitCoachReply", postId: postId, replyContent: content});
-      showToast("回覆已成功送出", "success");
-      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
-    } catch(e) { showToast(e.message, "error"); }
-  }
-
-  function openEditCoachReplyModal(postId, content) {
+  // 教練回覆編輯與刪除觸發
+  function openEditCoachReplyModal(postId, content, isVideo) {
     document.getElementById('editCoachReplyPostId').value = postId;
+    document.getElementById('editCoachReplyIsVideo').value = isVideo ? "true" : "false";
     document.getElementById('editCoachReplyArea').value = content;
     document.getElementById('editCoachReplyModal').classList.add('active');
   }
 
   async function saveEditCoachReply() {
     const postId = document.getElementById('editCoachReplyPostId').value;
+    const isVideo = document.getElementById('editCoachReplyIsVideo').value === "true";
     const content = document.getElementById('editCoachReplyArea').value.trim();
     if(!content) return showToast("回覆內容不可為空", "warning");
+    
+    const btn = document.querySelector('#editCoachReplyModal .btn-brand');
+    const originalText = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 儲存中...'; lucide.createIcons();
+    
     try {
-      await api({action: "editCoachReply", postId: postId, newContent: content});
+      await api({action: "editCoachReply", postId: postId, newContent: content, isVideo: isVideo});
       showToast("回覆已成功更新", "success");
       closeModals();
       backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
     } catch(e) { showToast(e.message, "error"); }
+    finally { btn.disabled = false; btn.innerHTML = originalText; lucide.createIcons(); }
   }
 
-  async function deleteCoachReply(postId) {
-    if(confirm("確定要刪除此回覆嗎？刪除後學員將無法看見。")) {
+  async function deleteCoachReply(postId, isVideo) {
+    if(confirm("確定要刪除此回覆嗎？刪除後學員將無法看見，此動作無法復原。")) {
       try {
-        await api({action: "deleteCoachReply", postId: postId});
+        await api({action: "deleteCoachReply", postId: postId, isVideo: isVideo});
         showToast("回覆已成功刪除", "success");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
       } catch(e) { showToast(e.message, "error"); }
     }
   }
 
-  // ================= FFS 學堂檢索與動態渲染引擎 =================
+  // ================= FFS 學堂檢索與動態渲染引擎 (含進階排序) =================
   function extractYTVideoId(url) {
     const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regExp);
@@ -1167,14 +1227,15 @@
         }
       }
 
-      // 教練專屬外顯按鈕 (拔除容易被遮擋的下拉選單)
+      // 教練專屬外顯管理按鈕區塊
       let managerMenu = '';
-      if (currentUser.role === '教練' && !post.PostID.startsWith("TEMP_")) {
+      if ((currentUser.role === '教練' || currentUser.email === 'alwayslucky2hand@gmail.com') && !post.PostID.startsWith("TEMP_")) {
         managerMenu = `
-          <div class="d-flex justify-content-end gap-2 mb-3">
-             <button class="btn-outline p-2 w-auto" style="font-size: 13px;" onclick="openEditModal('${post.rowIndex}', \`${post.Content.replace(/`/g, "'")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯教材</button>
-             <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30;" onclick="executeDelete('${post.rowIndex}')"><i data-lucide="trash-2" style="width:14px;"></i> 刪除教材</button>
-          </div>`;
+        <div class="d-flex flex-wrap gap-2 mb-4 p-3 rounded" style="background: rgba(255, 59, 48, 0.05); border: 1px dashed rgba(255, 59, 48, 0.2);">
+           <div class="w-100 mb-1 small fw-bold text-danger"><i data-lucide="shield-alert" style="width:14px;"></i> 教練專屬權限</div>
+           <button class="btn-outline p-2 flex-grow-1" style="font-size: 13px; background: white;" onclick="openEditModal('${post.rowIndex}', \`${(post.Content || '').replace(/`/g, "'").replace(/\n/g, "\\n")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯教材描述</button>
+           <button class="btn-outline p-2 flex-grow-1 text-danger" style="font-size: 13px; border-color: #ff3b30; background: white;" onclick="executeDelete('${post.rowIndex}')"><i data-lucide="trash-2" style="width:14px;"></i> 刪除此堂課程</button>
+        </div>`;
       }
 
       let recs = post.Recommendations ? post.Recommendations.split(',').filter(e=>e.trim()) : [];
@@ -1321,6 +1382,8 @@
     try { await api({ action: "addSchoolComment", email: currentUser.email, parentId: postId, content: text }); backgroundSync(); } 
     catch(e) { showToast("寫入失敗", "error"); }
   }
+
+  function toggleMenu(postId) { const menu = document.getElementById(`menu_${postId}`); menu.classList.toggle('show'); }
 
   function openEditModal(rowIndex, currentContent) {
     document.getElementById('editRowId').value = rowIndex; document.getElementById('editContentArea').value = currentContent;
