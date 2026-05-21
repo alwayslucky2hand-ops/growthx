@@ -269,7 +269,6 @@
 
   <main class="main-content">
     
-    <!-- 會員中心 -->
     <div id="tab-member" class="panel-view active">
       <div class="card-panel">
         <div class="profile-stack">
@@ -353,7 +352,6 @@
       <div id="webAppsContainer" class="form-group-stack"></div>
     </div>
 
-    <!-- AI 助教 -->
     <div id="tab-gem" class="panel-view">
       <div class="mb-5 text-center text-md-start">
         <h2 class="fw-bold mb-2" style="letter-spacing: -1px;">GROWTHX 數位轉型</h2>
@@ -362,7 +360,6 @@
       <div id="gemContainer" class="form-group-stack"></div>
     </div>
 
-    <!-- 🌟 共用專業錄影引擎 (DOM Node) -->
     <div id="recordUI" class="card-panel mb-5" style="display:none;">
       <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">全端除錯與錄影引擎</h4>
       <div class="video-container" id="videoContainer">
@@ -382,7 +379,6 @@
       </div>
     </div>
 
-    <!-- 陪跑日誌 -->
     <div id="tab-coach" class="panel-view">
       <div id="triggerRecordBox" class="trigger-card" onclick="toggleRecordUI('posts')">
         <div class="trigger-icon-wrapper"><i data-lucide="video" style="width: 32px; height: 32px; color: white;"></i></div>
@@ -394,7 +390,6 @@
       <div id="feedContainer"></div>
     </div>
 
-    <!-- 🌟 更新版 FFS 學堂 (YouTube 發布版) -->
     <div id="tab-school" class="panel-view">
       <div class="mb-4">
         <h2 class="fw-bold mb-1">FFS 學堂</h2>
@@ -406,7 +401,7 @@
         <div class="form-group-stack mt-4">
           <div>
             <label class="form-label">YouTube 影片 / 直播連結</label>
-            <input type="url" id="schoolYtUrl" class="form-control" placeholder="例如：https://www.youtube.com/watch?v=xxxx 或 https://youtu.be/xxxx">
+            <input type="url" id="schoolYtUrl" class="form-control" placeholder="例如：https://www.youtube.com/watch?v=xxxx 或 https://www.youtube.com/live/xxxx">
           </div>
           <div>
             <label class="form-label">教材內容描述</label>
@@ -419,7 +414,6 @@
       <div id="schoolFeedContainer" class="form-group-stack mt-4"></div>
     </div>
     
-    <!-- 實戰部落格 -->
     <div id="tab-blog" class="panel-view" style="max-width: 100%; padding-bottom: 0;">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
@@ -440,7 +434,6 @@
   </main>
 </div>
 
-<!-- Modal 區塊：儲值 -->
 <div id="topupModal" class="modal-overlay">
   <div class="modal-content text-center">
     <h4 class="fw-bold mb-1">V.C. TABLE 儲值方案</h4>
@@ -462,7 +455,6 @@
   </div>
 </div>
 
-<!-- Modal 區塊：簽名核銷 -->
 <div id="signatureModal" class="modal-overlay">
   <div class="modal-content" style="max-width: 800px; width: 95%;">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -484,7 +476,6 @@
   </div>
 </div>
 
-<!-- Modal 區塊：編輯學堂 -->
 <div id="editModal" class="modal-overlay">
   <div class="modal-content">
     <h5 class="fw-bold mb-3">編輯教材描述</h5>
@@ -935,10 +926,11 @@
   }
 
   // ================= FFS 學堂 YouTube 互動引擎 (Optimistic UI) =================
+  // 升級正規表達式，完美捕捉一般網址、Live、Shorts
   function extractYTVideoId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return (match && match[1].length === 11) ? match[1] : null;
   }
 
   async function publishSchoolPost() {
@@ -1009,12 +1001,19 @@
       const myComments = comments.filter(c => c.ParentID === post.PostID);
       const commentsHtml = myComments.map(c => `<div class="p-3 bg-light rounded mb-2 small"><div class="d-flex justify-content-between fw-bold mb-1"><span>代碼：${c.AuthorCode}</span><span class="text-muted">${c.Timestamp}</span></div><div class="text-secondary">${c.Content}</div></div>`).join('');
       
-      // 處理 YouTube 影片渲染
+      // 🌟 高質感 YouTube 播放器渲染核心 (修正辨識邏輯並加上 RWD 完美陰影框)
       let mediaHtml = '';
       if (post.YouTubeURL && post.YouTubeURL.trim() !== '') {
         const videoId = extractYTVideoId(post.YouTubeURL);
         if (videoId) {
-          mediaHtml = `<div class="video-carousel-container" style="border-radius:12px; overflow:hidden;"><iframe class="carousel-iframe" src="https://www.youtube.com/embed/${videoId}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+          mediaHtml = `
+            <div class="mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.15); background: #000; position: relative; width: 100%; padding-bottom: 56.25%; height: 0;">
+              <iframe src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=0" 
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowfullscreen>
+              </iframe>
+            </div>`;
         } else {
           mediaHtml = `<a href="${post.YouTubeURL}" target="_blank" class="btn-outline mb-4"><i data-lucide="youtube" style="width:16px;"></i> 開啟影音連結</a>`;
         }
