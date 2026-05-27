@@ -383,7 +383,7 @@
         </div>
       </div>
       <div class="form-group-stack">
-        <button class="btn-brand" id="btnStartPost" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製</button>
+        <button class="btn-brand" id="btnStartPost" onclick="startPost()"><i data-lucide="play-circle" style="width:18px;"></i> 啟 ক্যামের系統錄製</button>
         <div id="systemLog" class="log-box" style="display:none;"></div>
       </div>
     </div>
@@ -1214,31 +1214,43 @@
     document.getElementById('editPostBaseModal').classList.add('active');
   }
 
-  async function saveEditPostBase() {
+  function saveEditPostBase() {
     const postId = document.getElementById('editPostBaseId').value;
     const newSummary = document.getElementById('editPostBaseSummary').value.trim();
     const newTranscript = document.getElementById('editPostBaseTranscript').value.trim();
     
-    const btn = document.querySelector('#editPostBaseModal .btn-brand');
-    const originalText = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 儲存中...'; lucide.createIcons();
+    // 1. 【樂觀更新】瞬間修改前端記憶體資料並關閉視窗
+    const post = globalFeedData.find(p => p.PostID === postId);
+    if (post) {
+      post.AI_Summary = newSummary;
+      post.Transcript = newTranscript;
+    }
+    closeModals();
+    renderFeed(globalFeedData, currentFeedPage);
+    showToast("日誌儲存中...", "success");
     
-    try {
-      await api({action: "editPostBase", postId: postId, newSummary: newSummary, newTranscript: newTranscript});
-      showToast("日誌更新成功", "success");
-      closeModals();
-      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
-    } catch(e) { showToast(e.message, "error"); }
-    finally { btn.disabled = false; btn.innerHTML = originalText; lucide.createIcons(); }
+    // 2. 【背景執行】默默把資料寫回 Google 試算表，不卡頓畫面
+    api({action: "editPostBase", postId: postId, newSummary: newSummary, newTranscript: newTranscript})
+      .then(() => showToast("日誌更新成功", "success"))
+      .catch(e => {
+        showToast("更新失敗，請重新整理", "error");
+        backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage)); // 失敗才重新拉取資料
+      });
   }
 
-  async function executeDeletePostBase(postId) {
-    showUIConfirm("徹底刪除陪跑日誌", "確定要徹底刪除這筆日誌紀錄嗎？\n此動作將刪除包含影片紀錄在內的所有相關發問與回覆，刪除後無法還原。", "確定刪除", "#ff3b30", async () => {
-      try {
-        await api({action: "deletePostBase", postId: postId});
-        showToast("整篇日誌已刪除", "success");
+  function executeDeletePostBase(postId) {
+    showUIConfirm("徹底刪除陪跑日誌", "確定要徹底刪除這筆日誌紀錄嗎？\n此動作將刪除包含影片紀錄在內的所有相關發問與回覆，刪除後無法還原。", "確定刪除", "#ff3b30", () => {
+      // 1. 【樂觀更新】瞬間從陣列中剔除該筆資料，並重新渲染畫面
+      const index = globalFeedData.findIndex(p => p.PostID === postId);
+      if (index !== -1) globalFeedData.splice(index, 1);
+      renderFeed(globalFeedData, currentFeedPage);
+      showToast("日誌已刪除", "success");
+
+      // 2. 【背景執行】默默呼叫後端刪除列
+      api({action: "deletePostBase", postId: postId}).catch(e => {
+        showToast("刪除失敗，請重新整理", "error");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
-      } catch(e) { showToast(e.message, "error"); }
+      });
     });
   }
 
@@ -1259,31 +1271,45 @@
     document.getElementById('editCoachReplyModal').classList.add('active');
   }
 
-  async function saveEditCoachReply() {
+  function saveEditCoachReply() {
     const postId = document.getElementById('editCoachReplyPostId').value;
     const content = document.getElementById('editCoachReplyArea').value.trim();
     if(!content) return showToast("內容不可為空", "warning");
     
-    const btn = document.querySelector('#editCoachReplyModal .btn-brand');
-    const originalText = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 儲存中...'; lucide.createIcons();
-    
-    try {
-      await api({action: "editCoachReply", postId: postId, newContent: content});
-      showToast("歷史回覆總帳已成功覆寫更新", "success");
-      closeModals();
-      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
-    } catch(e) { showToast(e.message, "error"); }
-    finally { btn.disabled = false; btn.innerHTML = originalText; lucide.createIcons(); }
+    // 1. 【樂觀更新】瞬間替換教練回覆內容
+    const post = globalFeedData.find(p => p.PostID === postId);
+    if (post) {
+      post.Coach_Reply = content;
+    }
+    closeModals();
+    renderFeed(globalFeedData, currentFeedPage);
+    showToast("回覆總帳儲存中...", "success");
+
+    // 2. 【背景執行】
+    api({action: "editCoachReply", postId: postId, newContent: content})
+      .then(() => showToast("歷史回覆總帳已成功覆寫更新", "success"))
+      .catch(e => {
+        showToast("更新失敗，請重新整理", "error");
+        backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
+      });
   }
 
-  async function deleteCoachReply(postId) {
-    showUIConfirm("清空教練回覆", "確定要徹底清空教練回覆大總帳嗎？\n此動作將刪除該儲存格內的所有歷史回覆與影音紀錄，無法復原。", "確認清空", "#ff3b30", async () => {
-      try {
-        await api({action: "deleteCoachReply", postId: postId});
-        showToast("教練回覆已清空", "success");
+  function deleteCoachReply(postId) {
+    showUIConfirm("清空教練回覆", "確定要徹底清空教練回覆大總帳嗎？\n此動作將刪除該儲存格內的所有歷史回覆與影音紀錄，無法復原。", "確認清空", "#ff3b30", () => {
+      // 1. 【樂觀更新】瞬間清空前端的教練回覆並重置狀態
+      const post = globalFeedData.find(p => p.PostID === postId);
+      if (post) {
+        post.Coach_Reply = "";
+        post.Status = "待回覆";
+      }
+      renderFeed(globalFeedData, currentFeedPage);
+      showToast("教練回覆已清空", "success");
+
+      // 2. 【背景執行】
+      api({action: "deleteCoachReply", postId: postId}).catch(e => {
+        showToast("清空失敗，請重新整理", "error");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
-      } catch(e) { showToast(e.message, "error"); }
+      });
     });
   }
 
