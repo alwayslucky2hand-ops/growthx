@@ -99,7 +99,7 @@
     .pulse-badge { animation: pulseBadge 2s infinite; }
     @keyframes pulseBadge { 0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); } }
     
-    .controls-overlay { position: absolute; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 100px; display: flex; gap: 24px; align-items: center; z-index: 20; transition: 0.3s; }
+    .controls-overlay { position: absolute; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 100px; display: flex; gap: 24px; align-items: center; z-index: 20; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; }
     
     @media (min-width: 769px) or (orientation: landscape) {
       .controls-overlay { bottom: 24px; left: 50%; transform: translateX(-50%); flex-direction: row; }
@@ -179,9 +179,9 @@
     .stat-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); }
 
     /* FFS School Details Toggle */
-    .school-details { background: var(--surface); border-radius: 24px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); }
-    .school-details[open] .post-header-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid var(--border) !important; padding-bottom: 24px !important; margin-bottom: 24px !important; background: transparent !important; }
-    .school-details:not([open]) .post-header-summary { padding: 16px; background: var(--bg); border: 1px solid var(--border) !important; }
+    .school-details { background: var(--surface); border-radius: 24px; margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); overflow: hidden; }
+    .school-details .post-header-summary { padding: 16px; background: var(--bg); border: 1px solid var(--border) !important; margin-top: 8px; }
+    .school-details[open] .post-header-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 1px solid var(--border) !important; padding-bottom: 16px !important; margin-bottom: 0 !important; background: transparent !important; }
     
     /* YT Custom Player Styles */
     .custom-yt-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 8px 32px rgba(0,0,0,0.15); margin-bottom: 24px; }
@@ -370,15 +370,16 @@
 
     <div id="recordUI" class="card-panel mb-5" style="display:none;">
       <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">全端除錯與錄影引擎</h4>
-      <div class="video-container" id="videoContainer">
+      <div class="video-container" id="videoContainer" onmousemove="handleVideoInteraction()" ontouchstart="handleVideoInteraction()">
         <div id="recBadge" class="status-badge"><div class="pulse-dot"></div><span>錄製中</span></div>
         <video id="mediaPlayer" class="video-player-style" autoplay muted playsinline></video>
         <div class="controls-overlay" id="playerControls">
+           <button class="control-btn cancel-btn" id="btnCancelStream" onclick="cancelStream()" title="取消啟用硬體"><i data-lucide="x" style="color: #ff9500; width: 24px;"></i></button>
            <button class="control-btn" onclick="switchSourceAction()"><i data-lucide="switch-camera" id="icon-source"></i></button>
            <button class="control-btn" onclick="toggleVideo()"><i data-lucide="video-off" id="icon-video"></i></button>
-           <button class="control-btn pause-btn" id="btnPause" onclick="pauseMeeting()"><i data-lucide="pause"></i></button>
+           <button class="control-btn pause-btn" id="btnPause" onclick="pauseMeeting()" style="display:none;"><i data-lucide="pause"></i></button>
            <button class="control-btn play-btn" id="btnResume" onclick="resumeMeeting()" style="display:none;"><i data-lucide="play"></i></button>
-           <button class="control-btn stop-btn" id="btnStop" onclick="stopMeeting()"><i data-lucide="square" style="color: #ff3b30;"></i></button>
+           <button class="control-btn stop-btn" id="btnStop" onclick="stopMeeting()" style="display:none;"><i data-lucide="square" style="color: #ff3b30;"></i></button>
         </div>
       </div>
       <div class="form-group-stack">
@@ -520,7 +521,7 @@
 
 <div id="editModal" class="modal-overlay">
   <div class="modal-content">
-    <h5 class="fw-bold mb-3">編輯教材描述</h5>
+    <h5 class="fw-bold mb-3">編輯學堂教材描述</h5>
     <input type="hidden" id="editRowId">
     <textarea id="editContentArea" class="form-control mb-4" rows="4"></textarea>
     <div class="d-flex gap-3">
@@ -538,6 +539,29 @@
     <div class="d-flex gap-3">
       <button class="btn-outline border-0 text-muted" onclick="closeModals()">取消</button>
       <button class="btn-brand" onclick="saveEditCoachReply()">儲存更新</button>
+    </div>
+  </div>
+</div>
+
+<div id="editPostBaseModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 600px; width: 95%;">
+    <h5 class="fw-bold mb-4"><i data-lucide="edit" style="width:20px; margin-right:4px;"></i> 編輯陪跑日誌全域內容</h5>
+    <input type="hidden" id="editPostBaseId">
+    
+    <div class="form-group-stack">
+      <div>
+        <label class="form-label">核心問題與追問總結 (支援 Markdown)</label>
+        <textarea id="editPostBaseSummary" class="form-control" rows="5"></textarea>
+      </div>
+      <div>
+        <label class="form-label">原始發問完整逐字稿</label>
+        <textarea id="editPostBaseTranscript" class="form-control" rows="5"></textarea>
+      </div>
+    </div>
+    
+    <div class="d-flex gap-3 mt-4">
+      <button class="btn-outline border-0 text-muted" onclick="closeModals()">取消</button>
+      <button class="btn-brand" onclick="saveEditPostBase()">儲存覆寫</button>
     </div>
   </div>
 </div>
@@ -560,6 +584,9 @@
 
   let currentFeedPage = 1;
   const feedPerPage = 10;
+  
+  let currentSchoolPage = 1;
+  const schoolPerPage = 10;
   
   let globalFeedData = [];
   let globalSchoolFeedData = []; 
@@ -796,6 +823,23 @@
   let desktopSource = "camera", mobileFacingMode = "user", isVideoEnabled = false, isPaused = false;
   let activeProcessingTasks = new Set();
   
+  // 優化 2：手機版控制列防呆自動隱藏機制
+  let hideControlsTimeout;
+  function handleVideoInteraction() {
+    const controls = document.getElementById('playerControls');
+    if (!controls) return;
+    controls.style.opacity = '1';
+    clearTimeout(hideControlsTimeout);
+    // 只要裝置為手機寬度，則三秒無動作後隱藏
+    if (window.innerWidth <= 768) {
+      hideControlsTimeout = setTimeout(() => {
+        if (document.getElementById('recordUI').style.display !== 'none' && currentStream) {
+           controls.style.opacity = '0';
+        }
+      }, 3000);
+    }
+  }
+  
   async function acquireStream() {
     if (currentStream) currentStream.getTracks().forEach(track => track.stop());
     const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
@@ -822,10 +866,36 @@
       document.getElementById('mediaPlayer').srcObject = currentStream;
       const videoTrack = currentStream.getVideoTracks()[0];
       if (videoTrack) videoTrack.enabled = isVideoEnabled;
+      
+      handleVideoInteraction(); // 啟動互動防呆
     } catch(err) { showToast("硬體授權失敗", "error"); }
   }
 
-  // 單列無限蓋樓綁定觸發，點擊後精準滾動到錄影區塊 (解決痛點 2)
+  // 優化 1：新增取消硬體授權的按鈕方法
+  function cancelStream() {
+    isRecording = false;
+    isPaused = false;
+    clearTimeout(chunkInterval);
+    if(mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+    if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+    if(audioContext) audioContext.close();
+    
+    document.getElementById('recordUI').style.display = 'none';
+    document.getElementById('triggerRecordBox').style.display = 'block';
+    document.getElementById('recBadge').style.display = 'none';
+    document.getElementById('btnStartPost').style.display = 'flex';
+    document.getElementById('btnStartPost').disabled = false;
+    
+    // 隱藏/顯示預設按鈕
+    document.getElementById('btnStop').style.display = 'none';
+    document.getElementById('btnPause').style.display = 'none';
+    document.getElementById('btnCancelStream').style.display = 'flex';
+    
+    currentReplyParentId = ""; // 重置綁定
+    showToast("已取消硬體錄影", "success");
+  }
+
+  // 單列無限蓋樓綁定觸發，點擊後精準滾動到錄影區塊
   function triggerRecord(parentId) {
     currentReplyParentId = parentId;
     toggleRecordUI('reply');
@@ -842,6 +912,13 @@
     document.getElementById('triggerRecordBox').style.display = 'none';
     document.getElementById('tab-coach').insertBefore(ui, document.getElementById('tab-coach').children[1]);
     document.getElementById('btnStartPost').innerHTML = '<i data-lucide="play-circle" style="width:18px;"></i> 啟動系統錄製';
+    document.getElementById('btnStartPost').style.display = 'flex';
+    
+    // 開啟預覽時，隱藏停止，顯示取消按鈕
+    document.getElementById('btnCancelStream').style.display = 'flex';
+    document.getElementById('btnStop').style.display = 'none';
+    document.getElementById('btnPause').style.display = 'none';
+    
     document.getElementById('videoContainer').style.display = 'block';
     await acquireStream(); lucide.createIcons();
   }
@@ -859,9 +936,13 @@
       postData = await api({ action: "initPost", email: currentUser.email, role: currentUser.role, parentId: currentReplyParentId || "" });
       isRecording = true; chunkIndex = 1;
       document.getElementById('recBadge').style.display = 'flex';
+      
+      // 正式錄製：隱藏取消，顯示暫停與停止
+      document.getElementById('btnCancelStream').style.display = 'none';
       document.getElementById('btnStop').style.display = 'flex';
       document.getElementById('btnPause').style.display = 'flex';
       btn.style.display = 'none';
+      
       log("雙軌音訊混音引擎封裝成功，開始錄製。");
       startChunkRecording();
     } catch(e) { showToast("引擎初始化失敗", "error"); btn.disabled = false; }
@@ -922,6 +1003,7 @@
       currentReplyParentId = ""; // 重置綁定
       document.getElementById('recordUI').style.display = 'none';
       document.getElementById('triggerRecordBox').style.display = 'block';
+      document.getElementById('playerControls').style.display = 'flex'; // Reset view for next time
       backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
     } catch(e) { showToast("封裝結算異常", "error"); }
   }
@@ -969,7 +1051,7 @@
         .replace(/\[語音逐字稿\]/g, '\n<span class="badge bg-success me-2 mt-4 mb-2" style="font-size: 13px; padding: 6px 10px; letter-spacing: 1px;">語音逐字稿</span>\n')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>');
       
-      // 教練專屬回覆大總帳 (K欄，已由後端排版好 Markdown，包含影音連結與 <details>)
+      // 教練專屬回覆大總帳 (K欄)
       let coachReplyHtml = '';
       const coachReplyContent = post.Coach_Reply || post.CoachReply || '';
       
@@ -1012,6 +1094,17 @@
           </div>`;
       }
 
+      // 優化 4：發布者或教練專屬的全域編輯/刪除整篇貼文按鈕
+      let postAdminBtns = '';
+      if (currentUser.role === '教練' || currentUser.email === post.Email) {
+        postAdminBtns = `
+        <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top" style="border-top: 1px dashed var(--border) !important;">
+            <div class="w-100 mb-1 small fw-bold text-muted"><i data-lucide="settings" style="width:14px;"></i> 日誌全域管理</div>
+            <button class="btn-outline p-2 w-auto" style="font-size: 13px; background: white;" onclick="openEditPostBaseModal('${post.PostID}')"><i data-lucide="edit"></i> 編輯整篇日誌</button>
+            <button class="btn-outline p-2 w-auto text-danger" style="font-size: 13px; border-color: #ff3b30; background: white;" onclick="executeDeletePostBase('${post.PostID}')"><i data-lucide="trash-2"></i> 刪除整篇日誌</button>
+        </div>`;
+      }
+
       let statusBadgeClass = post.Status === '呼叫教練' ? 'bg-danger pulse-badge' : 'bg-dark';
 
       return `
@@ -1052,6 +1145,7 @@
             </details>
             ${actionBtns}
             ${studentActionBtn}
+            ${postAdminBtns}
           </div>
         </details>
       </div>`;
@@ -1073,6 +1167,44 @@
         showToast("狀態已更新", "success");
         backgroundSync();
       } catch(e) { showToast("狀態更新失敗", "error"); }
+    }
+  }
+
+  // 陪跑日誌 - 全域編輯與刪除前端控制邏輯
+  function openEditPostBaseModal(postId) {
+    const post = globalFeedData.find(p => p.PostID === postId);
+    if(!post) return;
+    document.getElementById('editPostBaseId').value = postId;
+    document.getElementById('editPostBaseSummary').value = post.AI_Summary || '';
+    document.getElementById('editPostBaseTranscript').value = post.Transcript || '';
+    document.getElementById('editPostBaseModal').classList.add('active');
+  }
+
+  async function saveEditPostBase() {
+    const postId = document.getElementById('editPostBaseId').value;
+    const newSummary = document.getElementById('editPostBaseSummary').value.trim();
+    const newTranscript = document.getElementById('editPostBaseTranscript').value.trim();
+    
+    const btn = document.querySelector('#editPostBaseModal .btn-brand');
+    const originalText = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px;"></i> 儲存中...'; lucide.createIcons();
+    
+    try {
+      await api({action: "editPostBase", postId: postId, newSummary: newSummary, newTranscript: newTranscript});
+      showToast("日誌更新成功", "success");
+      closeModals();
+      backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
+    } catch(e) { showToast(e.message, "error"); }
+    finally { btn.disabled = false; btn.innerHTML = originalText; lucide.createIcons(); }
+  }
+
+  async function executeDeletePostBase(postId) {
+    if(confirm("確定要徹底刪除這筆日誌紀錄嗎？此動作將刪除包含影片紀錄在內的所有相關發問與回覆，刪除後無法還原。")) {
+      try {
+        await api({action: "deletePostBase", postId: postId});
+        showToast("整篇日誌已刪除", "success");
+        backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
+      } catch(e) { showToast(e.message, "error"); }
     }
   }
 
@@ -1165,7 +1297,8 @@
       }
     });
 
-    renderSchoolFeed(filteredPosts);
+    // 每次過濾強制返回第一頁
+    renderSchoolFeed(filteredPosts, 1);
   }
 
   async function publishSchoolPost() {
@@ -1197,15 +1330,23 @@
     }
   }
 
-  function renderSchoolFeed(items) {
+  // 優化 5：FFS 學堂分頁與外顯式影音渲染
+  function renderSchoolFeed(items, page = 1) {
     for (const key in ytPlayers) { delete ytPlayers[key]; }
     for (const key in ytTimers) { clearInterval(ytTimers[key]); delete ytTimers[key]; }
 
+    currentSchoolPage = page;
     const container = document.getElementById('schoolFeedContainer');
     const posts = items.filter(i => i.Type === "POST"); 
     const comments = items.filter(i => i.Type === "COMMENT");
+    
     if (posts.length === 0) { container.innerHTML = '<div class="text-muted text-center p-5">學堂牆上目前空空如也，或無符合搜尋條件的教材。</div>'; return; }
     
+    const startIndex = (currentSchoolPage - 1) * schoolPerPage;
+    const endIndex = startIndex + schoolPerPage;
+    const pagePosts = posts.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(posts.length / schoolPerPage);
+
     posts.forEach(post => {
       let viewers = post.Viewers ? post.Viewers.split(',').filter(v=>v.trim()) : [];
       if(!viewers.includes(currentUser.email)) {
@@ -1215,7 +1356,7 @@
       }
     });
     
-    container.innerHTML = posts.map(post => {
+    container.innerHTML = pagePosts.map(post => {
       const myComments = comments.filter(c => c.ParentID === post.PostID);
       const commentsHtml = myComments.map(c => `<div class="p-3 bg-light rounded mb-2 small"><div class="d-flex justify-content-between fw-bold mb-1"><span>代碼：${c.AuthorCode}</span><span class="text-muted">${c.Timestamp}</span></div><div class="text-secondary">${c.Content}</div></div>`).join('');
       
@@ -1225,7 +1366,7 @@
         videoId = extractYTVideoId(post.YouTubeURL);
         if (videoId) {
           mediaHtml = `
-            <div id="ytwrapper_${post.PostID}" class="custom-yt-wrapper mb-4">
+            <div id="ytwrapper_${post.PostID}" class="custom-yt-wrapper mb-2 mt-3 mx-3">
               <div id="ytplayer_${post.PostID}" style="position:absolute; top:0; left:0; width:100%; height:100%;"></div>
               <div class="yt-shield" onclick="toggleCustomPlayer('${post.PostID}')"></div>
               <div class="custom-controls-bar">
@@ -1237,7 +1378,7 @@
               </div>
             </div>`;
         } else {
-          mediaHtml = `<a href="${post.YouTubeURL}" target="_blank" class="btn-outline mb-4"><i data-lucide="youtube" style="width:16px;"></i> 開啟外部連結</a>`;
+          mediaHtml = `<a href="${post.YouTubeURL}" target="_blank" class="btn-outline mb-4 mx-3"><i data-lucide="youtube" style="width:16px;"></i> 開啟外部連結</a>`;
         }
       }
 
@@ -1245,7 +1386,7 @@
       let managerMenu = '';
       if ((currentUser.role === '教練' || currentUser.email === 'alwayslucky2hand@gmail.com') && !post.PostID.startsWith("TEMP_")) {
         managerMenu = `
-        <div class="d-flex flex-wrap gap-2 mb-4 p-3 rounded" style="background: rgba(255, 59, 48, 0.05); border: 1px dashed rgba(255, 59, 48, 0.2);">
+        <div class="d-flex flex-wrap gap-2 mx-3 mt-3 mb-2 p-3 rounded" style="background: rgba(255, 59, 48, 0.05); border: 1px dashed rgba(255, 59, 48, 0.2);">
            <div class="w-100 mb-1 small fw-bold text-danger"><i data-lucide="shield-alert" style="width:14px;"></i> 教練專屬權限</div>
            <button class="btn-outline p-2 flex-grow-1" style="font-size: 13px; background: white;" onclick="openEditModal('${post.rowIndex}', \`${(post.Content || '').replace(/`/g, "'").replace(/\n/g, "\\n")}\`)"><i data-lucide="edit-2" style="width:14px;"></i> 編輯教材描述</button>
            <button class="btn-outline p-2 flex-grow-1 text-danger" style="font-size: 13px; border-color: #ff3b30; background: white;" onclick="executeDelete('${post.rowIndex}')"><i data-lucide="trash-2" style="width:14px;"></i> 刪除此堂課程</button>
@@ -1257,64 +1398,84 @@
       let recCount = recs.length;
       let totalViews = parseInt(post.TotalViews) || 1;
 
+      // 重構：將 Header 與 MediaHtml (影音) 放在 details 之外，內容放在 details 之內
       return `
-      <details class="school-details post-toggle-details" ontoggle="handleDetailsToggle(this, '${post.PostID}', '${videoId}')">
-        <summary class="post-header-summary">
-          <div class="d-flex flex-column flex-md-row gap-2 gap-md-4 align-items-md-center w-100 pe-3">
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-              <i data-lucide="calendar" style="width:16px; color:var(--text-muted);"></i>
-              <span class="small text-muted font-monospace">${post.Timestamp.split(' ')[0]}</span>
-            </div>
-            <div class="fw-bold text-primary text-truncate" style="flex:1;">${extractTitle(post.Content)}</div>
-            <div class="d-flex gap-3 gap-md-4 small text-muted flex-shrink-0">
-              <span class="d-flex align-items-center gap-1" title="瀏覽數"><i data-lucide="eye" style="width:14px;"></i> ${totalViews}</span>
-              <span class="d-flex align-items-center gap-1" title="推薦數"><i data-lucide="thumbs-up" style="width:14px;"></i> ${recCount}</span>
-              <span class="d-flex align-items-center gap-1" title="互動留言"><i data-lucide="message-square" style="width:14px;"></i> ${myComments.length}</span>
-            </div>
+      <div class="school-details">
+        <div class="d-flex flex-column flex-md-row gap-2 gap-md-4 align-items-md-center w-100 p-3 bg-light border-bottom">
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <i data-lucide="calendar" style="width:16px; color:var(--text-muted);"></i>
+            <span class="small text-muted font-monospace">${post.Timestamp.split(' ')[0]}</span>
           </div>
-          <i data-lucide="chevron-down" class="expand-icon flex-shrink-0" style="width:20px; color:var(--text-muted);"></i>
-        </summary>
-        
-        <div class="post-body-content mt-3 position-relative">
-          ${managerMenu}
-          ${mediaHtml}
-          
-          <div class="vocus-style mt-3" style="font-size: 15px; line-height:1.8;">${marked.parse(post.Content || '')}</div>
-          
-          <div class="d-flex align-items-center gap-4 mt-4 pt-4 border-top">
-            <button class="btn-recommend ${isRecommended ? 'active' : ''}" onclick="toggleRecommend('${post.PostID}')">
-              <i data-lucide="thumbs-up" style="width:16px; ${isRecommended ? 'fill: currentColor;' : ''}"></i>
-              <span>推薦本文 (${recCount})</span>
-            </button>
-          </div>
-          
-          <div class="mt-4 pt-4 border-top">
-            <h6 class="fw-bold mb-3 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 學員互動討論區 (${myComments.length})</h6>
-            ${commentsHtml}
-            <div class="d-flex gap-2 mt-3">
-              <input type="text" id="comment_input_${post.PostID}" class="form-control" style="padding:12px;" placeholder="輸入您的提問或心得...">
-              <button class="btn-brand w-auto px-4" onclick="submitSchoolComment('${post.PostID}')">送出</button>
-            </div>
+          <div class="fw-bold text-primary text-truncate" style="flex:1;">${extractTitle(post.Content)}</div>
+          <div class="d-flex gap-3 gap-md-4 small text-muted flex-shrink-0">
+            <span class="d-flex align-items-center gap-1" title="瀏覽數"><i data-lucide="eye" style="width:14px;"></i> ${totalViews}</span>
+            <span class="d-flex align-items-center gap-1" title="推薦數"><i data-lucide="thumbs-up" style="width:14px;"></i> ${recCount}</span>
+            <span class="d-flex align-items-center gap-1" title="互動留言"><i data-lucide="message-square" style="width:14px;"></i> ${myComments.length}</span>
           </div>
         </div>
-      </details>`;
+        
+        ${managerMenu}
+        ${mediaHtml}
+
+        <details class="post-toggle-details px-3 pb-3">
+          <summary class="post-header-summary">
+            <span class="fw-bold text-primary"><i data-lucide="message-square-text" style="width:18px; margin-right:6px;"></i> 查看教材描述與討論區</span>
+            <i data-lucide="chevron-down" class="expand-icon flex-shrink-0" style="width:20px; color:var(--text-muted);"></i>
+          </summary>
+          
+          <div class="post-body-content position-relative mt-2 p-3 bg-white" style="border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; margin-top: -10px;">
+            <div class="vocus-style mt-2" style="font-size: 15px; line-height:1.8;">${marked.parse(post.Content || '')}</div>
+            
+            <div class="d-flex align-items-center gap-4 mt-4 pt-4 border-top">
+              <button class="btn-recommend ${isRecommended ? 'active' : ''}" onclick="toggleRecommend('${post.PostID}')">
+                <i data-lucide="thumbs-up" style="width:16px; ${isRecommended ? 'fill: currentColor;' : ''}"></i>
+                <span>推薦本文 (${recCount})</span>
+              </button>
+            </div>
+            
+            <div class="mt-4 pt-4 border-top">
+              <h6 class="fw-bold mb-3 small text-muted"><i data-lucide="message-square" style="width:14px;"></i> 學員互動討論區 (${myComments.length})</h6>
+              ${commentsHtml}
+              <div class="d-flex gap-2 mt-3">
+                <input type="text" id="comment_input_${post.PostID}" class="form-control" style="padding:12px;" placeholder="輸入您的提問或心得...">
+                <button class="btn-brand w-auto px-4" onclick="submitSchoolComment('${post.PostID}')">送出</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>`;
     }).join('');
+    
+    // 學堂分頁控制器
+    if (totalPages > 1) { 
+        container.innerHTML += `
+        <div class="pagination-container">
+            <button class="page-btn" ${currentSchoolPage === 1 ? 'disabled' : ''} onclick="changeSchoolPage(${currentSchoolPage - 1})"><i data-lucide="chevron-left" style="width:16px;"></i></button>
+            <span class="fw-bold text-muted mx-2" style="font-size:14px;">第 ${currentSchoolPage} / ${totalPages} 頁</span>
+            <button class="page-btn" ${currentSchoolPage === totalPages ? 'disabled' : ''} onclick="changeSchoolPage(${currentSchoolPage + 1})"><i data-lucide="chevron-right" style="width:16px;"></i></button>
+        </div>`; 
+    }
+    
     lucide.createIcons();
+    
+    // 因為影片已經移到 details 外面並始終顯示，此處立刻初始化 YouTube 播放器
+    pagePosts.forEach(post => {
+        if (post.YouTubeURL && post.YouTubeURL.trim() !== '') {
+            const videoId = extractYTVideoId(post.YouTubeURL);
+            if (videoId && ytApiLoaded && !ytPlayers[post.PostID]) {
+                ytPlayers[post.PostID] = new YT.Player('ytplayer_' + post.PostID, {
+                    videoId: videoId,
+                    playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'modestbranding': 1, 'fs': 0 },
+                    events: { 'onStateChange': (event) => onPlayerStateChange(event, post.PostID) }
+                });
+            }
+        }
+    });
   }
+
+  function changeSchoolPage(newPage) { renderSchoolFeed(globalSchoolFeedData, newPage); document.getElementById('tab-school').scrollIntoView({ behavior: 'smooth' }); }
 
   // YouTube IFrame API Control Functions
-  function handleDetailsToggle(detailsEl, postId, videoId) {
-    if (detailsEl.open && videoId && ytApiLoaded && !ytPlayers[postId]) {
-      ytPlayers[postId] = new YT.Player('ytplayer_' + postId, {
-        videoId: videoId,
-        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'rel': 0, 'modestbranding': 1, 'fs': 0 },
-        events: { 'onStateChange': (event) => onPlayerStateChange(event, postId) }
-      });
-    } else if (!detailsEl.open && ytPlayers[postId] && typeof ytPlayers[postId].pauseVideo === 'function') {
-      ytPlayers[postId].pauseVideo();
-    }
-  }
-
   function toggleCustomPlayer(postId) {
     const player = ytPlayers[postId];
     if(player && typeof player.getPlayerState === 'function') {
