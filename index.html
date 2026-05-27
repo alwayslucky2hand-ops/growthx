@@ -566,6 +566,22 @@
   </div>
 </div>
 
+<div id="confirmUIModal" class="modal-overlay">
+  <div class="modal-content text-center">
+    <div class="mb-3 d-flex justify-content-center">
+      <div style="background: rgba(255, 59, 48, 0.1); padding: 16px; border-radius: 50%;">
+        <i data-lucide="alert-triangle" style="width: 36px; height: 36px; color: #ff3b30;"></i>
+      </div>
+    </div>
+    <h4 class="fw-bold mb-2" id="confirmModalTitle">確認操作</h4>
+    <p class="text-muted small mb-4" id="confirmModalDesc" style="white-space: pre-wrap; line-height: 1.6;">您確定要執行此操作嗎？</p>
+    <div class="d-flex gap-3">
+      <button class="btn-outline border-0 text-muted w-50" onclick="document.getElementById('confirmUIModal').classList.remove('active')">取消返回</button>
+      <button class="btn-brand w-50" id="btnConfirmAction">確定執行</button>
+    </div>
+  </div>
+</div>
+
 <script>
   lucide.createIcons();
   
@@ -599,6 +615,24 @@
   function onYouTubeIframeAPIReady() {
     ytApiLoaded = true;
   }
+
+  // ================= 統一 UI 確認視窗引擎 =================
+  let currentConfirmCallback = null;
+  function showUIConfirm(title, desc, confirmBtnText, btnColor, callback) {
+    document.getElementById('confirmModalTitle').innerText = title;
+    document.getElementById('confirmModalDesc').innerText = desc;
+    const btn = document.getElementById('btnConfirmAction');
+    btn.innerHTML = confirmBtnText;
+    btn.style.backgroundColor = btnColor;
+    currentConfirmCallback = callback;
+    document.getElementById('confirmUIModal').classList.add('active');
+    lucide.createIcons();
+  }
+
+  document.getElementById('btnConfirmAction').addEventListener('click', () => {
+    if(currentConfirmCallback) currentConfirmCallback();
+    document.getElementById('confirmUIModal').classList.remove('active');
+  });
 
   // ================= 簽名板 Canvas 邏輯 =================
   const canvas = document.getElementById('sigCanvas');
@@ -652,10 +686,10 @@
 
   function openTopUpModal() { document.getElementById('topupModal').classList.add('active'); }
   async function executeTopUp(amount) {
-    if(confirm(`是否確定要模擬進行 $${amount} 儲值？\n(正式環境將串接黑貓PAY金流跳轉)`)) {
+    showUIConfirm("確認模擬儲值", `是否確定要模擬進行 $${amount} 儲值？\n(正式環境將串接黑貓PAY金流跳轉)`, "確定儲值", "var(--accent)", async () => {
       closeModals(); showToast("連線至伺服器處理中...", "success");
       try { const msg = await api({ action: "simulateTopUp", email: currentUser.email, amount: amount }); showToast(msg, "success"); loadDashboard(); } catch(e) { showToast(e.message, "error"); }
-    }
+    });
   }
 
   function renderGemMatrix() {
@@ -1157,7 +1191,7 @@
   function changeFeedPage(newPage) { renderFeed(globalFeedData, newPage); document.getElementById('tab-coach').scrollIntoView({ behavior: 'smooth' }); }
 
   async function updateStatus(postId, status) {
-    if(confirm(`確定標記為「${status}」嗎？`)) {
+    showUIConfirm("更新日誌狀態", `確定標記為「${status}」嗎？`, "確定更新", "var(--primary)", async () => {
       const post = globalFeedData.find(p => p.PostID === postId);
       if(post) post.Status = status;
       renderFeed(globalFeedData, currentFeedPage);
@@ -1167,7 +1201,7 @@
         showToast("狀態已更新", "success");
         backgroundSync();
       } catch(e) { showToast("狀態更新失敗", "error"); }
-    }
+    });
   }
 
   // 陪跑日誌 - 全域編輯與刪除前端控制邏輯
@@ -1199,13 +1233,13 @@
   }
 
   async function executeDeletePostBase(postId) {
-    if(confirm("確定要徹底刪除這筆日誌紀錄嗎？此動作將刪除包含影片紀錄在內的所有相關發問與回覆，刪除後無法還原。")) {
+    showUIConfirm("徹底刪除陪跑日誌", "確定要徹底刪除這筆日誌紀錄嗎？\n此動作將刪除包含影片紀錄在內的所有相關發問與回覆，刪除後無法還原。", "確定刪除", "#ff3b30", async () => {
       try {
         await api({action: "deletePostBase", postId: postId});
         showToast("整篇日誌已刪除", "success");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
       } catch(e) { showToast(e.message, "error"); }
-    }
+    });
   }
 
   // 教練回覆前端控制函式
@@ -1244,13 +1278,13 @@
   }
 
   async function deleteCoachReply(postId) {
-    if(confirm("確定要徹底清空教練回覆大總帳嗎？此動作將刪除該儲存格內的所有歷史回覆與影音紀錄，無法復原。")) {
+    showUIConfirm("清空教練回覆", "確定要徹底清空教練回覆大總帳嗎？\n此動作將刪除該儲存格內的所有歷史回覆與影音紀錄，無法復原。", "確認清空", "#ff3b30", async () => {
       try {
         await api({action: "deleteCoachReply", postId: postId});
         showToast("教練回覆已清空", "success");
         backgroundSync().then(() => renderFeed(globalFeedData, currentFeedPage));
       } catch(e) { showToast(e.message, "error"); }
-    }
+    });
   }
 
   // ================= FFS 學堂檢索與動態渲染引擎 =================
@@ -1332,7 +1366,13 @@
 
   // 優化 5：FFS 學堂分頁與外顯式影音渲染
   function renderSchoolFeed(items, page = 1) {
-    for (const key in ytPlayers) { delete ytPlayers[key]; }
+    // 【關鍵修正】完美銷毀 YT 播放器，阻止 Console 拋出 postMessage 錯誤！
+    for (const key in ytPlayers) { 
+      if (ytPlayers[key] && typeof ytPlayers[key].destroy === 'function') {
+        ytPlayers[key].destroy(); 
+      }
+      delete ytPlayers[key]; 
+    }
     for (const key in ytTimers) { clearInterval(ytTimers[key]); delete ytTimers[key]; }
 
     currentSchoolPage = page;
@@ -1569,9 +1609,13 @@
   }
 
   async function executeDelete(rowIndex) {
-    if(confirm("確定要將這堂課程從系統徹底刪除嗎？刪除後無法還原。")) {
-      try { await api({ action: "deleteSchoolPost", rowIndex: rowIndex, email: currentUser.email, role: currentUser.role }); showToast("刪除成功", "success"); backgroundSync().then(()=>filterSchoolFeed()); } catch(e) { showToast("刪除失敗", "error"); }
-    }
+    showUIConfirm("刪除學堂課程", "確定要將這堂課程從系統徹底刪除嗎？\n刪除後無法還原。", "確定刪除", "#ff3b30", async () => {
+      try { 
+        await api({ action: "deleteSchoolPost", rowIndex: rowIndex, email: currentUser.email, role: currentUser.role }); 
+        showToast("刪除成功", "success"); 
+        backgroundSync().then(()=>filterSchoolFeed()); 
+      } catch(e) { showToast("刪除失敗", "error"); }
+    });
   }
 
   function copyCode() { navigator.clipboard.writeText(document.getElementById('memberCodeTxt').innerText); showToast("代碼已複製", "success"); }
