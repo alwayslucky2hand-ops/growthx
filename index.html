@@ -240,7 +240,7 @@
         驗證碼已發送至 <br><strong id="displayTargetEmail" style="color: var(--primary);"></strong>
       </div>
       <div class="form-group-stack">
-        <input type="text" id="loginCode" class="form-control text-center fw-bold" placeholder="輸入 6 位數字" style="letter-spacing: 8px; font-size: 24px;">
+        <input type="text" id="loginCode" class="form-control text-center fw-bold" placeholder="輸入 6 位數字" style="letter-spacing: 8px; font-size: 24px;" maxlength="6" autocomplete="one-time-code" inputmode="numeric">
         <button class="btn-brand" onclick="verifyCode()" id="btnVerify">驗證登入</button>
         <button class="btn-outline" onclick="switchLoginStep('step-email')">重新填寫信箱</button>
       </div>
