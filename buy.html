@@ -128,7 +128,6 @@
 <script>
   lucide.createIcons();
   
-  // ⚠️ 這裡的 GAS URL 已經與我們後端基線完全對齊，您可以視需求更新為新版部署網址
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx1IyvzO_Z47G8TnVzb5AoKRtui8AYjcj2Et07VpQQQcFl0K2U6Y-o-E-pwHJzxP6Pl/exec"; 
   
   // 雙棲環境探針 (偵測是否在 Google Apps Script 環境內執行)
@@ -222,7 +221,6 @@
       
       if (isGAS) {
          // 在 GAS 環境，留作未來直接透過 google.script.run 溝通的擴充空間
-         // 目前為維持架構單純，統一走 fetch API Webhook 模式
       }
 
       const response = await fetch(GAS_WEBAPP_URL, {
@@ -290,17 +288,17 @@
       const res = await response.json();
       
       if (res.status === 'success' && res.data.url) {
-         alert(`訂單建立成功！單號：${res.data.orderId}\n金額：$${res.data.totalAmount.toLocaleString()}\n即將為您跳轉至黑貓 PAY 金流頁面...`);
+         alert(`訂單建立成功！單號：${res.data.orderId}\n金額：$${res.data.totalAmount.toLocaleString()}\n即將為您跳轉至金流頁面...`);
          window.location.href = res.data.url; 
       } else {
          alert("建立訂單失敗：" + res.message);
          btn.disabled = false;
-         btn.innerHTML = '前往黑貓 PAY 付款';
+         btn.innerHTML = '前往付款';
       }
     } catch (err) {
       alert("網路連線錯誤，請稍後再試。");
       btn.disabled = false;
-      btn.innerHTML = '前往黑貓 PAY 付款';
+      btn.innerHTML = '前往付款';
     }
   }
 </script>
