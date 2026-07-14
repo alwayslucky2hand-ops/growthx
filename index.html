@@ -860,12 +860,63 @@
 
   function renderGemMatrix() {
     const gems = [
-      { name: "GEM 1：系統許願機", subtitle: "抓漏老闆大腦的戰略軍師", intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。", output: "【矩陣一：老闆需求總帳】", value: "省下數萬溝通成本，清楚定錨系統價值。", journey: "<strong>1. 大膽許願</strong><br><strong>2. 點餐答題</strong><br><strong>3. 定錨解鎖</strong>", url: "https://gemini.google.com/gem/1-OAc9T3omR5fbV0N4p1zWYZk4RnBQ3zN?usp=drive_link" },
-      { name: "GEM 2：工作流水線拆解器", subtitle: "抓出隱形吸血鬼的營運專家", intro: "把你和員工每天重複到手酸的「手眼動作」，像工廠傳送帶一樣切碎檢查，找出痛點。", output: "【矩陣二：現況流程與應變地圖】", value: "將抱怨變升級養分，確保系統絕不漏單。", journey: "<strong>1. 輸入總帳</strong><br><strong>2. 畫出傳送帶</strong><br><strong>3. 獵殺吸血鬼</strong>", url: "https://gemini.google.com/gem/1oMtnwadAKL2A-8VMzJ_wAaGaUBl1z9ix?usp=drive_link" },
-      { name: "GEM 3：數位新工廠設計師", subtitle: "蓋房子不踩坑的施工藍圖總監", intro: "把前兩步的流程，正式變成一張蓋房子用的「實體施工圖紙」。", output: "【矩陣三：終極施工產品規格書】", value: "工程師與 AI 工具看一眼就能開工的終極圖紙。", journey: "<strong>1. 輸入藍圖</strong><br><strong>2. 實體工廠巡禮</strong><br><strong>3. 鎖定 16 大參數</strong>", url: "https://gemini.google.com/gem/1Zjt27t8C9MzDNZ3JQCdTRjsPX9Tf_Y2w?usp=drive_link" },
-      { name: "GEM 4：全能 AI 開發特助", subtitle: "邊體驗邊生出系統的終極魔術師", intro: "不用懂程式碼，像個挑剔的體驗官挑毛病，助教一字不漏把網頁與後端寫好雙手奉上。", output: "【100% 完整雙棲前端網頁原始碼】", value: "文科生也能當場擁有活生生的跨平台系統！", journey: "<strong>1. 圖紙合體</strong><br><strong>2. 代碼爆發</strong><br><strong>3. 權限解鎖</strong><br><strong>4. 增量升級</strong>", url: "https://gemini.google.com/gem/1ZHMBaZkYkJxkAcWLMRNX2xmjXAFvEUwR?usp=drive_link" },
-      { name: "GEM 5：AI 程式需求收斂師", subtitle: "專為 Vibe Coding 設計的 AI 產品經理", intro: "將天馬行空或講不清楚的 Bug，收斂成精確的結構化開發指令。", output: "【終極指令輸出格式範本】", value: "讓寫程式的 AI 完美幫你修改代碼，杜絕越改越錯的鬼故事！", journey: "<strong>1. 同理釐清</strong><br><strong>2. 核心邏輯確認</strong><br><strong>3. 精確指令生成</strong>", url: "https://gemini.google.com/gem/19JlFWAlNouNnPnIaozcho8mZSKmm57Mp?usp=sharing" }
+      { 
+        name: "GEM 1：工作流水線拆解器", 
+        subtitle: "抓出隱形吸血鬼的營運專家", 
+        intro: "把你和員工每天重複到手酸的「手眼動作」，像工廠傳送帶一樣切碎檢查，找出痛點。", 
+        output: "【矩陣一：現況流程與應變地圖】", 
+        value: "將抱怨變升級養分，確保系統絕不漏單。", 
+        journey: "<strong>1. 輸入總帳</strong><br><strong>2. 畫出傳送帶</strong><br><strong>3. 獵殺吸血鬼</strong>", 
+        url: "https://gemini.google.com/gem/1IZf-gF-g4a0DhfTyqJar1vY9-ctI8DN_?usp=sharing" 
+      },
+      { 
+        name: "GEM 2：系統許願機 (老闆需求書)", 
+        subtitle: "抓漏老闆大腦的戰略軍師", 
+        intro: "專門幫你把大腦裡「好想做個自動化系統」的模糊願景，翻譯成真正能幫公司省時間、賺大錢的「黃金賺錢計畫」。", 
+        output: "【矩陣二：老闆需求總帳】", 
+        value: "省下數萬溝通成本，清楚定錨系統價值。", 
+        journey: "<strong>1. 大膽許願</strong><br><strong>2. 點餐答題</strong><br><strong>3. 定錨解鎖</strong>", 
+        url: "https://gemini.google.com/gem/1BF4CZ6zBE73M9Psn1jADmlAUNtHRjPAt?usp=sharing" 
+      },
+      { 
+        name: "GEM 3：數位新工廠設計師 (超級PM)", 
+        subtitle: "蓋房子不踩坑的施工藍圖總監", 
+        intro: "把前兩步的流程，正式變成一張蓋房子用的「實體施工圖紙」。", 
+        output: "【矩陣三：終極施工產品規格書】", 
+        value: "工程師與 AI 工具看一眼就能開工的終極圖紙。", 
+        journey: "<strong>1. 輸入藍圖</strong><br><strong>2. 實體工廠巡禮</strong><br><strong>3. 鎖定 16 大參數</strong>", 
+        url: "https://gemini.google.com/gem/15zr2c8BpxfWITDkxB3poJNnFnTfEgY9s?usp=sharing" 
+      },
+      { 
+        name: "GEM 4：WebAPP 電影級編劇", 
+        subtitle: "描繪具體使用者旅程的體驗大師", 
+        intro: "講述明確具體的使用者旅程故事和功能運作故事，讓開發者與系統能完全對齊使用者體驗。", 
+        output: "【矩陣四：使用者故事與互動腳本】", 
+        value: "確保開發出來的系統絕對符合人類直覺，好用不卡關。", 
+        journey: "<strong>1. 角色設定</strong><br><strong>2. 旅程推演</strong><br><strong>3. 劇本定稿</strong>", 
+        url: "https://gemini.google.com/gem/1TRxK8jmWxtjTM-y52tbGSjqWJCYOittz?usp=sharing" 
+      },
+      { 
+        name: "GEM 5：全能 AI 開發特助", 
+        subtitle: "邊體驗邊生出系統的終極魔術師", 
+        intro: "不用懂程式碼，像個挑剔的體驗官挑毛病，助教一字不漏把網頁與後端寫好雙手奉上。", 
+        output: "【100% 完整雙棲前端網頁原始碼】", 
+        value: "文科生也能當場擁有活生生的跨平台系統！", 
+        journey: "<strong>1. 圖紙合體</strong><br><strong>2. 代碼爆發</strong><br><strong>3. 權限解鎖</strong><br><strong>4. 增量升級</strong>", 
+        url: "https://gemini.google.com/gem/1CbYqeQgI3pWRrtN1PTp47suYfhqyUIom?usp=sharing" 
+      },
+      { 
+        name: "GEM 6：迭代指令優化師", 
+        subtitle: "專為 Vibe Coding 設計的 AI 產品經理", 
+        intro: "專門協助非技術背景學員，將模糊的 Bug 或優化需求，透過互動問答收斂成精準的結構化開發指令。", 
+        output: "【終極防雷 AI 開發指令 (Prompt)】", 
+        value: "讓寫程式的 AI 完美幫你修改代碼，杜絕越改越錯的鬼故事！", 
+        journey: "<strong>1. 現況診斷</strong><br><strong>2. 深度技術剖析</strong><br><strong>3. 精確指令生成</strong>", 
+        // 👇 提醒：請將下方的網址替換為你實際 GEM 6 的連結
+        url: "https://gemini.google.com/gem/請填入你的GEM6網址" 
+      }
     ];
+
     document.getElementById('gemContainer').innerHTML = gems.map(g => `
       <div class="gem-pro-card">
         <div class="d-flex align-items-center gap-3 mb-3">
@@ -881,7 +932,6 @@
     `).join('');
     lucide.createIcons();
   }
-  renderGemMatrix();
 
   function copyContent(elementId, btn, isInput = false) {
     const el = document.getElementById(elementId); let text = isInput ? el.value : el.innerText;
