@@ -972,6 +972,10 @@
     if(currentUser.role === '教練' || currentUser.email === "alwayslucky2hand@gmail.com") {
       document.getElementById('coachPublishArea').style.display = 'block';
     }
+    
+    // 👇 新增這行：執行 AI 助教卡片的渲染函式
+    renderGemMatrix();
+    
     loadDashboard(); 
   }
 
