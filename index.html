@@ -343,7 +343,6 @@
           
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <!-- 👇 這裡更新為 $9000/人 -->
               <span class="text-white-50" style="font-size:12px;">基礎課程 ($9000/人) - 成功報名 +1 V.C. Point</span>
             </div>
             <div class="d-flex gap-2">
@@ -354,7 +353,6 @@
           
           <div>
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <!-- 👇 這裡更新為 $27000/堂 -->
               <span class="text-white-50" style="font-size:12px;">進階課程 ($27000/堂) - 成功報名 +1 V.C. Point</span>
             </div>
             <div class="d-flex gap-2">
@@ -363,6 +361,7 @@
             </div>
           </div>
         </div>
+      </div>
       
 
       <div class="card-panel">
@@ -1065,9 +1064,9 @@
       document.getElementById('advRefDisplay').innerText = p.advRef || 0;
       
       // 產生專屬 GitHub Pages 購買連結 (對齊 growthx-coach 儲存庫)
-      const userCode = (p.email || currentUser.email).split('@')[0];
-      document.getElementById('linkBasic').value = `https://alwayslucky2hand-ops.github.io/growthx-coach/buy.html?plan=basic&ref=${userCode}`;
-      document.getElementById('linkAdv').value = `https://alwayslucky2hand-ops.github.io/growthx-coach/buy.html?plan=advanced&ref=${userCode}`;
+      const userCode = (p.email || currentUser.email).split('@')[0];
+      document.getElementById('linkBasic').value = `https://alwayslucky2hand-ops.github.io/growthx-coach/buy.html?plan=basic&ref=${userCode}`;
+      document.getElementById('linkAdv').value = `https://alwayslucky2hand-ops.github.io/growthx-coach/buy.html?plan=advanced&ref=${userCode}`;
 
       const vcLogBody = document.getElementById('vcLogTableBody');
       if (data.vcLogs && data.vcLogs.length > 0) {
