@@ -164,7 +164,7 @@
     
     if (plan === 'basic') {
       document.getElementById('courseTitle').innerText = "基礎 - AI 智能客服班";
-      document.getElementById('courseSubtitle').innerText = "09:00 - 16:30 | 10 人小班制";
+      document.getElementById('courseSubtitle').innerHTML = "09:00 - 16:30 | 10 人小班制<br><del>原價 $12,000</del> <span class='text-danger fw-bold'>2027/01/31 前限時限定價</span>";
       unitPrice = 9000;
       maxQtyAllowed = 10;
     } else {
@@ -245,7 +245,7 @@
     if (plan === 'advanced') {
       document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$35,000</del>$${unitPrice.toLocaleString()}`;
     } else {
-      document.getElementById('displayUnitPrice').innerText = `$${unitPrice.toLocaleString()}`;
+      document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$12,000</del>$${unitPrice.toLocaleString()}`;
     }
     
     document.getElementById('displayTax').innerText = `$${tax.toLocaleString()}`;
