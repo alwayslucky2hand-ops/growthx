@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GROWTHX 課程報名系統</title>
+  <title>GROWTHX 報名系統</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -25,7 +25,7 @@
       <div class="mb-4">
         <img src="https://raw.githubusercontent.com/alwayslucky2hand-ops/growthx/main/202604_AI%E5%AD%B8%E9%99%A2growthx%E5%B2%B3logo.png" alt="GrowthX Logo" style="max-width: 200px; height: auto;">
       </div>
-      <h2 class="fw-bold" id="courseTitle" style="letter-spacing: -1px;">載入課程資訊中...</h2>
+      <h2 class="fw-bold" id="courseTitle" style="letter-spacing: -1px;">載入資訊中...</h2>
       <p class="text-muted" id="courseSubtitle">請填寫以下資訊完成報名與繳費</p>
     </div>
 
@@ -51,7 +51,7 @@
       <div class="row mb-3">
         <div class="col-md-6 mb-3 mb-md-0">
           <label class="form-label">聯繫人姓名 <span class="text-danger">*</span></label>
-          <input type="text" id="contactName" class="form-control" required>
+          <input type="text" id="contactName" class="form-control" required placeholder="主要聯繫與報名者">
         </div>
         <div class="col-md-6">
           <label class="form-label">專業別 / 職稱 <span class="text-danger">*</span></label>
@@ -97,13 +97,21 @@
       </div>
 
       <div class="mb-4">
-        <label class="form-label">報名人數 / 數量 <span class="text-danger">*</span></label>
-        <input type="number" id="quantity" class="form-control fw-bold" value="1" min="1" max="10" required onchange="calculateTotal()">
+        <label class="form-label" id="qtyLabel">報名人數 / 數量 <span class="text-danger">*</span></label>
+        <input type="number" id="quantity" class="form-control fw-bold" value="1" min="1" max="10" required onchange="calculateTotal(); updateAttendeeInputs();">
+      </div>
+
+      <!-- 動態學員輸入區塊 (僅進階班顯示) -->
+      <div class="mb-4 p-3 rounded" id="attendeeWrapper" style="display: none; background: #fff8e6; border: 1px dashed #f5c518;">
+        <label class="form-label text-dark">同行學員姓名 (含聯繫人本人) <span class="text-danger">*</span></label>
+        <div id="attendeeInputs">
+          <!-- JS 動態生成 -->
+        </div>
       </div>
 
       <div class="price-box mb-4">
         <div class="d-flex justify-content-between mb-2 text-secondary">
-          <span>課程單價 (未稅)</span>
+          <span>單價 (未稅)</span>
           <span id="displayUnitPrice">$0</span>
         </div>
         <div class="d-flex justify-content-between mb-2 text-secondary">
@@ -130,10 +138,7 @@
   
   const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx1IyvzO_Z47G8TnVzb5AoKRtui8AYjcj2Et07VpQQQcFl0K2U6Y-o-E-pwHJzxP6Pl/exec"; 
   
-  // 雙棲環境探針 (偵測是否在 Google Apps Script 環境內執行)
   const isGAS = typeof google !== 'undefined' && google.script;
-  
-  // 解析 URL 參數 (?plan=basic&ref=xxx)
   const urlParams = new URLSearchParams(window.location.search);
   const plan = urlParams.get('plan') || 'basic';
   const refCode = urlParams.get('ref') || '無';
@@ -141,7 +146,6 @@
   let unitPrice = 0;
   let maxQtyAllowed = 1;
 
-  // 時鐘顯示
   setInterval(() => {
     const now = new Date();
     const yyyy = now.getFullYear();
@@ -153,20 +157,23 @@
     document.getElementById('sysTime').value = `${yyyy}/${mm}/${dd} - ${hh}:${min}:${ss}`;
   }, 1000);
 
-  // 頁面初始化設定
   window.onload = async () => {
     document.getElementById('refCode').value = refCode;
     
     if (plan === 'basic') {
-      document.getElementById('courseTitle').innerText = "基礎課程 - AI 智能客服班";
+      document.getElementById('courseTitle').innerText = "基礎 - AI 智能客服班";
       document.getElementById('courseSubtitle').innerText = "09:00 - 16:30 | 10 人小班制";
-      unitPrice = 6000;
+      unitPrice = 9000;
       maxQtyAllowed = 10;
     } else {
-      document.getElementById('courseTitle').innerText = "進階課程 - 客製化系統班";
-      document.getElementById('courseSubtitle').innerText = "09:00 - 16:30 | 單一企業包班 (1~6人)";
-      unitPrice = 9000;
-      maxQtyAllowed = 6;
+      document.getElementById('courseTitle').innerText = "進階 - 客製化系統班";
+      document.getElementById('courseSubtitle').innerHTML = "<del>原價 $35,000</del> <span class='text-danger fw-bold'>2027/01/31 前限時限定價</span>";
+      unitPrice = 27000;
+      maxQtyAllowed = 3;
+      
+      document.getElementById('qtyLabel').innerHTML = '上課人數 (1~3人) <span class="text-danger">*</span>';
+      document.getElementById('attendeeWrapper').style.display = 'block';
+      updateAttendeeInputs();
     }
     
     document.getElementById('quantity').setAttribute('max', maxQtyAllowed);
@@ -174,7 +181,6 @@
     await fetchAvailableDates();
   };
 
-  // 監聽發票選項
   document.querySelectorAll('input[name="invoiceOption"]').forEach(el => {
     el.addEventListener('change', function() {
       const taxInput = document.getElementById('taxIdWrapper');
@@ -191,16 +197,40 @@
     });
   });
 
-  // 數量檢查與計算金額
+  // 動態更新同行學員輸入框
+  function updateAttendeeInputs() {
+    if(plan !== 'advanced') return;
+    const container = document.getElementById('attendeeInputs');
+    let qty = parseInt(document.getElementById('quantity').value) || 1;
+    const currentInputs = container.querySelectorAll('.attendee-name');
+    
+    if (qty > currentInputs.length) {
+        for(let i = currentInputs.length + 1; i <= qty; i++) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control mb-2 attendee-name';
+            input.placeholder = `請輸入第 ${i} 位學員姓名`;
+            input.required = true;
+            container.appendChild(input);
+        }
+    } else if (qty < currentInputs.length) {
+        for(let i = currentInputs.length; i > qty; i--) {
+            container.removeChild(container.lastChild);
+        }
+    }
+  }
+
   function calculateTotal() {
     let qty = parseInt(document.getElementById('quantity').value) || 1;
     if (qty > maxQtyAllowed) {
        qty = maxQtyAllowed; 
        document.getElementById('quantity').value = qty;
-       alert(`本班型最多允許 ${maxQtyAllowed} 人報名`);
+       alert(plan === 'advanced' ? `本班型最多允許 ${maxQtyAllowed} 人同堂上課` : `本班型最多允許 ${maxQtyAllowed} 人報名`);
     }
 
-    const subtotal = unitPrice * qty;
+    // 進階採包班計費，人數不影響總價
+    const subtotal = plan === 'advanced' ? unitPrice : (unitPrice * qty);
+    
     let tax = 0;
     if (document.getElementById('invYes').checked) {
       tax = Math.round(subtotal * 0.05);
@@ -208,21 +238,19 @@
     
     const total = subtotal + tax;
 
-    document.getElementById('displayUnitPrice').innerText = `$${unitPrice.toLocaleString()}`;
+    if (plan === 'advanced') {
+      document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$35,000</del>$${unitPrice.toLocaleString()}`;
+    } else {
+      document.getElementById('displayUnitPrice').innerText = `$${unitPrice.toLocaleString()}`;
+    }
+    
     document.getElementById('displayTax').innerText = `$${tax.toLocaleString()}`;
     document.getElementById('displayTotal').innerText = `$${total.toLocaleString()}`;
   }
 
-  // 透過 API 獲取可用日期 (相容 Fetch 與 isGAS 雙棲架構)
   async function fetchAvailableDates() {
     const select = document.getElementById('courseDate');
     try {
-      let dates = [];
-      
-      if (isGAS) {
-         // 在 GAS 環境，留作未來直接透過 google.script.run 溝通的擴充空間
-      }
-
       const response = await fetch(GAS_WEBAPP_URL, {
         method: 'POST',
         body: JSON.stringify({ action: "getAvailableCourseDates", plan: plan })
@@ -230,7 +258,7 @@
       const res = await response.json();
       
       if (res.status === 'success') {
-        dates = res.data;
+        let dates = res.data;
         select.innerHTML = '<option value="">請選擇報名日期...</option>';
         
         if (dates.length === 0) {
@@ -251,18 +279,25 @@
     }
   }
 
-  // 送出表單到後端
   async function submitOrder(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true;
     btn.innerHTML = '建立訂單中...';
 
-    // 取得前端算好的總金額
     let qty = parseInt(document.getElementById('quantity').value) || 1;
-    let subtotal = unitPrice * qty;
+    let subtotal = plan === 'advanced' ? unitPrice : (unitPrice * qty);
     let tax = document.getElementById('invYes').checked ? Math.round(subtotal * 0.05) : 0;
     let total = subtotal + tax;
+
+    // 收集進階班的同行學員名單
+    let attendees = [];
+    if (plan === 'advanced') {
+       const inputs = document.querySelectorAll('.attendee-name');
+       inputs.forEach(input => {
+         if(input.value.trim() !== '') attendees.push(input.value.trim());
+       });
+    }
 
     const payload = {
       action: "createCourseOrder",
@@ -276,7 +311,8 @@
       needsInvoice: document.getElementById('invYes').checked,
       taxId: document.getElementById('taxId').value,
       selectedDate: document.getElementById('courseDate').value,
-      quantity: document.getElementById('quantity').value,
+      quantity: qty,
+      attendees: attendees,
       totalAmount: total
     };
 
