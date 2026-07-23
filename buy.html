@@ -169,8 +169,10 @@
       maxQtyAllowed = 10;
     } else {
       document.getElementById('courseTitle').innerText = "進階 - 客製化系統班";
-      document.getElementById('courseSubtitle').innerHTML = "<del>原價 $35,000</del> <span class='text-danger fw-bold'>2027/01/31 前限時限定價</span>";
-      unitPrice = 27000;
+      // 👉 這裡將原價 $35,000 改為 $36,000
+      document.getElementById('courseSubtitle').innerHTML = "<del>原價 $36,000</del> <span class='text-danger fw-bold'>2027/01/31 前限時限定價</span>";
+      // 👉 這裡將變數 unitPrice 從 27000 改為 28000
+      unitPrice = 28000;
       maxQtyAllowed = 3;
       
       document.getElementById('qtyLabel').innerHTML = '上課人數 (1~3人) <span class="text-danger">*</span>';
@@ -232,7 +234,6 @@
        alert(plan === 'advanced' ? `本班型最多允許 ${maxQtyAllowed} 人同堂上課` : `本班型最多允許 ${maxQtyAllowed} 人報名`);
     }
 
-    // 進階採包班計費，人數不影響總價；基礎班依人數相乘
     const subtotal = plan === 'advanced' ? unitPrice : (unitPrice * qty);
     
     let tax = 0;
@@ -243,7 +244,8 @@
     const total = subtotal + tax;
 
     if (plan === 'advanced') {
-      document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$35,000</del>$${unitPrice.toLocaleString()}`;
+      // 👉 這裡將明細中的原價 $35,000 改為 $36,000
+      document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$36,000</del>$${unitPrice.toLocaleString()}`;
     } else {
       document.getElementById('displayUnitPrice').innerHTML = `<del class="text-muted me-2" style="font-size: 13px;">$12,000</del>$${unitPrice.toLocaleString()}`;
     }
